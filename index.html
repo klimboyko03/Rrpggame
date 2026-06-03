@@ -63,56 +63,56 @@
             cursor: pointer;
             min-height: 300px;
         }
-.enemy-container {
-    text-align: center;
-    transition: transform 0.1s;
-}
-.enemy-container.hit {
-    transform: scale(0.9);
-}
-.enemy-sprite {
-    font-size: 100px;
-    filter: drop-shadow(0 0 30px rgba(255,0,0,0.6));
-}
-.enemy-name {
-    font-size: 18px;
-    color: #ccc;
-    margin-top: 5px;
-}
-.hp-bar-outer {
-    width: 220px;
-    height: 20px;
-    background: #333;
-    border-radius: 10px;
-    margin: 10px auto;
-    overflow: hidden;
-}
-.hp-bar-inner {
-    height: 100%;
-    background: linear-gradient(90deg, #ff4444, #ff6666);
-    border-radius: 10px;
-    transition: width 0.2s;
-}
-.hp-text {
-    font-size: 13px;
-    color: #aaa;
-}
-.damage-popup {
-    position: absolute;
-    font-size: 30px;
-    font-weight: bold;
-    color: #ff4444;
-    pointer-events: none;
-    animation: popUp 0.8s ease-out forwards;
-}
-.gold-popup {
-    position: absolute;
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffd700;
-    pointer-events: none;
-    animation: popUp 1s ease-out forwards;
-}
+        .enemy-container {
+            text-align: center;
+            transition: transform 0.1s;
+        }
+        .enemy-container.hit {
+            transform: scale(0.9);
+        }
+        .enemy-sprite {
+            font-size: 100px;
+            filter: drop-shadow(0 0 30px rgba(255,0,0,0.6));
+        }
+        .enemy-name {
+            font-size: 18px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        .hp-bar-outer {
+            width: 220px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            border-radius: 10px;
+            transition: width 0.2s;
+        }
+        .hp-text {
+            font-size: 13px;
+            color: #aaa;
+        }
+        .damage-popup {
+            position: absolute;
+            font-size: 30px;
+            font-weight: bold;
+            color: #ff4444;
+            pointer-events: none;
+            animation: popUp 0.8s ease-out forwards;
+        }
+        .gold-popup {
+            position: absolute;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffd700;
+            pointer-events: none;
+            animation: popUp 1s ease-out forwards;
+        }
         @keyframes popUp {
             0% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-70px); }
@@ -206,7 +206,7 @@
             currentEnemy.hp -= clickDamage;
             
             enemyContainer.classList.add('hit');
-            setTimeout(() => enemyContainer.classList.remove('hit'), 100);
+            setTimeout(function() { enemyContainer.classList.remove('hit'); }, 100);
             
             const rect = battleArea.getBoundingClientRect();
             const popup = document.createElement('div');
@@ -215,7 +215,7 @@
             popup.style.left = (e.clientX - rect.left) + 'px';
             popup.style.top = (e.clientY - rect.top) + 'px';
             battleArea.appendChild(popup);
-            setTimeout(() => popup.remove(), 800);
+            setTimeout(function() { popup.remove(); }, 800);
             
             let percent = Math.max(0, (currentEnemy.hp / currentEnemy.maxHp) * 100);
             hpBar.style.width = percent + '%';
@@ -232,7 +232,7 @@
                 gp.style.top = '50%';
                 gp.style.transform = 'translate(-50%, -50%)';
                 battleArea.appendChild(gp);
-                setTimeout(() => gp.remove(), 1000);
+                setTimeout(function() { gp.remove(); }, 1000);
                 
                 level++;
                 levelDisplay.textContent = level;
