@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Dungeon Tap RPG</title>
     <style>
         * {
@@ -10,10 +10,9 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             background: #0a0a0f;
-            color: white;
+            color: #fff;
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -25,7 +24,6 @@
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        
         .game-container {
             width: 100%;
             max-width: 420px;
@@ -34,7 +32,6 @@
             flex-direction: column;
             padding: 10px;
         }
-        
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -44,22 +41,15 @@
             border-radius: 12px;
             margin-bottom: 10px;
         }
-        
         .gold-display {
             font-size: 18px;
             font-weight: bold;
             color: #ffd700;
         }
-        
-        .gold-icon {
-            font-size: 20px;
-        }
-        
         .level-display {
             font-size: 14px;
             color: #aaa;
         }
-        
         .battle-area {
             flex: 1;
             background: #12121f;
@@ -73,79 +63,187 @@
             cursor: pointer;
             min-height: 300px;
         }
-        
-        .enemy-container {
-            text-align: center;
-            position: relative;
-            transition: transform 0.1s;
-        }
-        
-        .enemy-container.hit {
-            transform: scale(0.9);
-        }
-        
-        .enemy-sprite {
-            font-size: 80px;
-            filter: drop-shadow(0 0 20px rgba(255,0,0,0.5));
-        }
-        
-        .enemy-name {
-            font-size: 16px;
-            color: #ccc;
-            margin-top: 5px;
-        }
-        
-        .hp-bar-outer {
-            width: 200px;
-            height: 16px;
-            background: #333;
-            border-radius: 10px;
-            margin: 10px auto;
-            overflow: hidden;
-        }
-        
-        .hp-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ff6666);
-            border-radius: 10px;
-            transition: width 0.2s;
-        }
-        
-        .hp-text {
-            font-size: 12px;
-            color: #aaa;
-        }
-        
-        .damage-popup {
-            position: absolute;
-            font-size: 28px;
-            font-weight: bold;
-            color: #ff4444;
-            pointer-events: none;
-            animation: popUp 0.8s ease-out forwards;
-        }
-        
-        .gold-popup {
-            position: absolute;
-            font-size: 20px;
-            font-weight: bold;
-            color: #ffd700;
-            pointer-events: none;
-            animation: popUp 1s ease-out forwards;
-        }
-        
+.enemy-container {
+    text-align: center;
+    transition: transform 0.1s;
+}
+.enemy-container.hit {
+    transform: scale(0.9);
+}
+.enemy-sprite {
+    font-size: 100px;
+    filter: drop-shadow(0 0 30px rgba(255,0,0,0.6));
+}
+.enemy-name {
+    font-size: 18px;
+    color: #ccc;
+    margin-top: 5px;
+}
+.hp-bar-outer {
+    width: 220px;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    margin: 10px auto;
+    overflow: hidden;
+}
+.hp-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4444, #ff6666);
+    border-radius: 10px;
+    transition: width 0.2s;
+}
+.hp-text {
+    font-size: 13px;
+    color: #aaa;
+}
+.damage-popup {
+    position: absolute;
+    font-size: 30px;
+    font-weight: bold;
+    color: #ff4444;
+    pointer-events: none;
+    animation: popUp 0.8s ease-out forwards;
+}
+.gold-popup {
+    position: absolute;
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffd700;
+    pointer-events: none;
+    animation: popUp 1s ease-out forwards;
+}
         @keyframes popUp {
             0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-60px); }
+            100% { opacity: 0; transform: translateY(-70px); }
         }
-        
         .bottom-bar {
             display: flex;
             gap: 10px;
             padding: 10px 0;
         }
-        
         .btn {
             flex: 1;
-            padding: 14px;
+            padding: 16px;
             border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-inventory {
+            background: #2a2a4a;
+        }
+        .btn-upgrade {
+            background: #4a2a2a;
+        }
+        .tap-hint {
+            position: absolute;
+            bottom: 20px;
+            color: #666;
+            font-size: 14px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="top-bar">
+            <span class="gold-display">💰 <span id="gold">0</span></span>
+            <span class="level-display">Уровень <span id="level">1</span></span>
+        </div>
+        <div class="battle-area" id="battleArea">
+            <div class="enemy-container" id="enemyContainer">
+                <div class="enemy-sprite" id="enemySprite">👹</div>
+                <div class="enemy-name" id="enemyName">Гоблин</div>
+                <div class="hp-bar-outer">
+                    <div class="hp-bar-inner" id="hpBar" style="width:100%"></div>
+                </div>
+                <div class="hp-text">
+                    <span id="hpCurrent">50</span> / <span id="hpMax">50</span> HP
+                </div>
+            </div>
+            <div class="tap-hint">👆 ТАПАЙ ПО ВРАГУ!</div>
+        </div>
+        <div class="bottom-bar">
+            <button class="btn btn-inventory" onclick="alert('🎒 Инвентарь появится на следующем шаге!')">🎒 Инвентарь</button>
+            <button class="btn btn-upgrade" onclick="alert('⬆ Прокачка появится на следующем шаге!')">⬆ Прокачка</button>
+        </div>
+    </div>
+    <script>
+        let gold = 0;
+        let level = 1;
+        let clickDamage = 5;
+        
+        let currentEnemy = {
+            name: 'Гоблин',
+            emoji: '👹',
+            hp: 50,
+            maxHp: 50,
+            goldReward: 10
+        };
+        
+        const battleArea = document.getElementById('battleArea');
+        const enemyContainer = document.getElementById('enemyContainer');
+        const hpBar = document.getElementById('hpBar');
+        const hpCurrent = document.getElementById('hpCurrent');
+        const hpMax = document.getElementById('hpMax');
+        const goldDisplay = document.getElementById('gold');
+        const levelDisplay = document.getElementById('level');
+        
+        battleArea.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            
+            currentEnemy.hp -= clickDamage;
+            
+            enemyContainer.classList.add('hit');
+            setTimeout(() => enemyContainer.classList.remove('hit'), 100);
+            
+            const rect = battleArea.getBoundingClientRect();
+            const popup = document.createElement('div');
+            popup.className = 'damage-popup';
+            popup.textContent = '-' + clickDamage;
+            popup.style.left = (e.clientX - rect.left) + 'px';
+            popup.style.top = (e.clientY - rect.top) + 'px';
+            battleArea.appendChild(popup);
+            setTimeout(() => popup.remove(), 800);
+            
+            let percent = Math.max(0, (currentEnemy.hp / currentEnemy.maxHp) * 100);
+            hpBar.style.width = percent + '%';
+            hpCurrent.textContent = Math.max(0, currentEnemy.hp);
+            
+            if (currentEnemy.hp <= 0) {
+                gold += currentEnemy.goldReward;
+                goldDisplay.textContent = gold;
+                
+                const gp = document.createElement('div');
+                gp.className = 'gold-popup';
+                gp.textContent = '+' + currentEnemy.goldReward + ' 💰';
+                gp.style.left = '50%';
+                gp.style.top = '50%';
+                gp.style.transform = 'translate(-50%, -50%)';
+                battleArea.appendChild(gp);
+                setTimeout(() => gp.remove(), 1000);
+                
+                level++;
+                levelDisplay.textContent = level;
+                currentEnemy.maxHp = Math.floor(50 * Math.pow(1.15, level - 1));
+                currentEnemy.hp = currentEnemy.maxHp;
+                currentEnemy.goldReward = Math.floor(10 * Math.pow(1.1, level - 1));
+                hpMax.textContent = currentEnemy.maxHp;
+                hpBar.style.width = '100%';
+                hpCurrent.textContent = currentEnemy.hp;
+            }
+        });
+    </script>
+</body>
+</html>
