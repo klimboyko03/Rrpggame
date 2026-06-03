@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Tap RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #1a1a2e;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .gold-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .gold-icon {
+            font-size: 20px;
+        }
+        
+        .level-display {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .battle-area {
+            flex: 1;
+            background: #12121f;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 10px;
+            cursor: pointer;
+            min-height: 300px;
+        }
+        
+        .enemy-container {
+            text-align: center;
+            position: relative;
+            transition: transform 0.1s;
+        }
+        
+        .enemy-container.hit {
+            transform: scale(0.9);
+        }
+        
+        .enemy-sprite {
+            font-size: 80px;
+            filter: drop-shadow(0 0 20px rgba(255,0,0,0.5));
+        }
+        
+        .enemy-name {
+            font-size: 16px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        
+        .hp-bar-outer {
+            width: 200px;
+            height: 16px;
+            background: #333;
+            border-radius: 10px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            border-radius: 10px;
+            transition: width 0.2s;
+        }
+        
+        .hp-text {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .damage-popup {
+            position: absolute;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff4444;
+            pointer-events: none;
+            animation: popUp 0.8s ease-out forwards;
+        }
+        
+        .gold-popup {
+            position: absolute;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+            pointer-events: none;
+            animation: popUp 1s ease-out forwards;
+        }
+        
+        @keyframes popUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+        
+        .bottom-bar {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
