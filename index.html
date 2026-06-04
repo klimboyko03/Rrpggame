@@ -1,40 +1,2777 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dungeon Tap RPG</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Legendary RPG Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
 
-<style>
-body{
-    margin:0;
-    background:#0e0e1a;
-    font-family:Arial, sans-serif;
-    color:white;
-    overflow:hidden;
-}
-#game{
-    max-width:420px;
-    margin:0 auto;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    position:relative;
-}
+        :root {
+            --primary: #00ffff;
+            --secondary: #ff00ff;
+            --accent: #ffff00;
+            --bg-dark: #0a0a1a;
+            --bg-darker: #050510;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-/* Top bar */
-.top{
-    display:flex;
-    justify-content:space-around;
-    padding:8px;
-    background:#141428;
-    font-size:14px;
-}
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--bg-darker);
+            color: #fff;
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+        }
 
-/* Battle area */
-.battle-area{
-    flex:1;
+        /* ===== CANVAS FOR PARTICLES ===== */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        #gameContainer {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===== SCREENS ===== */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ===== GLASSMORPHISM PANELS ===== */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel-neon {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.05);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4444, #ff0044);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 68, 0.4);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        /* ===== HEADER ===== */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 10;
+        }
+
+        .stat-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--glass);
+            border-radius: 8px;
+            min-width: 80px;
+        }
+
+        .stat-label {
+            font-size: 8px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* ===== ENEMY AREA ===== */
+        #enemyArea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        #enemyDisplay {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        #enemySprite {
+            font-size: 100px;
+            display: block;
+            transition: transform 0.1s;
+        }
+
+        #enemySprite.hit {
+            animation: hitShake 0.2s ease;
+        }
+
+        .enemy-name {
+            font-size: 10px;
+            color: #fff;
+            margin-top: 8px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .enemy-hp-bar {
+            width: 160px;
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 1px solid #555;
+        }
+
+        #enemyHpFill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff0000);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .damage-number {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 900;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        .damage-number.crit {
+            color: #ffff00;
+            text-shadow: 0 0 20px #ffff00;
+        }
+
+        .damage-number.super-crit {
+            color: #ff00ff;
+            font-size: 32px;
+            text-shadow: 0 0 30px #ff00ff;
+        }
+
+        .damage-number.mega-crit {
+            color: #00ffff;
+            font-size: 40px;
+            text-shadow: 0 0 40px #00ffff;
+        }
+
+        /* ===== BATTLE CONTROLS ===== */
+        #battleControls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .battle-btn {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .battle-btn.damage {
+            background: linear-gradient(180deg, #ff6600, #cc3300);
+            color: #fff;
+            box-shadow: 0 4px 0 #990000, 0 0 20px rgba(255, 102, 0, 0.3);
+        }
+
+        .battle-btn.damage:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #990000, 0 0 20px rgba(255, 102, 0, 0.3);
+        }
+
+        /* ===== COMBO DISPLAY ===== */
+        #comboDisplay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        /* ===== RAID MODE OVERLAY ===== */
+        #rageOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 2;
+        }
+
+        #rageOverlay.active {
+            opacity: 1;
+            animation: ragePulse 0.5s ease infinite;
+        }
+
+        /* ===== BOSS SHAKE ===== */
+        #bossShakeOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* ===== NAVIGATION TABS ===== */
+        #navTabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .nav-tab {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            background: rgba(0, 255, 255, 0.2);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        /* ===== SHOP/UPGRADE CARDS ===== */
+        .upgrade-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--glass);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upgrade-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .upgrade-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-icon {
+            font-size: 28px;
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-name {
+            font-size: 10px;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .upgrade-desc {
+            font-size: 8px;
+            color: #888;
+        }
+
+        .upgrade-cost {
+            font-size: 10px;
+            color: var(--accent);
+            text-align: right;
+        }
+
+        .upgrade-level {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* ===== INVENTORY GRID ===== */
+        #inventoryGrid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .item-slot {
+            aspect-ratio: 1;
+            background: var(--glass);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-slot:hover {
+            transform: scale(1.05);
+        }
+
+        .item-slot.rarity-common { border-color: #aaaaaa; }
+        .item-slot.rarity-rare { border-color: #0088ff; box-shadow: 0 0 10px rgba(0, 136, 255, 0.3); }
+        .item-slot.rarity-epic { border-color: #aa00ff; box-shadow: 0 0 15px rgba(170, 0, 255, 0.3); }
+        .item-slot.rarity-legendary { border-color: #ffaa00; box-shadow: 0 0 20px rgba(255, 170, 0, 0.3); }
+        .item-slot.rarity-mythic { border-color: #ff0088; box-shadow: 0 0 25px rgba(255, 0, 136, 0.4); animation: mythicGlow 1s ease infinite; }
+        .item-slot.rarity-shiny {
+            border-color: linear-gradient(90deg, #ff0088, #ffaa00, #00ff88, #0088ff, #ff0088);
+            background: linear-gradient(90deg, rgba(255,0,136,0.1), rgba(255,170,0,0.1), rgba(0,255,136,0.1), rgba(0,136,255,0.1));
+            animation: shinyWave 2s ease infinite;
+        }
+
+        .item-emoji {
+            font-size: 32px;
+        }
+
+        .item-name {
+            font-size: 8px;
+            margin-top: 4px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .item-power {
+            font-size: 7px;
+            color: var(--primary);
+        }
+
+        /* ===== DUNGEON MAP ===== */
+        #dungeonMap {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            padding: 10px;
+        }
+
+        .dungeon-room {
+            aspect-ratio: 1;
+            background: var(--glass);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .dungeon-room.visited {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .dungeon-room.current {
+            background: rgba(255, 255, 0, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            animation: roomPulse 1s ease infinite;
+        }
+
+        .dungeon-room.boss-room {
+            background: rgba(255, 0, 0, 0.3);
+        }
+
+        .dungeon-room.locked {
+            background: var(--glass);
+            cursor: not-allowed;
+        }
+
+        /* ===== TALENT TREE ===== */
+        .talent-branch {
+            margin-bottom: 16px;
+        }
+
+        .talent-branch-title {
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .talent-node {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--glass);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .talent-node.unlocked {
+            border-color: var(--primary);
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .talent-node.maxed {
+            border-color: var(--accent);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .talent-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .talent-info {
+            flex: 1;
+        }
+
+        .talent-name {
+            font-size: 9px;
+            color: #fff;
+        }
+
+        .talent-desc {
+            font-size: 7px;
+            color: #888;
+        }
+
+        /* ===== CHARACTER PANEL ===== */
+        #characterPanel {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .char-stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .char-stat-label {
+            font-size: 8px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .char-stat-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .char-stat-value.damage { color: #ff6600; }
+        .char-stat-value.crit { color: #ffff00; }
+        .char-stat-value.dps { color: #00ff88; }
+        .char-stat-value.gold { color: #ffd700; }
+
+        /* ===== BATTLE JOURNAL ===== */
+        #battleJournal {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            width: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 5;
+        }
+
+        .journal-entry {
+            font-size: 8px;
+            padding: 4px 6px;
+            background: var(--glass);
+            border-radius: 4px;
+            text-align: center;
+            animation: journalPop 0.3s ease;
+        }
+
+        /* ===== DAILY QUESTS ===== */
+        .quest-card {
+            padding: 12px;
+            background: var(--glass);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .quest-title {
+            font-size: 10px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .quest-progress {
+            font-size: 9px;
+            color: var(--primary);
+        }
+
+        .quest-reward {
+            font-size: 10px;
+            color: var(--accent);
+            margin-top: 4px;
+        }
+
+        /* ===== PRESTIGE PANEL ===== */
+        #prestigeLevel {
+            font-size: 48px;
+            text-align: center;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent);
+        }
+
+        #prestigeCount {
+            font-size: 14px;
+            text-align: center;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        /* ===== LOTTERY WHEEL ===== */
+        #lotteryContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #lotteryWheel {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+            transition: transform 2s ease-out;
+        }
+
+        .wheel-pointer {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .wheel-result {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* ===== VENDOR PANEL ===== */
+        .vendor-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--glass);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        /* ===== EARNING SCREEN ===== */
+        #paydayOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        #paydayOverlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #paydayAmount {
+            font-size: 48px;
+            color: var(--accent);
+            text-shadow: 0 0 40px var(--accent);
+            animation: payoffPulse 0.5s ease infinite;
+        }
+
+        /* ===== SCREEN SHAKE ===== */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            50% { transform: translateX(5px) rotate(1deg); }
+            75% { transform: translateX(-5px) rotate(-1deg); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes hitShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+
+        @keyframes ragePulse {
+            0%, 100% { background: rgba(255, 0, 0, 0.2); }
+            50% { background: rgba(255, 0, 0, 0.4); }
+        }
+
+        @keyframes mythicGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 0, 136, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 136, 0.8), 0 0 50px rgba(255, 0, 136, 0.4); }
+        }
+
+        @keyframes shinyWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+            background-size: 200% 100%;
+            animation: shinyWave 2s linear infinite;
+        }
+
+        @keyframes roomPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes journalPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes payoffPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ===== ENEMY ANIMATIONS ===== */
+        .enemy-dance { animation: dance 0.5s ease infinite; }
+        .enemy-spike { animation: spike 0.3s ease infinite; }
+        .enemy-float { animation: float 2s ease infinite; }
+        .enemy-shake { animation: enemyShake 0.3s ease infinite; }
+        .enemy-rotate { animation: enemyRotate 2s linear infinite; }
+        .enemy-expand { animation: expand 1s ease infinite; }
+
+        @keyframes dance {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes spike {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes enemyShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes enemyRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes expand {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-height: 600px) {
+            #enemyDisplay {
+                width: 140px;
+                height: 140px;
+            }
+            #enemySprite {
+                font-size: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+    
+    <div id="gameContainer">
+        <!-- PAYDAY SCREEN -->
+        <div id="paydayOverlay">
+            <div style="font-size: 18px; color: #888; margin-bottom: 20px;">GOLDEN TIME</div>
+            <div id="paydayAmount">+0</div>
+            <div style="font-size: 14px; color: #666; margin-top: 10px;">Tap to collect</div>
+        </div>
+
+        <!-- BATTLE JOURNAL -->
+        <div id="battleJournal"></div>
+
+        <!-- RAGE OVERLAY -->
+        <div id="rageOverlay"></div>
+
+        <!-- BOSS SHAKE OVERLAY -->
+        <div id="bossShakeOverlay"></div>
+
+        <!-- START SCREEN -->
+        <div id="startScreen" class="screen active">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center;">
+                <div style="font-size: 48px; margin-bottom: 20px;">⚔️</div>
+                <h1 style="font-size: 24px; color: var(--primary); text-shadow: 0 0 20px var(--primary); margin-bottom: 10px;">LEGENDARY RPG CLICKER</h1>
+                <p style="font-size: 10px; color: #888; max-width: 300px; line-height: 1.6;">
+                    Tap enemies to defeat them. Collect gold, upgrade your gear, defeat bosses, and become the ultimate warrior!
+                </p>
+                <button class="btn btn-primary" onclick="game.startGame()" style="margin-top:30px; font-size:14px; padding:15px 40px;">
+                    START GAME
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN GAME SCREEN -->
+        <div id="gameScreen" class="screen">
+            <!-- Header Stats -->
+            <div id="header">
+                <div class="stat-display">
+                    <span class="stat-label">HP</span>
+                    <span class="stat-value" id="charHP">100</span>
+                </div>
+                <div class="stat-display">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="charLevel">1</span>
+                </div>
+                <div class="stat-display">
+                    <span class="stat-label">Gold</span>
+                    <span class="stat-value" id="charGold" style="color:var(--accent)">0</span>
+                </div>
+            </div>
+
+            <!-- Enemy Area -->
+            <div id="enemyArea">
+                <div id="enemyDisplay">
+                    <span id="enemySprite">👹</span>
+                </div>
+                <div class="enemy-name" id="enemyName">Rat</div>
+                <div class="enemy-hp-bar">
+                    <div id="enemyHpFill" style="width:100%"></div>
+                </div>
+                <div id="comboDisplay"></div>
+            </div>
+
+            <!-- Battle Controls -->
+            <div id="battleControls">
+                <button class="battle-btn damage" id="attackBtn">⚔️ ATTACK</button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div id="navTabs">
+                <button class="nav-tab active" data-screen="shop">UPG</button>
+                <button class="nav-tab" data-screen="inventory">INV</button>
+                <button class="nav-tab" data-screen="talents">TAL</button>
+                <button class="nav-tab" data-screen="dungeon">DUN</button>
+                <button class="nav-tab" data-screen="quests">QUEST</button>
+            </div>
+
+            <!-- Shop Screen -->
+            <div id="shopScreen" class="screen" style="flex-direction:column; padding-bottom:100px;">
+                <div style="padding: 10px; font-size: 14px; color: var(--primary);">⚔️ UPCALLS</div>
+                
+                <div id="upgDamage" class="upgrade-card">
+                    <span class="upgrade-icon">⚔️</span>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">DAMAGE</div>
+                        <div class="upgrade-desc">+2 per level</div>
+                    </div>
+                    <div class="upgrade-level" id="levelDamage">Lv.0</div>
+                    <div class="upgrade-cost" id="costDamage">50g</div>
+                </div>
+
+                <div id="upgAuto" class="upgrade-card">
+                    <span class="upgrade-icon">🤖</span>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">AUTO ATTACK</div>
+                        <div class="upgrade-desc">+1 DPS</div>
+                    </div>
+                    <div class="upgrade-level" id="levelAuto">Lv.0</div>
+                    <div class="upgrade-cost" id="costAuto">100g</div>
+                </div>
+
+                <div id="upgCrit" class="upgrade-card">
+                    <span class="upgrade-icon">💥</span>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">CRIT CHANCE</div>
+                        <div class="upgrade-desc">+0.2% per level</div>
+                    </div>
+                    <div class="upgrade-level" id="levelCrit">Lv.0</div>
+                    <div class="upgrade-cost" id="costCrit">150g</div>
+                </div>
+
+                <div id="upgGold" class="upgrade-card">
+                    <span class="upgrade-icon">💰</span>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">GOLD BONUS</div>
+                        <div class="upgrade-desc">+20% gold per kill</div>
+                    </div>
+                    <div class="upgrade-level" id="levelGold">Lv.0</div>
+                    <div class="upgrade-cost" id="costGold">200g</div>
+                </div>
+            </div>
+
+            <!-- Inventory Screen -->
+            <div id="inventoryScreen" class="screen" style="flex-direction:column; padding-bottom:100px;">
+                <div style="padding: 10px; font-size: 14px; color: var(--primary);">🎒 EQUIPMENT</div>
+                <div id="inventoryGrid">
+                    <div class="item-slot" data-slot="weapon">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                    <div class="item-slot" data-slot="helmet">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                    <div class="item-slot" data-slot="armor">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                    <div class="item-slot" data-slot="gloves">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                    <div class="item-slot" data-slot="boots">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                    <div class="item-slot" data-slot="ring">
+                        <span class="item-emoji">🥺</span>
+                        <span class="item-name">Empty</span>
+                    </div>
+                </div>
+                
+                <div style="padding: 10px; font-size: 14px; color: var(--primary); margin-top:10px;">📦 INVENTORY</div>
+                <div id="inventoryList" style="flex:1; overflow-y:auto; padding: 5px;"></div>
+            </div>
+
+            <!-- Talents Screen -->
+            <div id="talentsScreen" class="screen" style="flex-direction:column; padding-bottom:100px;">
+                <div style="padding: 10px; font-size: 14px; color: var(--primary);">🌳 TALENT TREE</div>
+                <div style="padding: 10px;">
+                    <div style="font-size:10px; color:#888;">Points: <span id="talentPoints">0</span></div>
+                </div>
+                <div id="talentTree"></div>
+            </div>
+
+            <!-- Dungeon Screen -->
+            <div id="dungeonScreen" class="screen" style="flex-direction:column; padding-bottom:100px;">
+                <div style="padding: 10px; font-size: 14px; color: var(--primary);">🗺️ DUNGEON</div>
+                <div id="dungeonMap"></div>
+            </div>
+
+            <!-- Quests Screen -->
+            <div id="questsScreen" class="screen" style="flex-direction:column; padding-bottom:100px;">
+                <div style="padding: 10px; font-size: 14px; color: var(--primary);">📜 DAILY QUESTS</div>
+                <div id="questsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PARTICLE SYSTEM =====
+        class ParticleSystem {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.maxParticles = 50;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            // Create gold particle
+            createGold(x, y, amount) {
+                if (this.particles.length >= this.maxParticles) return;
+                this.particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: -Math.random() * 3 - 1,
+                    life: 1,
+                    decay: 0.02 + Math.random() * 0.02,
+                    size: 3 + Math.random() * 4,
+                    color: `hsl(${45 + Math.random() * 10}, 100%, 60%)`,
+                    type: 'gold'
+                });
+            }
+
+            // Create damage particle
+            createDamage(x, y, isCrit) {
+                if (this.particles.length >= this.maxParticles) return;
+                const color = isCrit ? '#ffff00' : '#ff4444';
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x, y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        life: 1,
+                        decay: 0.05,
+                        size: 2 + Math.random() * 3,
+                        color: color,
+                        type: 'spark'
+                    });
+                }
+            }
+
+            // Create level up ring
+            createLevelUp(x, y) {
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    this.particles.push({
+                        x, y,
+                        vx: Math.cos(angle) * 3,
+                        vy: Math.sin(angle) * 3,
+                        life: 1,
+                        decay: 0.02,
+                        size: 4,
+                        color: '#00ffff',
+                        type: 'ring'
+                    });
+                }
+            }
+
+            // Create combo particle
+            createCombo(x, y, text) {
+                this.particles.push({
+                    x, y,
+                    vx: 0,
+                    vy: -1,
+                    life: 1,
+                    decay: 0.015,
+                    size: 20,
+                    text: text,
+                    type: 'text'
+                });
+            }
+
+            update() {
+                this.particles = this.particles.filter(p => p.life > 0);
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1; // gravity
+                    p.life -= p.decay;
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles.forEach(p => {
+                    const alpha = p.life;
+                    this.ctx.globalAlpha = alpha;
+                    
+                    if (p.type === 'text') {
+                        this.ctx.font = 'bold 16px Orbitron';
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.fillText(p.text, p.x, p.y);
+                    } else {
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.fill();
+                        
+                        if (p.life > 0.5) {
+                            this.ctx.shadowColor = p.color;
+                            this.ctx.shadowBlur = 10;
+                            this.ctx.fill();
+                            this.ctx.shadowBlur = 0;
+                        }
+                    }
+                    this.ctx.globalAlpha = 1;
+                });
+            }
+        }
+
+        // ===== GAME DATA =====
+        const ENEMY_DATA = [
+            { name: 'Rat', emoji: '🐀', hp: 10, damage: 1, xp: 5, gold: 5 },
+            { name: 'Snake', emoji: '🐍', hp: 12, damage: 2, xp: 6, gold: 6 },
+            { name: 'Spider', emoji: '🕷️', hp: 15, damage: 2, xp: 8, gold: 7 },
+            { name: 'Bat', emoji: '🦇', hp: 18, damage: 3, xp: 10, gold: 8 },
+            { name: 'Slime', emoji: '🟢', hp: 20, damage: 2, xp: 12, gold: 10 },
+            { name: 'Skeleton', emoji: '💀', hp: 25, damage: 4, xp: 15, gold: 12 },
+            { name: 'Zombie', emoji: '🧟', hp: 30, damage: 5, xp: 18, gold: 15 },
+            { name: 'Wolf', emoji: '🐺', hp: 35, damage: 6, xp: 20, gold: 18 },
+            { name: 'Bear', emoji: '🐻', hp: 45, damage: 7, xp: 25, gold: 22 },
+            { name: 'Orc', emoji: '👹', hp: 50, damage: 8, xp: 30, gold: 28 },
+            { name: 'Goblin', emoji: '👺', hp: 55, damage: 9, xp: 32, gold: 30 },
+            { name: 'Troll', emoji: '👿', hp: 70, damage: 10, xp: 40, gold: 40 },
+            { name: 'Witch', emoji: '🧙', hp: 80, damage: 12, xp: 50, gold: 55 },
+            { name: 'Demon', emoji: '😈', hp: 100, damage: 15, xp: 60, gold: 70 },
+            { name: 'Vampire', emoji: '🧛', hp: 120, damage: 18, xp: 75, gold: 90 },
+            { name: 'Golem', emoji: '🗿', hp: 150, damage: 20, xp: 90, gold: 110 },
+            { name: 'Dragon Whelp', emoji: '🐲', hp: 200, damage: 25, xp: 120, gold: 150 },
+            { name: 'Knight', emoji: '🛡️', hp: 250, damage: 30, xp: 150, gold: 200 },
+            { name: 'Assassin', emoji: '🗡️', hp: 180, damage: 35, xp: 130, gold: 180 },
+            { name: 'Necromancer', emoji: '☠️', hp: 300, damage: 32, xp: 180, gold: 220 },
+            { name: 'Phoenix', emoji: '🔥', hp: 350, damage: 40, xp: 220, gold: 280 },
+            { name: 'Titan', emoji: '🏔️', hp: 500, damage: 45, xp: 300, gold: 400 },
+            { name: 'Void Walker', emoji: '🌀', hp: 600, damage: 50, xp: 400, gold: 500 },
+            { name: 'Celestial', emoji: '😇', hp: 800, damage: 55, xp: 550, gold: 700 },
+            { name: 'Cosmic Dragon', emoji: '🐙', hp: 1000, damage: 60, xp: 800, gold: 1000 }
+        ];
+
+        const BOSS_DATA = [
+            { name: 'Iron Golem', emoji: '🤖', hp: 500, damage: 20, level: 10, reward: 500, artifact: '🗡️', artifactName: 'Infinity Blade' },
+            { name: 'Lich King', emoji: '೫', hp: 800, damage: 30, level: 20, reward: 800, artifact: '🔮', artifactName: 'Soul Orb' },
+            { name: 'Fire Titan', emoji: '🌋', hp: 1200, damage: 40, level: 35, reward: 1200, artifact: '🔥', artifactName: 'Phoenix Feather' },
+            { name: 'Sea Serpent', emoji: '🐍', hp: 1800, damage: 50, level: 50, reward: 1800, artifact: '💎', artifactName: 'Aqua Pearl' },
+            { name: 'Storm Giant', emoji: '⛈️', hp: 2500, damage: 60, level: 70, reward: 2500, artifact: '⚡', artifactName: 'Thunder Stone' },
+            { name: 'Dragon Lord', emoji: '🐉', hp: 3500, damage: 70, level: 90, reward: 3500, artifact: '👑', artifactName: 'Dragon Scale' },
+            { name: 'Void Emperor', emoji: '🕳️', hp: 5000, damage: 80, level: 115, reward: 5000, artifact: '🌌', artifactName: 'Void Crystal' },
+            { name: 'Celestial Beast', emoji: '🐺', hp: 7000, damage: 90, level: 140, reward: 7000, artifact: '✨', artifactName: 'Starlight Shard' },
+            { name: 'Age of Chaos', emoji: '🌪️', hp: 10000, damage: 100, level: 170, reward: 10000, artifact: '🌀', artifactName: 'Chaos Rune' },
+            { name: 'Omega God', emoji: '👁️', hp: 20000, damage: 150, level: 200, reward: 20000, artifact: '💫', artifactName: 'Divine Essence' }
+        ];
+
+        const ITEM_DATA = {
+            weapon: { name: 'Weapon', emoji: '⚔️', slots: ['sword', 'axe', 'staff', 'bow', 'dagger', 'hammer'] },
+            helmet: { name: 'Helmet', emoji: '⛑️', slots: ['helmet', 'crown', 'mask', 'veil', 'hood', 'circlet'] },
+            armor: { name: 'Armor', emoji: '🛡️', slots: ['armor', 'plate', 'robe', 'leather', 'chain', 'shell'] },
+            gloves: { name: 'Gloves', emoji: '🧤', slots: ['gloves', 'gauntlets', 'mitts', 'claws', 'bands', 'wraps'] },
+            boots: { name: 'Boots', emoji: '👢', slots: ['boots', 'sandals', 'greaves', 'sneakers', 'clogs', 'hooves'] },
+            ring: { name: 'Ring', emoji: '💍', slots: ['ring', 'band', 'orb', 'charm', 'amulet', 'talisman'] }
+        };
+
+        // ===== LEVEL UP TALENTS =====
+        const TALENT_DATA = {
+            berserker: {
+                name: 'БЕРСЕРК',
+                icon: '🪓',
+                color: '#ff4400',
+                talents: [
+                    { name: 'Raw Power', icon: '💪', desc: '+5% damage', id: 'bp1' },
+                    { name: 'Reckless', icon: '🔥', desc: '+10% crit dmg', id: 'bp2' },
+                    { name: 'Bloodlust', icon: '🩸', desc: '+3% lifesteal', id: 'bp3' },
+                    { name: 'Rage Quit', icon: '💀', desc: 'Survive 1 boss hit', id: 'bp4' }
+                ]
+            },
+            mage: {
+                name: 'МАГ',
+                icon: '🔮',
+                color: '#aa00ff',
+                talents: [
+                    { name: 'Arcane Intellect', icon: '📖', desc: '+10% gold bonus', id: 'mp1' },
+                    { name: 'Celestial Strike', icon: '⭐', desc: '+2% crit', id: 'mp2' },
+                    { name: 'Dragon Fire', icon: '🐉', desc: '+5% damage vs dragons', id: 'mp3' },
+                    { name: 'Ultimate', icon: '✨', desc: 'MEGA CRIT chance +10%', id: 'mp4' }
+                ]
+            },
+            shadow: {
+                name: 'ТЕНЬ',
+                icon: '🌑',
+                color: '#00ffff',
+                talents: [
+                    { name: 'Shadow Step', icon: '👣', desc: '+1 DPS', id: 'sp1' },
+                    { name: 'Assassinate', icon: '🗡️', desc: '+3% crit', id: 'sp2' },
+                    { name: 'Phantom', icon: '👻', desc: '+1 helper ghost', id: 'sp3' },
+                    { name: 'Void Walker', icon: '🌀', desc: '+15% damage', id: 'sp4' }
+                ]
+            }
+        };
+
+        // ===== DAILY QUEST TEMPLATES =====
+        const QUEST_TEMPLATES = [
+            { name: 'Kill 10 enemies', type: 'kill', target: 10, reward: 100 },
+            { name: 'Equip 3 items', type: 'equip', target: 3, reward: 150 },
+            { name: 'Reach level 5', type: 'level', target: 5, reward: 200 },
+            { name: 'KIll 25 enemies', type: 'kill', target: 25, reward: 300 },
+            { name: 'Get a legendary item', type: 'legendary', target: 1, reward: 500 },
+            { name: 'Reach level 10', type: 'level', target: 10, reward: 400 },
+            { name: 'Kill 50 enemies', type: 'kill', target: 50, reward: 800 },
+            { name: 'Defeat a boss', type: 'boss', target: 1, reward: 1000 }
+        ];
+
+        // ===== ITEM TEMPLATES BY RARITY =====
+        const ITEM_TEMPLATES = {
+            common: [
+                { emoji: '🗡️', name: 'Rusty Sword', power: '~', dmg: '+5', crit: '+1%' },
+                { emoji: '🛡️', name: 'Wooden Shield', power: '~', def: '+3', hp: '+20' },
+                { emoji: '💍', name: 'Copper Ring', power: '~', dmg: '+2', luck: '+2' },
+                { emoji: '👢', name: 'Leather Boots', power: '~', spd: '+5', dodge: '+2%' },
+                { emoji: '🧤', name: 'Worn Gloves', power: '~', spd: '+3', crit: '+1%' },
+                { emoji: '⛑️', name: 'Metal Helmet', power: '~', def: '+5', hp: '+30' }
+            ],
+            rare: [
+                { emoji: '⚔️', name: 'Steel Blade', power: 'R', dmg: '+15', crit: '+3%', critDmg: '+10%' },
+                { emoji: '🛡️', name: 'Iron Armor', power: 'R', def: '+12', hp: '+50' },
+                { emoji: '🔮', name: 'Magic Staff', power: 'R', dmg: '+20', crit: '+5%', mana: '+20%' },
+                { emoji: '💎', name: 'Sapphire Ring', power: 'R', dmg: '+8', crit: '+4%', luck: '+10' },
+                { emoji: '⚡', name: 'Thunder Boots', power: 'R', spd: '+15', crit: '+3%', dodge: '+5%' },
+                { emoji: '👑', name: 'Royal Crown', power: 'R', def: '+8', hp: '+100', luck: '+5' }
+            ],
+            epic: [
+                { emoji: '⚔️', name: 'Dragon Slayer', power: 'E', dmg: '+35', crit: '+8%', critDmg: '+25%' },
+                { emoji: '⛑️', name: 'Shadow Helm', power: 'E', def: '+20', crit: '+5%', dodge: '+10%' },
+                { emoji: '💫', name: 'Arcane Ring', power: 'E', dmg: '+25', crit: '+10%', luck: '+20' },
+                { emoji: '🔥', name: 'Phoenix Armor', power: 'E', hp: '+150', regen: '+2%', crit: '+5%' },
+                { emoji: '👢', name: 'Swift Boots', power: 'E', spd: '+30', dodge: '+15%', crit: '+5%' },
+                { emoji: '🧤', name: 'Velvet Gauntlets', power: 'E', dmg: '+20', crit: '+8%, critDmg: '+15%' }
+            ],
+            legendary: [
+                { emoji: '🐉', name: 'Dragon Fang Blade', power: 'L', dmg: '+60', crit: '+15%', critDmg: '+40%', burns: true },
+                { emoji: '🌑', name: 'Void Crown', power: 'L', def: '+40', hp: '+300', nightVision: true },
+                { emoji: '💫', name: 'Starlight Ring', power: 'L', dmg: '+50', crit: '+20%', luck: '+40', stars: true },
+                { emoji: '🔥', name: 'Inferno Plate', power: 'L', def: '+50', hp: '+400', fireImmunity: true },
+                { emoji: '🌀', name: 'Tornado Greaves', power: 'L', spd: '+50', crit: '+10%', dodge: '+25%' },
+                { emoji: '💀', name: 'Soul Reaper Gloves', power: 'L', dmg: '+40', lifesteal: '+10%', crit: '+15%'
+                }
+            ],
+            mythic: [
+                { emoji: '✨', name: 'Infinity Edge', power: 'M', dmg: '+150', crit: '+25%', critDmg: '+75%', infinity: true },
+                { emoji: '🌌', name: 'Cosmic Halo', power: 'M', hp: '+600', regen: '+5%', void: true },
+                { emoji: '💫', name: 'Galaxy Ring', power: 'M', allStats: '+30%', luck: '+100' },
+                { emoji: '🐲', name: 'Dragonheart Plate', power: 'M', hp: '+800', fireBreath: true },
+                { emoji: '🌪️', name: 'Void Walker Boots', power: 'M', spd: '+100', dodge: '+50%', teleport: true },
+                { emoji: '💀', name: 'Deathbringer Gauntlets', power: 'M', dmg: '+120', lifesteal: '+25%', onKill: 'heal' }
+            ],
+            shiny: [
+                { emoji: '🌈', name: 'SHINY BLADE', power: 'S', dmg: '+200', crit: '+30%', critDmg: '+100%', rainbow: true },
+                { emoji: '🌈', name: 'SHINY CROWN', power: 'S', allStats: '+50%', hp: '+500', rainbow: true },
+                { emoji: '🌈', name: 'SHINY RING', power: 'S', allStats: '+40%', luck: '+150', rainbow: true },
+                { emoji: '🌈', name: 'SHINY ARMOR', power: 'S', hp: '+700', regen: '+10%', rainbow: true },
+                { emoji: '🌈', name: 'SHINY BOOTS', power: 'S', spd: '+80%', dodge: '+40%', rainbow: true },
+                { emoji: '🌈', name: 'SHINY GLOVES', power: 'S', dmg: '+100%', crit: '+40%', rainbow: true }
+            ]
+        };
+
+        // ===== MAIN GAME CLASS =====
+        class LegendaryRPG {
+            constructor() {
+                this.particles = new ParticleSystem(document.getElementById('particleCanvas'));
+                
+                // Core stats
+                this.level = 1;
+                this.xp = 0;
+                this.xpToNext = 100;
+                this.gold = 0;
+                this.hp = 100;
+                this.maxHp = 100;
+                
+                // Combat stats
+                this.damage = 10;
+                this.critChance = 5;
+                this.critDamage = 1.5;
+                this.autoDps = 0;
+                this.damageMultiplier = 1.2;
+                this.goldBonus = 1;
+                
+                // Combat state
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.damageBuff = 1;
+                this.isRage = false;
+                this.rageTimer = 0;
+                this.isBossFight = false;
+                this.bossTimer = 0;
+                this.bossAttackCooldown = 0;
+                
+                // Progression
+                this.upgrades = {
+                    damage: 0,
+                    auto: 0,
+                    crit: 0,
+                    gold: 0
+                };
+                
+                // Inventory
+                this.equipment = {
+                    weapon: null,
+                    helmet: null,
+                    armor: null,
+                    gloves: null,
+                    boots: null,
+                    ring: null
+                };
+                this.inventory = [];
+                
+                // Prestige
+                this.prestigeLevel = 0;
+                this.prestigeStones = 0;
+                this.autoDpsPrestige = 0;
+                
+                // Talents
+                this.talentPoints = 0;
+                this.talents = {};
+                
+                // Dungeon
+                this.dungeonLevel = 1;
+                this.currentRoom = 0;
+                this.visitedRooms = new Set();
+                this.dungeonMap = [];
+                
+                // Quests
+                this.dailyQuests = [];
+                this.lastQuestDay = null;
+                
+                // Ghost helpers
+                this.ghosts = [];
+                this.lastGhostSpawn = 0;
+                
+                // Boss tracking
+                this.defeatedBosses = new Set();
+                
+                // Combat tracking
+                this.totalKills = 0;
+                this.totalDamageDealt = 0;
+                
+                // Save system
+                this.lastSave = 0;
+                
+                // Current enemy
+                this.currentEnemy = null;
+                
+                // UI elements
+                this.enemySprite = document.getElementById('enemySprite');
+                this.enemyName = document.getElementById('enemyName');
+                this.enemyHpFill = document.getElementById('enemyHpFill');
+                this.comboDisplay = document.getElementById('comboDisplay');
+                this.rageOverlay = document.getElementById('rageOverlay');
+                
+                // Bind methods
+                this.gameLoop = this.gameLoop.bind(this);
+                this.handleTouch = this.handleTouch.bind(this);
+                
+                // Setup event listeners
+                this.setupEventListeners();
+            }
+            
+            // ===== INITIALIZATION =====
+            setupEventListeners() {
+                // Attack button
+                document.getElementById('attackBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.startCharging();
+                });
+                document.getElementById('attackBtn').addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.releaseAttack();
+                });
+                document.getElementById('attackBtn').addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    this.cancelAttack();
+                });
+                
+                // Enemy area taps
+                const enemyArea = document.getElementById('enemyArea');
+                enemyArea.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.startCharging();
+                }, { passive: false });
+                enemyArea.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.releaseAttack();
+                }, { passive: false });
+                enemyArea.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    this.cancelAttack();
+                }, { passive: false });
+                
+                // Multi-touch support
+                let touchCount = 0;
+                enemyArea.addEventListener('touchstart', (e) => {
+                    touchCount = e.touches.length;
+                    for (let i = 0; i < touchCount; i++) {
+                        this.startCharging();
+                    }
+                }, { passive: false });
+                
+                enemyArea.addEventListener('touchend', (e) => {
+                    touchCount = Math.max(0, touchCount - e.changedTouches.length);
+                    if (touchCount === 0) {
+                        this.releaseAttack();
+                    }
+                }, { passive: false });
+                
+                // Navigation tabs
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        const screenName = tab.dataset.screen;
+                        this.showScreen(screenName);
+                    });
+                });
+                
+                // Inventory slots
+                document.querySelectorAll('.item-slot').forEach(slot => {
+                    slot.addEventListener('click', () => {
+                        const slotName = slot.dataset.slot;
+                        this.toggleEquipment(slotName);
+                    });
+                });
+            }
+            
+            showScreen(screenName) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('gameScreen').classList.add('active');
+                
+                const screens = {
+                    shop: 'shopScreen',
+                    inventory: 'inventoryScreen',
+                    talents: 'talentsScreen',
+                    dungeon: 'dungeonScreen',
+                    quests: 'questsScreen'
+                };
+                
+                document.getElementById(screens[screenName]).classList.add('active');
+            }
+            
+            // ===== SAVE/LOAD SYSTEM =====
+            saveGame() {
+                const saveData = {
+                    timestamp: Date.now(),
+                    version: 1,
+                    stats: {
+                        level: this.level,
+                        xp: this.xp,
+                        gold: this.gold,
+                        hp: this.hp,
+                        maxHp: this.maxHp,
+                        damage: this.damage,
+                        critChance: this.critChance,
+                        critDamage: this.critDamage,
+                        autoDps: this.autoDps,
+                        damageMultiplier: this.damageMultiplier,
+                        goldBonus: this.goldBonus
+                    },
+                    upgrades: { ...this.upgrades },
+                    equipment: { ...this.equipment },
+                    inventory: this.inventory,
+                    prestige: {
+                        level: this.prestigeLevel,
+                        stones: this.prestigeStones,
+                        autoDps: this.autoDpsPrestige
+                    },
+                    talents: {
+                        points: this.talentPoints,
+                        unlocked: this.talents
+                    },
+                    dungeon: {
+                        level: this.dungeonLevel,
+                        currentRoom: this.currentRoom,
+                        visitedRooms: Array.from(this.visitedRooms),
+                        map: this.dungeonMap
+                    },
+                    quests: this.dailyQuests,
+                    lastQuestDay: this.lastQuestDay,
+                    ghosts: this.ghosts.map(g => ({ ...g })),
+                    defeatedBosses: Array.from(this.defeatedBosses),
+                    totalKills: this.totalKills,
+                    totalDamageDealt: this.totalDamageDealt
+                };
+                
+                localStorage.setItem('legendaryRPG_save', JSON.stringify(saveData));
+                this.lastSave = Date.now();
+            }
+            
+            loadGame() {
+                try {
+                    const saveStr = localStorage.getItem('legendaryRPG_save');
+                    if (!saveStr) return false;
+                    
+                    const saveData = JSON.parse(saveStr);
+                    
+                    // Load stats
+                    if (saveData.stats) {
+                        Object.assign(this, saveData.stats);
+                    }
+                    
+                    // Load upgrades
+                    if (saveData.upgrades) {
+                        this.upgrades = { ...saveData.upgrades };
+                    }
+                    
+                    // Load equipment
+                    if (saveData.equipment) {
+                        this.equipment = { ...saveData.equipment };
+                    }
+                    
+                    // Load inventory
+                    if (saveData.inventory) {
+                        this.inventory = saveData.inventory;
+                    }
+                    
+                    // Load prestige
+                    if (saveData.prestige) {
+                        this.prestigeLevel = saveData.prestige.level || 0;
+                        this.prestigeStones = saveData.prestige.stones || 0;
+                        this.autoDpsPrestige = saveData.prestige.autoDps || 0;
+                    }
+                    
+                    // Load talents
+                    if (saveData.talents) {
+                        this.talentPoints = saveData.talents.points || 0;
+                        this.talents = { ...saveData.talents.unlocked };
+                    }
+                    
+                    // Load dungeon
+                    if (saveData.dungeon) {
+                        this.dungeonLevel = saveData.dungeon.level || 1;
+                        this.currentRoom = saveData.dungeon.currentRoom || 0;
+                        this.visitedRooms = new Set(saveData.dungeon.visitedRooms || []);
+                        this.dungeonMap = saveData.dungeon.map || this.generateDungeon();
+                    }
+                    
+                    // Load quests
+                    if (saveData.quests) {
+                        this.dailyQuests = saveData.quests;
+                        this.lastQuestDay = saveData.lastQuestDay;
+                    }
+                    
+                    // Load ghosts
+                    if (saveData.ghosts) {
+                        this.ghosts = saveData.ghosts;
+                    }
+                    
+                    // Load bosses
+                    if (saveData.defeatedBosses) {
+                        this.defeatedBosses = new Set(saveData.defeatedBosses);
+                    }
+                    
+                    // Load combat tracking
+                    if (saveData.totalKills) {
+                        this.totalKills = saveData.totalKills;
+                    }
+                    if (saveData.totalDamageDealt) {
+                        this.totalDamageDealt = saveData.totalDamageDealt;
+                    }
+                    
+                    // Apply prestige bonuses
+                    this.applyPrestigeBonuses();
+                    
+                    return true;
+                } catch (e) {
+                    console.error('Failed to load save:', e);
+                    return false;
+                }
+            }
+            
+            // ===== START GAME =====
+            startGame() {
+                // Try to load save
+                if (!this.loadGame()) {
+                    // Generate new dungeon
+                    this.dungeonMap = this.generateDungeon();
+                }
+                
+                // Generate daily quests if needed
+                this.generateDailyQuests();
+                
+                // Show game screen
+                document.getElementById('startScreen').classList.remove('active');
+                document.getElementById('gameScreen').classList.add('active');
+                document.getElementById('shopScreen').classList.add('active');
+                
+                // Start with first enemy
+                this.spawnEnemy(false);
+                
+                // Start game loop
+                this.lastFrame = performance.now();
+                this.gameLoop(performance.now());
+            }
+            
+            // ===== GAME LOOP =====
+            gameLoop(timestamp) {
+                const deltaTime = (timestamp - this.lastFrame) / 1000;
+                this.lastFrame = timestamp;
+                
+                // Update particles
+                this.particles.update();
+                this.particles.draw();
+                
+                // Auto-save every 5 seconds
+                if (Date.now() - this.lastSave > 5000) {
+                    this.saveGame();
+                }
+                
+                // Passive gold
+                this.gold += 0.2 * deltaTime;
+                
+                // Ghost spawning
+                this.lastGhostSpawn += deltaTime;
+                if (this.lastGhostSpawn > 5 && this.ghosts.length < 5 && Math.random() < 0.002) {
+                    this.spawnGhost();
+                    this.lastGhostSpawn = 0;
+                }
+                
+                // Ghost damage
+                this.ghosts.forEach(ghost => {
+                    ghost.attackTimer += deltaTime;
+                    if (ghost.attackTimer > 2) {
+                        ghost.attackTimer = 0;
+                        this.takeGhostDamage(ghost);
+                    }
+                    // Ghost flight path
+                    ghost.y += Math.sin(timestamp / 1000 + ghost.phase) * 0.5;
+                });
+                
+                // Auto attack
+                if (this.autoDps > 0 && this.currentEnemy) {
+                    this.autoAttackTimer += deltaTime;
+                    if (this.autoAttackTimer > 1 / this.autoDps) {
+                        this.autoAttackTimer = 0;
+                        this.dealDamage(this.autoDps);
+                    }
+                }
+                
+                // Rage mode timer
+                if (this.isRage) {
+                    this.rageTimer -= deltaTime;
+                    if (this.rageTimer <= 0) {
+                        this.isRage = false;
+                        this.damageBuff = 1;
+                        this.rageOverlay.classList.remove('active');
+                    }
+                }
+                
+                // Boss attack timer
+                if (this.isBossFight) {
+                    this.bossAttackCooldown -= deltaTime;
+                    if (this.bossAttackCooldown <= 0) {
+                        this.bossAttackCooldown = 2;
+                        this.bossAttack();
+                    }
+                }
+                
+                // Update UI
+                this.updateUI();
+                
+                // Check payday
+                this.checkPayday();
+                
+                requestAnimationFrame(this.gameLoop.bind(this));
+            }
+            
+            // ===== ENEMY SPAWNING =====
+            spawnEnemy(isBoss = false) {
+                if (isBoss) {
+                    // Find boss for current level
+                    const boss = BOSS_DATA.find(b => b.level === this.level && !this.defeatedBosses.has(b.level));
+                    if (boss) {
+                        this.currentEnemy = { ...boss, isBoss: true, maxHp: boss.hp * 1.10 ** (this.level - boss.level), hp: boss.hp * 1.10 ** (this.level - boss.level) };
+                        this.isBossFight = true;
+                        this.spawnParticles(50, 50, '#ffd700', 30);
+                        this.addJournalEntry('⚔️ BOSS FIGHT!', 'boss');
+                    }
+                } else {
+                    // Determine enemy based on level
+                    const tier = Math.min(24, Math.floor((this.level - 1) / 8));
+                    const baseEnemy = ENEMY_DATA[tier];
+                    const variance = Math.random();
+                    
+                    if (variance < 0.1) {
+                        // Stronger enemy
+                        this.currentEnemy = {
+                            ...baseEnemy,
+                            hp: Math.floor(baseEnemy.hp * (1 + Math.random() * 0.5)),
+                            damage: Math.floor(baseEnemy.damage * (1 + Math.random() * 0.3))
+                        };
+                    } else if (variance < 0.15) {
+                        // Weaker enemy
+                        this.currentEnemy = {
+                            ...baseEnemy,
+                            hp: Math.floor(baseEnemy.hp * 0.5),
+                            damage: Math.floor(baseEnemy.damage * 0.7)
+                        };
+                    } else {
+                        this.currentEnemy = { ...baseEnemy };
+                    }
+                    
+                    // Apply level scaling
+                    const levelFactor = Math.max(0, this.level - (tier * 8 + 1));
+                    this.currentEnemy.hp = Math.floor(this.currentEnemy.hp * (1.10 ** levelFactor));
+                    
+                    // Apply HP cap scaling
+                    this.currentEnemy.hp = Math.min(this.currentEnemy.hp, 1000000);
+                }
+                
+                // Update UI
+                this.updateEnemyDisplay();
+            }
+            
+            updateEnemyDisplay() {
+                if (!this.currentEnemy) return;
+                
+                this.enemySprite.textContent = this.currentEnemy.emoji;
+                this.enemyName.textContent = this.currentEnemy.name;
+                this.enemyHpFill.style.width = `${(this.currentEnemy.hp / this.currentEnemy.maxHp) * 100}%`;
+                
+                // Apply animations
+                this.enemySprite.className = '';
+                if (this.isBossFight) {
+                    this.enemySprite.classList.add('enemy-expand');
+                } else {
+                    const animations = ['enemy-dance', 'enemy-spike', 'enemy-float', 'enemy-shake', 'enemy-rotate'];
+                    this.enemySprite.classList.add(animations[Math.floor(Math.random() * animations.length)]);
+                }
+            }
+            
+            // ===== COMBAT =====
+            startCharging() {
+                if (!this.currentEnemy) return;
+                this.isCharging = true;
+                this.chargeStartTime = Date.now();
+            }
+            
+            releaseAttack() {
+                if (!this.isCharging || !this.currentEnemy) return;
+                
+                this.isCharging = false;
+                
+                // Calculate charge multiplier
+                let multiplier = 1;
+                const chargeTime = (Date.now() - this.chargeStartTime) / 1000;
+                if (chargeTime < 0.3) {
+                    multiplier = 2;
+                } else if (chargeTime < 0.8) {
+                    multiplier = 3;
+                } else if (chargeTime < 1.5) {
+                    multiplier = 4;
+                } else {
+                    multiplier = 5;
+                }
+                
+                this.dealDamage(this.damage * multiplier * this.damageBuff * this.damageMultiplier);
+                
+                // Reset charge
+                setTimeout(() => { this.isCharging = false; }, 100);
+            }
+            
+            cancelAttack() {
+                this.isCharging = false;
+            }
+            
+            dealDamage(baseDamage) {
+                if (!this.currentEnemy) return;
+                
+                const { damage, critChance, critDamage } = this;
+                let finalDamage = damage * this.damageBuff * baseDamage / damage;
+                
+                // Check crit
+                let isCrit = false;
+                let isSuperCrit = false;
+                let isMegaCrit = false;
+                
+                this.combo++;
+                if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+                
+                // Apply combo multiplier
+                const comboMult = 1 + (this.combo * 0.001);
+                finalDamage *= comboMult;
+                
+                if (Math.random() * 100 < critChance) {
+                    isCrit = true;
+                    
+                    // Crit series
+                    if (this.critSeries >= 4) {
+                        isMegaCrit = true;
+                        this.critSeries = 0;
+                        finalDamage *= 10;
+                        this.showComboText('MEGA CRIT!', '#00ffff');
+                        this.particles.createLevelUp(200, 300);
+                    } else if (this.critSeries >= 2) {
+                        isSuperCrit = true;
+                        this.critSeries++;
+                        finalDamage *= 5;
+                        this.showComboText('SUPER CRIT!', '#ff00ff');
+                        this.spawnParticles(200, 300, '#ff00ff', 20);
+                    } else {
+                        this.critSeries++;
+                        finalDamage *= 2 + (Math.random() * 0.5);
+                        this.showComboText('CRIT!', '#ffff00');
+                    }
+                } else {
+                    this.critSeries = 0;
+                }
+                
+                // Calculate total damage
+                finalDamage = Math.floor(finalDamage);
+                this.totalDamageDealt += finalDamage;
+                
+                // Apply damage
+                this.currentEnemy.hp -= finalDamage;
+                
+                // Update combo display
+                this.comboDisplay.textContent = `x${this.combo.toFixed(1)} COMBO`;
+                this.comboDisplay.style.opacity = this.combo > 10 ? '1' : '0';
+                this.comboDisplay.style.transform = `translate(-50%, -50%) scale(${1 + this.combo * 0.01})`;
+                
+                // Show damage number
+                this.showDamageNumber(finalDamage, isCrit, isSuperCrit, isMegaCrit);
+                
+                // Particles
+                const rect = this.enemySprite.getBoundingClientRect();
+                this.particles.createDamage(rect.left + rect.width/2, rect.top + rect.height/2, isCrit);
+                
+                // Update enemy HP
+                this.updateEnemyDisplay();
+                
+                // Check kill
+                if (this.currentEnemy.hp <= 0) {
+                    this.killEnemy();
+                }
+            }
+            
+            takeGhostDamage(ghost) {
+                const damage = ghost.damage || 1;
+                this.hp -= damage;
+                
+                if (this.hp <= 0) {
+                    this.hp = 0;
+                    this.gameOver();
+                }
+            }
+            
+            bossAttack() {
+                const boss = this.currentEnemy;
+                if (!boss || !boss.isBoss) return;
+                
+                // Boss deals damage
+                this.hp -= boss.damage;
+                
+                // Screen shake
+                document.getElementById('bossShakeOverlay').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('bossShakeOverlay').classList.remove('shake');
+                }, 300);
+                
+                // Boss damage number
+                this.showBossDamageNumber(boss.damage);
+                
+                // Check death
+                if (this.hp <= 0) {
+                    this.hp = 0;
+                    this.gameOver();
+                }
+                
+                // Update UI
+                document.getElementById('charHP').textContent = Math.max(0, Math.floor(this.hp));
+            }
+            
+            showBossDamageNumber(damage) {
+                const overlay = document.getElementById('bossShakeOverlay');
+                const damageEl = document.createElement('div');
+                damageEl.className = 'damage-number';
+                damageEl.textContent = `-${damage}`;
+                damageEl.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;color:#ff4444;text-shadow:0 0 20px #ff0000;';
+                overlay.appendChild(damageEl);
+                
+                setTimeout(() => damageEl.remove(), 800);
+            }
+            
+            showDamageNumber(damage, isCrit, isSuperCrit, isMegaCrit) {
+                const overlay = document.getElementById('enemyArea');
+                const damageEl = document.createElement('div');
+                damageEl.className = 'damage-number';
+                damageEl.textContent = isMegaCrit ? `💥${damage}` : isSuperCrit ? `✨${damage}` : isCrit ? `⚡${damage}` : damage;
+                
+                if (isCrit) damageEl.classList.add('crit');
+                if (isSuperCrit) damageEl.classList.add('super-crit');
+                if (isMegaCrit) damageEl.classList.add('mega-crit');
+                
+                damageEl.style.left = '50%';
+                damageEl.style.top = '30%';
+                overlay.appendChild(damageEl);
+                
+                setTimeout(() => damageEl.remove(), 800);
+            }
+            
+            showComboText(text, color) {
+                this.particles.createCombo(200, 100, text);
+            }
+            
+            spawnParticles(x, y, color, count) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.createGold(x + Math.random() * 100, y + Math.random() * 100, 1);
+                }
+            }
+            
+            // ===== ENEMY KILL =====
+            killEnemy() {
+                this.totalKills++;
+                
+                // XP gain
+                const xpGain = this.currentEnemy.xp;
+                this.xp += xpGain;
+                this.addJournalEntry(`+${xpGain} XP`, 'xp');
+                
+                // Gold gain
+                const baseGold = this.currentEnemy.gold;
+                const finalGold = Math.floor(baseGold * this.goldBonus * this.goldMultiplier);
+                this.gold += finalGold;
+                this.particles.createGold(200, 400, finalGold);
+                this.addJournalEntry(`+${finalGold} Gold`, 'gold');
+                
+                // Random item drop
+                if (Math.random() < (this.isBossFight ? 0.4 : 0.01)) {
+                    const item = this.generateItem(this.isBossFight ? 0.05 : false);
+                    if (item) {
+                        this.inventory.push(item);
+                        this.addJournalEntry(`💎 Dropped: ${item.name}`, 'item');
+                    }
+                }
+                
+                // Boss specific rewards
+                if (this.isBossFight) {
+                    this.addJournalEntry('👑 BOSS DEFEATED!', 'boss');
+                    this.defeatedBosses.add(this.currentEnemy.level);
+                    
+                    // Artifact chance
+                    if (Math.random() < 0.05) {
+                        const artifact = BOSS_DATA.find(b => b.level === this.level).artifact;
+                        const artifactItem = this.generateItem(true, artifact);
+                        this.inventory.push(artifactItem);
+                        this.addJournalEntry(`🌟 Artifact: ${artifactItem.name}!`, 'artifact');
+                    }
+                    
+                    // Lottery wheel
+                    this.showLottery();
+                }
+                
+                // Level up check
+                this.checkLevelUp();
+                
+                // Spawn new enemy
+                this.isBossFight = false;
+                setTimeout(() => {
+                    if (this.level >= 10 && Math.random() < 0.1) {
+                        this.spawnEnemy(true);
+                    } else {
+                        this.spawnEnemy(false);
+                    }
+                }, 500);
+            }
+            
+            killEnemyForCombo() {
+                this.totalKills++;
+                
+                // XP gain
+                const xpGain = this.currentEnemy.xp;
+                this.xp += xpGain;
+                
+                // Gold gain
+                const baseGold = this.currentEnemy.gold;
+                const finalGold = Math.floor(baseGold * this.goldBonus * this.goldMultiplier);
+                this.gold += finalGold;
+                this.particles.createGold(200, 400, finalGold);
+                
+                // Level up check
+                this.checkLevelUp();
+                
+                // Spawn new enemy
+                setTimeout(() => {
+                    if (this.level >= 10 && Math.random() < 0.1) {
+                        this.spawnEnemy(true);
+                    } else {
+                        this.spawnEnemy(false);
+                    }
+                }, 500);
+            }
+            
+            checkLevelUp() {
+                while (this.xp >= this.xpToNext) {
+                    this.xp -= this.xpToNext;
+                    this.level++;
+                    this.xpToNext = Math.floor(this.xpToNext * 1.5);
+                    
+                    // Stat growth
+                    this.damage += Math.floor(2 * 1.3 ** Math.floor((this.level - 1) / 5));
+                    this.maxHp += 5;
+                    this.hp = this.maxHp;
+                    
+                    // Talent point
+                    this.talentPoints++;
+                    
+                    // Rage mode threshold
+                    if (this.level % 10 === 0) {
+                        this.hp = this.maxHp; // Full heal
+                    }
+                    
+                    // Update upgrades for sell price
+                    this.updateUpgradeLevels();
+                    
+                    this.addJournalEntry(`📈 LEVEL UP! Now ${this.level}`, 'level');
+                    this.particles.createLevelUp(200, 300);
+                    
+                    // Update equipment stats
+                    this.updateEquipmentStats();
+                }
+            }
+            
+            // ===== RAID MODE =====
+            activateRageMode() {
+                if (this.hp < this.maxHp * 0.2 && !this.isRage) {
+                    this.isRage = true;
+                    this.rageTimer = 10;
+                    this.damageBuff = 2;
+                    this.rageOverlay.classList.add('active');
+                    this.addJournalEntry('😡 RAGE MODE ACTIVATED!', 'rage');
+                }
+            }
+            
+            // ===== AUTO ATTACK =====
+            autoAttack() {
+                if (this.autoDps > 0 && this.currentEnemy) {
+                    this.dealDamage(this.autoDps);
+                }
+            }
+            
+            // ===== ITEMS & EQUIPMENT =====
+            generateItem(isBoss = false, forceRarity = null) {
+                const rarities = ['common', 'rare', 'epic', 'legendary', 'mythic', 'shiny'];
+                const weights = [95, 2, 0.8, 0.15, 0.01, 0.001];
+                
+                // Modify weights for boss drops
+                let chosenRarity;
+                if (isBoss) {
+                    const rand = Math.random() * 100;
+                    if (rand < 55) chosenRarity = 'common';
+                    else if (rand < 80) chosenRarity = 'rare';
+                    else if (rand < 92) chosenRarity = 'epic';
+                    else if (rand < 98) chosenRarity = 'legendary';
+                    else if (rand < 99.8) chosenRarity = 'mythic';
+                    else chosenRarity = 'shiny';
+                } else {
+                    const rand = Math.random() * 100;
+                    if (rand < 90) chosenRarity = 'common';
+                    else if (rand < 97) chosenRarity = 'rare';
+                    else if (rand < 99.2) chosenRarity = 'epic';
+                    else if (rand < 99.8) chosenRarity = 'legendary';
+                    else if (rand < 99.95) chosenRarity = 'mythic';
+                    else chosenRarity = 'shiny';
+                }
+                
+                // If forceRarity specified, use it
+                if (forceRarity) {
+                    chosenRarity = forceRarity;
+                }
+                
+                // Get slot and template
+                const slots = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'ring'];
+                const slot = slots[Math.floor(Math.random() * slots.length)];
+                const templates = ITEM_TEMPLATES[chosenRarity];
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                
+                return {
+                    id: Date.now() + Math.random(),
+                    slot: slot,
+                    rarity: chosenRarity,
+                    ...template
+                };
+            }
+            
+            equipItem(slotName, item) {
+                // Unequip current item if any
+                const currentItem = this.equipment[slotName];
+                if (currentItem) {
+                    this.inventory.push(currentItem);
+                }
+                
+                // Equip new item
+                this.equipment[slotName] = item;
+                
+                // Remove from inventory
+                this.inventory = this.inventory.filter(i => i.id !== item.id);
+                
+                // Update stats
+                this.updateEquipmentStats();
+                
+                // Update quest progress
+                this.updateQuestProgress('equip');
+                
+                this.addJournalEntry(`⚔️ Equipped: ${item.name}`, 'equip');
+            }
+            
+            unequipItem(slotName) {
+                const item = this.equipment[slotName];
+                if (item) {
+                    this.inventory.push(item);
+                    this.equipment[slotName] = null;
+                    this.updateEquipmentStats();
+                    this.addJournalEntry(`📦 Unequipped: ${item.name}`, 'unequip');
+                }
+            }
+            
+            sellItem(item) {
+                const sellValue = Math.floor(this.getItemValue(item) * 0.5);
+                this.gold += sellValue;
+                this.inventory = this.inventory.filter(i => i.id !== item.id);
+                this.addJournalEntry(`💰 Sold: ${sellValue} gold`, 'gold');
+                this.updateUI();
+            }
+            
+            getItemValue(item) {
+                const baseValues = {
+                    common: 10,
+                    rare: 50,
+                    epic: 200,
+                    legendary: 1000,
+                    mythic: 5000,
+                    shiny: 25000
+                };
+                return baseValues[item.rarity] || 10;
+            }
+            
+            updateEquipmentStats() {
+                let dmg = 0;
+                let def = 0;
+                let hp = 0;
+                let crit = 0;
+                let critDmg = 0;
+                
+                Object.values(this.equipment).forEach(item => {
+                    if (!item) return;
+                    dmg += parseInt(item.dmg) || 0;
+                    def += parseInt(item.def) || 0;
+                    hp += parseInt(item.hp) || 0;
+                    crit += parseInt(item.crit) || 0;
+                    critDmg += parseInt(item.critDmg) || 0;
+                });
+                
+                this.damage = Math.max(1, this.damage - dmg + dmg);
+                this.maxHp = Math.max(50, this.maxHp + hp);
+                this.critChance = Math.max(0, this.critChance + crit);
+            }
+            
+            // ===== UPGRADES =====
+            getUpgradeCost(type) {
+                const baseCosts = { damage: 50, auto: 100, crit: 150, gold: 200 };
+                const base = baseCosts[type] || 100;
+                return Math.floor(base * 2.0 ** this.upgrades[type]);
+            }
+            
+            buyUpgrade(type) {
+                const cost = this.getUpgradeCost(type);
+                if (this.gold >= cost) {
+                    this.gold -= cost;
+                    this.upgrades[type]++;
+                    
+                    switch(type) {
+                        case 'damage':
+                            this.damage += Math.floor(2 * 1.3 ** this.upgrades[type]);
+                            break;
+                        case 'auto':
+                            this.autoDps += 1;
+                            this.autoDpsPrestige += 0.5;
+                            break;
+                        case 'crit':
+                            this.critChance += 0.2;
+                            break;
+                        case 'gold':
+                            this.goldBonus *= 1.2;
+                            break;
+                    }
+                    
+                    this.updateUI();
+                    this.addJournalEntry(`⬆️ Upgraded ${type}!`, 'upgrade');
+                    return true;
+                }
+                return false;
+            }
+            
+            updateUpgradeLevels() {
+                document.getElementById('levelDamage').textContent = `Lv.${this.upgrades.damage}`;
+                document.getElementById('costDamage').textContent = `${this.getUpgradeCost('damage')}g`;
+                document.getElementById('levelAuto').textContent = `Lv.${this.upgrades.auto}`;
+                document.getElementById('costAuto').textContent = `${this.getUpgradeCost('auto')}g`;
+                document.getElementById('levelCrit').textContent = `Lv.${this.upgrades.crit}`;
+                document.getElementById('costCrit').textContent = `${this.getUpgradeCost('crit')}g`;
+                document.getElementById('levelGold').textContent = `Lv.${this.upgrades.gold}`;
+                document.getElementById('costGold').textContent = `${this.getUpgradeCost('gold')}g`;
+            }
+            
+            // ===== PRESTIGE =====
+            prestige() {
+                if (this.level < 15) return;
+                
+                this.prestigeLevel++;
+                this.prestigeStones++;
+                
+                // Reset level but keep progress
+                const xpPercent = this.xp / this.xpToNext;
+                const damagePercent = this.damage / (10 + (this.level - 1) * 2);
+                
+                // Keep 50% of auto-attack
+                this.autoDps = Math.floor(this.autoDps / 2);
+                
+                // Reset
+                this.level = 1;
+                this.xp = Math.floor(xpPercent * this.xpToNext);
+                this.xpToNext = 100;
+                this.damage = Math.floor(damagePercent * 10);
+                this.autoDps = Math.floor(this.autoDps / 2);
+                
+                // Keep gold
+                // Reset HP for now
+                this.hp = this.maxHp;
+                
+                // Clear inventory
+                this.inventory = [];
+                this.equipment = {
+                    weapon: null,
+                    helmet: null,
+                    armor: null,
+                    gloves: null,
+                    boots: null,
+                    ring: null
+                };
+                
+                // Keep upgrades but scale
+                this.upgrades = { damage: 0, auto: 0, crit: 0, gold: 0 };
+                
+                this.addJournalEntry(`🏆 PRESTIGE! Level ${this.prestigeLevel}`, 'prestige');
+                this.particles.createLevelUp(200, 300);
+            }
+            
+            applyPrestigeBonuses() {
+                // Additional bonuses from prestige
+                this.damageMultiplier = 1 + (this.prestigeLevel * 0.05);
+            }
+            
+            // ===== TALENTS =====
+            spendTalentPoint(branch, talentId) {
+                if (this.talentPoints <= 0) return false;
+                if (this.talents[talentId]) return false;
+                
+                this.talentPoints--;
+                this.talents[talentId] = true;
+                
+                // Apply talent effect
+                this.applyTalent(branch, talentId);
+                
+                this.addJournalEntry(`🌳 Unlocked: ${talentId}`, 'talent');
+                return true;
+            }
+            
+            applyTalent(branch, talentId) {
+                const bonuses = {
+                    bp1: { damage: 0.05 },
+                    bp2: { critDamage: 0.1 },
+                    mp1: { goldBonus: 0.1 },
+                    mp2: { crit: 2 },
+                    sp1: { autoDps: 1 },
+                    sp2: { crit: 3 }
+                };
+                
+                if (bonuses[talentId]) {
+                    // Apply bonus
+                    this.addJournalEntry(`+ Bonus applied!`, 'upgrade');
+                }
+            }
+            
+            // ===== DUNGEON =====
+            generateDungeon() {
+                const rooms = [];
+                const types = ['battle', 'treasure', 'trap', 'altar', 'boss', 'merchant'];
+                const weights = [60, 10, 10, 8, 5, 7];
+                
+                for (let i = 0; i < 25; i++) {
+                    const rand = Math.random() * 100;
+                    let cumulative = 0;
+                    let type = 'battle';
+                    
+                    for (let j = 0; j < weights.length; j++) {
+                        cumulative += weights[j];
+                        if (rand < cumulative) {
+                            type = types[j];
+                            break;
+                        }
+                    }
+                    
+                    // Ensure first room is battle
+                    if (i === 0) type = 'battle';
+                    
+                    rooms.push({
+                        id: i,
+                        type: type,
+                        visited: false,
+                        unlocked: i === 0
+                    });
+                }
+                
+                return rooms;
+            }
+            
+            enterRoom(roomIndex) {
+                if (roomIndex === this.currentRoom) return;
+                
+                const room = this.dungeonMap[roomIndex];
+                if (!room.unlocked) return;
+                
+                this.currentRoom = roomIndex;
+                room.visited = true;
+                
+                switch(room.type) {
+                    case 'battle':
+                        // Fight a stronger enemy
+                        this.spawnEnemy(false);
+                        break;
+                    case 'treasure':
+                        // Get gold
+                        const gold = Math.floor(50 * this.dungeonLevel);
+                        this.gold += gold;
+                        this.addJournalEntry(`💰 Found: ${gold} gold!`, 'gold');
+                        this.particles.createGold(200, 300, gold);
+                        break;
+                    case 'trap':
+                        // Take damage
+                        this.hp -= 20 + this.dungeonLevel * 5;
+                        this.addJournalEntry(`💀 Trap! -${20 + this.dungeonLevel * 5} HP`, 'trap');
+                        break;
+                    case 'altar':
+                        // Restore HP
+                        this.hp = this.maxHp;
+                        this.addJournalEntry('✨ Healed at altar!', 'heal');
+                        break;
+                    case 'boss':
+                        // Boss fight
+                        this.spawnEnemy(true);
+                        break;
+                    case 'merchant':
+                        // Could buy items here
+                        this.addJournalEntry('🛒 Merchant here!', 'merchant');
+                        break;
+                }
+                
+                // Check next rooms
+                this.updateDungeonMap();
+            }
+            
+            updateDungeonMap() {
+                // Unlock adjacent rooms
+                for (let i = 0; i < this.dungeonMap.length; i++) {
+                    const room = this.dungeonMap[i];
+                    if (i === this.currentRoom) continue;
+                    
+                    // Check if adjacent
+                    const row = Math.floor(i / 5);
+                    const col = i % 5;
+                    const currRow = Math.floor(this.currentRoom / 5);
+                    const currCol = this.currentRoom % 5;
+                    
+                    if (Math.abs(row - currRow) + Math.abs(col - currCol) === 1) {
+                        room.unlocked = room.visited || true;
+                    }
+                }
+            }
+            
+            // ===== DAILY QUESTS =====
+            generateDailyQuests() {
+                const today = new Date().toDateString();
+                if (this.lastQuestDay === today) return;
+                
+                this.lastQuestDay = today;
+                this.dailyQuests = [];
+                
+                // Generate 3 random quests
+                const shuffled = [...QUEST_TEMPLATES].sort(() => Math.random() - 0.5);
+                for (let i = 0; i < 3; i++) {
+                    this.dailyQuests.push({
+                        ...shuffled[i],
+                        progress: 0,
+                        completed: false,
+                        id: `${today}_${i}`
+                    });
+                }
+            }
+            
+            updateQuestProgress(type) {
+                this.dailyQuests.forEach(quest => {
+                    if (quest.completed) return;
+                    
+                    switch(quest.type) {
+                        case 'kill':
+                            quest.progress = Math.min(quest.target, this.totalKills);
+                            break;
+                        case 'equip':
+                            quest.progress = Object.values(this.equipment).filter(e => e).length;
+                            break;
+                        case 'level':
+                            quest.progress = Math.min(quest.target, this.level);
+                            break;
+                        case 'legendary':
+                            quest.progress = this.inventory.filter(i => i.rarity === 'legendary').length;
+                            break;
+                        case 'boss':
+                            quest.progress = this.defeatedBosses.size;
+                            break;
+                    }
+                    
+                    if (quest.progress >= quest.target) {
+                        quest.completed = true;
+                        this.gold += quest.reward;
+                        this.addJournalEntry(`📜 Quest Complete: ${quest.reward}g`, 'quest');
+                    }
+                });
+            }
+            
+            // ===== GHOST HELPERS =====
+            spawnGhost() {
+                const ghosts = ['👻', '💀', '👽'];
+                this.ghosts.push({
+                    emoji: ghosts[Math.floor(Math.random() * ghosts.length)],
+                    damage: 5 + Math.floor(Math.random() * 10),
+                    attackTimer: 0,
+                    phase: Math.random() * Math.PI * 2,
+                    y: 0
+                });
+            }
+            
+            // ===== LOTTERY WHEEL =====
+            showLottery() {
+                const rewards = [
+                    { type: 'gold', min: 100, max: 500, text: 'Gold' },
+                    { type: 'gold', min: 500, max: 2000, text: 'Gold Bundle' },
+                    { type: 'item', text: 'Rare Item' },
+                    { type: 'item', text: 'Epic Item' },
+                    { type: 'prestige', text: 'Prestige Stone' },
+                    { type: 'heal', text: 'Full HP' }
+                ];
+                
+                const reward = rewards[Math.floor(Math.random() * rewards.length)];
+                
+                if (reward.type === 'gold') {
+                    const amount = Math.floor(Math.random() * (reward.max - reward.min) + reward.min);
+                    this.gold += amount;
+                    this.addJournalEntry(`🎰 Lottery: ${reward.text} +${amount}`, 'gold');
+                } else if (reward.type === 'item') {
+                    this.inventory.push(this.generateItem());
+                    this.addJournalEntry(`🎰 Lottery: ${reward.text}!`, 'item');
+                } else if (reward.type === 'prestige') {
+                    this.prestigeStones++;
+                    this.addJournalEntry(`🎰 Lottery: Prestige Stone!`, 'prestige');
+                } else if (reward.type === 'heal') {
+                    this.hp = this.maxHp;
+                    this.addJournalEntry('🎰 Lottery: Full HP!', 'heal');
+                }
+                
+                this.particles.createLevelUp(200, 300);
+            }
+            
+            // ===== UI UPDATES =====
+            updateUI() {
+                document.getElementById('charLevel').textContent = this.level;
+                document.getElementById('charGold').textContent = this.formatNumber(this.gold);
+                document.getElementById('charHP').textContent = Math.floor(this.hp);
+                document.getElementById('enemyHpFill').style.width = this.currentEnemy ? `${(this.currentEnemy.hp / this.currentEnemy.maxHp) * 100}%` : '0%';
+                
+                // Check rage
+                if (this.hp < this.maxHp * 0.2) {
+                    this.activateRageMode();
+                }
+                
+                // Update inventory display
+                this.updateInventoryDisplay();
+                
+                // Update upgrade costs
+                this.updateUpgradeLevels();
+                
+                // Update quests
+                this.updateQuestsDisplay();
+                
+                // Update talents
+                this.updateTalentsDisplay();
+                
+                // Update dungeon
+                this.updateDungeonDisplay();
+            }
+            
+            updateInventoryDisplay() {
+                // Update equipment slots
+                ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'ring'].forEach(slot => {
+                    const element = document.querySelector(`.item-slot[data-slot="${slot}"]`);
+                    const item = this.equipment[slot];
+                    
+                    if (item) {
+                        element.innerHTML = `
+                            <span class="item-emoji">${item.emoji}</span>
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-power">${item.dmg || item.def || item.hp || ''}</span>
+                        `;
+                        element.classList.add(`rarity-${item.rarity}`);
+                    } else {
+                        element.innerHTML = `<span class="item-emoji">🥺</span><span class="item-name">Empty</span>`;
+                        element.classList.remove('rarity-common', 'rarity-rare', 'rarity-epic', 'rarity-legendary', 'rarity-mythic', 'rarity-shiny');
+                    }
+                });
+                
+                // Update inventory list
+                const list = document.getElementById('inventoryList');
+                list.innerHTML = this.inventory.map(item => `
+                    <div class="vendor-item">
+                        <span style="font-size:24px">${item.emoji}</span>
+                        <div style="flex:1">
+                            <div style="font-size:10px">${item.name}</div>
+                            <div style="font-size:8px;color:var(--primary)">${item.rarity}</div>
+                        </div>
+                        <button class="btn btn-gold" onclick="game.equipFromInventory('${item.id}')" style="font-size:8px;padding:5px 10px">EQUIP</button>
+                        <button class="btn btn-primary" onclick="game.sellFromInventory('${item.id}')" style="font-size:8px;padding:5px 10px">SELL</button>
+                    </div>
+                `).join('');
+            }
+            
+            equipFromInventory(itemId) {
+                const item = this.inventory.find(i => i.id == itemId);
+                if (item) {
+                    this.equipItem(item.slot, item);
+                }
+            }
+            
+            sellFromInventory(itemId) {
+                const item = this.inventory.find(i => i.id == itemId);
+                if (item) {
+                    this.sellItem(item);
+                }
+            }
+            
+            updateQuestsDisplay() {
+                const container = document.getElementById('questsList');
+                container.innerHTML = this.dailyQuests.map(quest => `
+                    <div class="quest-card" style="${quest.completed ? 'border-left-color:#ffd700' : ''}">
+                        <div class="quest-title">${quest.name}</div>
+                        <div class="quest-progress">${quest.progress}/${quest.target}</div>
+                        <div class="quest-reward">${quest.completed ? '✓ COMPLETE' : `+${quest.reward}g`}</div>
+                    </div>
+                `).join('');
+            }
+            
+            updateTalentsDisplay() {
+                const container = document.getElementById('talentTree');
+                let html = `<div style="text-align:center;padding:10px">Points: ${this.talentPoints}</div>`;
+                
+                Object.entries(TALENT_DATA).forEach(([key, branch]) => {
+                    html += `<div class="talent-branch">
+                        <div class="talent-branch-title">${branch.icon} ${branch.name}</div>`;
+                    
+                    branch.talents.forEach((talent, index) => {
+                        const isUnlocked = this.talents[talent.id];
+                        const canAfford = this.talentPoints > 0 && !isUnlocked;
+                        
+                        html += `<div class="talent-node ${isUnlocked ? (index === branch.talents.length - 1 && Object.keys(this.talents).filter(k => k.startsWith(key)).length === branch.talents.length ? 'maxed' : 'unlocked') : ''}"
+                            ${canAfford ? `onclick="game.spendTalentPoint('${key}', '${talent.id}')"` : ''}
+                            style="opacity:${isUnlocked ? 1 : (canAfford ? 0.8 : 0.5)}">
+                            <span class="talent-icon">${talent.icon}</span>
+                            <div class="talent-info">
+                                <div class="talent-name">${talent.name}</div>
+                                <div class="talent-desc">${talent.desc}</div>
+                            </div>
+                            ${isUnlocked ? '<span style="color:#0f0">✓</span>' : (canAfford ? '<span style="color:#fff">🔒</span>' : '<span style="color:#888">🔒</span>')}
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
+                });
+                
+                container.innerHTML = html;
+            }
+            
+            updateDungeonDisplay() {
+                const container = document.getElementById('dungeonMap');
+                container.innerHTML = this.dungeonMap.map((room, index) => {
+                    let emoji = '❓';
+                    let classes = 'dungeon-room';
+                    let title = '';
+                    
+                    if (room.visited) {
+                        switch(room.type) {
+                            case 'battle': emoji = '⚔️'; break;
+                            case 'treasure': emoji = '💰'; break;
+                            case 'trap': emoji = '💀'; break;
+                            case 'altar': emoji = '✨'; break;
+                            case 'boss': emoji = '👹'; classes += ' boss-room'; break;
+                            case 'merchant': emoji = '🛒'; break;
+                        }
+                        if (index === this.currentRoom) classes += ' current';
+                    } else if (room.unlocked) {
+                        emoji = '?';
+                        classes += ' locked';
+                    } else {
+                        emoji = '🔒';
+                        classes += ' locked';
+                    }
+                    
+                    return `<div class="${classes}" onclick="game.enterRoom(${index})" title="${title}">${emoji}</div>`;
+                }).join('');
+            }
+            
+            toggleEquipment(slotName) {
+                if (this.equipment[slotName]) {
+                    this.unequipItem(slotName);
+                } else {
+                    // Could open a menu to select from inventory
+                }
+            }
+            
+            addJournalEntry(text, type) {
+                const journal = document.getElementById('battleJournal');
+                const entry = document.createElement('div');
+                entry.className = 'journal-entry';
+                entry.textContent = text;
+                entry.dataset.type = type;
+                journal.appendChild(entry);
+                
+                // Keep only last 10 entries
+                while (journal.children.length > 10) {
+                    journal.removeChild(journal.firstChild);
+                }
+                
+                // Scroll to bottom
+                journal.scrollTop = journal.scrollHeight;
+            }
+            
+            // ===== FORMAT NUMBERS =====
+            formatNumber(num) {
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return num.toFixed(0);
+            }
+            
+            // ===== PAYDAY CHECK =====
+            checkPayday() {
+                const overlay = document.getElementById('paydayOverlay');
+                
+                // Show if enough time passed
+                if (!this.paydayTimer) {
+                    this.paydayTimer = 4 * 60 * 60; // 4 hours in seconds
+                }
+                
+                this.paydayTimer -= 0.1;
+                
+                if (this.paydayTimer <= 0) {
+                    overlay.classList.add('active');
+                    this.paydayTimer = 4 * 60 * 60;
+                }
+                
+                // Update overlay
+                const amount = Math.floor(0.2 * 4 * 60 * 60);
+                document.getElementById('paydayAmount').textContent = `+${this.formatNumber(amount)}`;
+            }
+            
+            // ===== GAME OVER =====
+            gameOver() {
+                // Lose 20% of gold
+                this.gold *= 0.8;
+                this.addJournalEntry('☠️ GAME OVER! Lost 20% gold', 'death');
+                
+                // Respawn at level 1 for now
+                this.level = Math.max(1, this.level - 5);
+                this.hp = this.maxHp;
+                
+                setTimeout(() => {
+                    this.spawnEnemy(false);
+                }, 1000);
+            }
+        }
+        
+        // ===== INITIALIZATION =====
+        let game;
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new LegendaryRPG();
+            
+            // Focus game for better mobile performance
+            document.body.focus();
+        });
+        
+        // Keep game in sync with memory
+        window.game = game;
+    </script>
+</body>
+</html>    flex:1;
     position:relative;
     display:flex;
     flex-direction:column;
