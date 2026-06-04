@@ -1,40 +1,1734 @@
-🎮 ЗАДАЧА: УСОВЕРШЕНСТВОВАТЬ RPG-КЛИКЕР "DUNGEON TAP" ДО AAA-УРОВНЯ
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dungeon Tap: Reborn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============================
+           КОРНЕВЫЕ ПЕРЕМЕННЫЕ
+        ============================ */
+        :root {
+            --bg-1: #0a0a1a;
+            --bg-2: #1a0a2e;
+            --bg-3: #0d0d2b;
+            --gold: #ffd700;
+            --gold-dim: #b8960b;
+            --gold-glow: rgba(255, 215, 0, 0.4);
+            --gold-glow-strong: rgba(255, 215, 0, 0.7);
+            --text-main: #ffffff;
+            --text-dim: #8b7baa;
+            --text-accent: #d4c4f0;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-hover: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(255, 255, 255, 0.15);
+            --hp-high: #2ecc71;
+            --hp-mid: #f1c40f;
+            --hp-low: #e74c3c;
+            --crit-color: #ff6b35;
+            --rage-color: #e74c3c;
+            --rarity-common: #9e9e9e;
+            --rarity-uncommon: #4fc3f7;
+            --rarity-rare: #7c4dff;
+            --rarity-epic: #ff9800;
+            --rarity-legendary: #f44336;
+            --rarity-mythic: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #8800ff);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --tg-theme-bg: var(--bg-1);
+        }
 
-У меня есть рабочий код Telegram Mini App игры. Нужно провести ПОЛНЫЙ РЕДИЗАЙН интерфейса и геймплея, чтобы игра выглядела как премиум-продукт 2024 года.
+        /* ============================
+           СБРОС И БАЗОВЫЕ СТИЛИ
+        ============================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-====================
-БЛОК 1: AAA-ИНТЕРФЕЙС (ПРЕМИУМ ДИЗАЙН)
-====================
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
 
-1. ЦВЕТОВАЯ СХЕМА:
-- Основной фон: глубокий космический градиент (#0a0a1a → #1a0a2e → #0d0d2b)
-- Акцентный цвет: золотой (#ffd700) для важных элементов
-- Редкость предметов: белый → синий → фиолетовый → оранжевый → красный → радужный
-- HP бары: градиент от красного к зелёному с анимацией сияния
-- Кнопки: неоновое свечение при наведении
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(170deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
 
-2. СТЕКЛЯННЫЙ МОРФИЗМ (GLASSMORPHISM):
-- Все панели (.panel, .overlay): полупрозрачный фон с blur(20px)
-- Верхняя панель (.top-bar): backdrop-filter: blur(25px), border 1px solid rgba(255,255,255,0.1)
-- Кнопки: эффект стекла с градиентом
+        /* ============================
+           КОНТЕЙНЕР ИГРЫ
+        ============================ */
+        #game {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            height: 100dvh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-3. АНИМАЦИИ:
-- Пульсация кнопок (престиж, босс): свечение дышит
-- Плавные переходы между панелями (transition: all 0.4s ease)
-- Level Up: золотые кольца расходятся + частицы
-- Крит: вспышка + тряска экрана
-- Дроп: предмет вылетает по дуге с искрами
-- Мифик: золотой взрыв на весь экран + вибрация телефона
+        /* ============================
+           КАНВАС ЧАСТИЦ
+        ============================ */
+        #particles {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
 
-4. ТИПОГРАФИЯ:
-- Шрифт: 'Orbitron' для заголовков, 'Segoe UI' для текста
-- Размеры: заголовки 16-24px, текст 9-12px
-- Цвета текста: белый, серый (#b8a9d0), золотой (#ffd700)
+        /* ============================
+           RAGE ВИНЬЕТКА
+        ============================ */
+        .rage-vignette {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(231, 76, 60, 0.5) 100%);
+        }
 
-5. ИКОНКИ И ЭМОДЗИ:
-- Все враги: эмодзи + оружие (уже есть)
-- Предметы: цветные рамки по редкости
-- Кнопки: эмодзи-иконки (🎒🧍⬆👑💎)
+        .rage-vignette.active {
+            opacity: 1;
+            animation: ragePulse 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes ragePulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        /* ============================
+           ВЕРХНЯЯ ПАНЕЛЬ СТАТОВ
+        ============================ */
+        .top-bar {
+            padding: 8px 12px;
+            padding-top: calc(8px + var(--safe-top));
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--glass-border);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            z-index: 30;
+            position: relative;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 4px 2px;
+            border-radius: 8px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+        }
+
+        .stat-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            color: var(--gold);
+            text-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        /* ============================
+           ЗОНА ИНФОРМАЦИИ О ВРАГЕ
+        ============================ */
+        .enemy-info {
+            text-align: center;
+            padding: 8px 15px;
+            z-index: 10;
+        }
+
+        .floor-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+
+        .enemy-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin: 2px 0;
+        }
+
+        .enemy-name.boss-name {
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold-glow);
+            animation: bossGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes bossGlow {
+            from { text-shadow: 0 0 10px var(--gold-glow); }
+            to { text-shadow: 0 0 25px var(--gold-glow-strong), 0 0 50px var(--gold-glow); }
+        }
+
+        /* ============================
+           HP БАР
+        ============================ */
+        .hp-wrap {
+            padding: 0 30px;
+            margin-bottom: 5px;
+        }
+
+        .hp-shell {
+            width: 100%;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 7px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hp-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 7px;
+            background: linear-gradient(90deg, var(--hp-high), #27ae60);
+            transition: width 0.25s ease-out;
+            position: relative;
+        }
+
+        .hp-fill::after {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 5px;
+            right: 5px;
+            height: 4px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 3px;
+        }
+
+        .hp-fill.mid { background: linear-gradient(90deg, var(--hp-mid), #e6a817); }
+        .hp-fill.low { background: linear-gradient(90deg, var(--hp-low), #c0392b); animation: hpPulse 0.5s infinite alternate; }
+
+        @keyframes hpPulse {
+            to { box-shadow: 0 0 12px rgba(231, 76, 60, 0.6); }
+        }
+
+        .hp-text {
+            text-align: center;
+            font-size: 9px;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-dim);
+            margin-top: 3px;
+        }
+
+        /* ============================
+           ЗОНА БОЯ
+        ============================ */
+        .battle-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            min-height: 0;
+        }
+
+        .enemy-sprite-wrap {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .enemy-sprite {
+            font-size: 90px;
+            filter: drop-shadow(0 0 25px rgba(255,255,255,0.15));
+            transition: transform 0.08s ease;
+            will-change: transform;
+            line-height: 1;
+        }
+
+        .enemy-sprite:active {
+            transform: scale(0.85) rotate(3deg);
+        }
+
+        .enemy-sprite.boss-sprite {
+            font-size: 110px;
+            filter: drop-shadow(0 0 30px var(--gold-glow));
+        }
+
+        .enemy-glow {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(138, 100, 255, 0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+        }
+
+        /* ============================
+           КОМБО БЕЙДЖ
+        ============================ */
+        .combo-wrap {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            z-index: 35;
+            text-align: right;
+        }
+
+        .combo-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 8px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        .combo-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold-glow);
+            transition: transform 0.15s ease;
+        }
+
+        .combo-value.maxed {
+            animation: comboMax 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes comboMax {
+            from { text-shadow: 0 0 10px var(--gold-glow); transform: scale(1); }
+            to { text-shadow: 0 0 25px var(--gold-glow-strong), 0 0 40px var(--gold-glow); transform: scale(1.05); }
+        }
+
+        /* ============================
+           ПЛАВАЮЩИЙ УРОН
+        ============================ */
+        .dmg-float {
+            position: absolute;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 55;
+            animation: floatUp 0.9s ease-out forwards;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        .dmg-float.normal { font-size: 18px; color: #fff; }
+        .dmg-float.crit { font-size: 28px; color: var(--crit-color); text-shadow: 0 0 15px rgba(255, 107, 53, 0.6); }
+        .dmg-float.rage-hit { font-size: 24px; color: var(--rage-color); }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-40px) scale(1.1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.6); }
+        }
+
+        /* ============================
+           НИЖНЯЯ НАВИГАЦИЯ
+        ============================ */
+        .nav-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            background: rgba(10, 10, 26, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-top: 1px solid var(--glass-border);
+            padding: 6px 8px;
+            padding-bottom: calc(6px + var(--safe-bottom));
+            z-index: 30;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            padding: 6px 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-btn span {
+            font-size: 8px;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn.active {
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.08);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+        }
+
+        .nav-btn:active { transform: scale(0.9); }
+
+        /* ============================
+           ЭКРАНЫ-ПАНЕЛИ
+        ============================ */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen.active { display: flex; }
+
+        .screen::-webkit-scrollbar { width: 3px; }
+        .screen::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 3px; }
+
+        /* ============================
+           ЭКРАН КАРТЫ
+        ============================ */
+        .map-header {
+            text-align: center;
+            padding: 12px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .map-title { font-size: 14px; color: var(--gold); }
+        .map-sub { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            padding: 12px 20px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .map-cell {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: var(--glass);
+            border: 1.5px solid var(--glass-border);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .map-cell.current {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px var(--gold-glow);
+            animation: cellPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes cellPulse {
+            0%, 100% { box-shadow: 0 0 10px var(--gold-glow); }
+            50% { box-shadow: 0 0 25px var(--gold-glow-strong); }
+        }
+
+        .map-cell.cleared {
+            opacity: 0.35;
+            background: rgba(46, 204, 113, 0.08);
+            border-color: rgba(46, 204, 113, 0.2);
+        }
+
+        .map-cell.locked { opacity: 0.2; }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 10px;
+            font-size: 9px;
+            color: var(--text-dim);
+        }
+
+        /* ============================
+           ЭКРАН ИНВЕНТАРЯ
+        ============================ */
+        .inv-section {
+            padding: 15px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .artifact-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .artifact-slot {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: var(--glass);
+            border: 1.5px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            filter: grayscale(1) brightness(0.4);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .artifact-slot.owned {
+            filter: none;
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.06);
+            box-shadow: 0 0 12px var(--gold-glow);
+        }
+
+        .artifact-name {
+            font-size: 6px;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .equip-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .equip-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+        }
+
+        .equip-icon { font-size: 28px; }
+
+        .equip-info { flex: 1; }
+        .equip-name { font-size: 11px; font-weight: 600; }
+        .equip-stat { font-size: 9px; color: var(--text-dim); }
+
+        .equip-rarity {
+            width: 4px;
+            height: 100%;
+            min-height: 30px;
+            border-radius: 2px;
+        }
+
+        /* ============================
+           ЭКРАН МАГАЗИНА
+        ============================ */
+        .shop-list {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+        }
+
+        .shop-item:active { background: var(--glass-hover); transform: scale(0.98); }
+
+        .shop-icon { font-size: 28px; }
+
+        .shop-info { flex: 1; }
+        .shop-name { font-size: 11px; font-weight: 600; }
+        .shop-desc { font-size: 9px; color: var(--text-dim); }
+
+        .shop-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold);
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .shop-btn:active {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(0.95);
+        }
+
+        .shop-btn.cant { opacity: 0.3; pointer-events: none; }
+
+        /* ============================
+           ЭКРАН ПРЕСТИЖА
+        ============================ */
+        .prestige-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .prestige-icon { font-size: 64px; margin-bottom: 15px; }
+
+        .prestige-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .prestige-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin: 10px 0 20px;
+            line-height: 1.6;
+        }
+
+        .prestige-btn {
+            padding: 14px 40px;
+            border-radius: 14px;
+            border: 2px solid var(--gold);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(184, 134, 11, 0.1));
+            color: var(--gold);
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--gold-glow);
+            animation: prestigePulse 2s ease-in-out infinite;
+            transition: all 0.2s;
+        }
+
+        .prestige-btn:active { transform: scale(0.95); }
+        .prestige-btn.cant { opacity: 0.3; animation: none; pointer-events: none; }
+
+        @keyframes prestigePulse {
+            0%, 100% { box-shadow: 0 0 15px var(--gold-glow); }
+            50% { box-shadow: 0 0 30px var(--gold-glow-strong), 0 0 60px var(--gold-glow); }
+        }
+
+        /* ============================
+           ОВЕРЛЕИ (ЛОТЕРЕЯ, LEVEL UP)
+        ============================ */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 5, 15, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lottery-wheel {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 30px var(--gold-glow), inset 0 0 30px var(--gold-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 20px 0;
+            transition: transform 3s cubic-bezier(0.15, 0, 0.05, 1);
+        }
+
+        .lottery-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .lottery-result {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            color: var(--text-accent);
+            margin: 15px 0;
+            min-height: 20px;
+        }
+
+        .overlay-btn {
+            padding: 12px 36px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+            color: #000;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--gold-glow);
+            transition: all 0.2s;
+        }
+
+        .overlay-btn:active { transform: scale(0.95); }
+        .overlay-btn:disabled { opacity: 0.4; pointer-events: none; }
+
+        /* Level Up оверлей */
+        .lvlup-icon { font-size: 70px; margin-bottom: 10px; }
+
+        .lvlup-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold-glow-strong);
+            animation: lvlupFlash 0.5s ease-in-out 3;
+        }
+
+        @keyframes lvlupFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .lvlup-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin: 8px 0 20px;
+        }
+
+        /* Экран тряски */
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-5px) translateY(2px); }
+            40% { transform: translateX(5px) translateY(-2px); }
+            60% { transform: translateX(-3px) translateY(1px); }
+            80% { transform: translateX(3px) translateY(-1px); }
+        }
+
+        .shake { animation: screenShake 0.15s ease; }
+
+        /* Скрытый звуковой контекст */
+        .hidden { display: none !important; }
+
+        /* Плавный скролл панелей */
+        .smooth-show {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div id="game">
+
+    <!-- Канвас для частиц -->
+    <canvas id="particles"></canvas>
+
+    <!-- Rage виньетка -->
+    <div class="rage-vignette" id="rageVignette"></div>
+
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+        <div class="stat-box">
+            <div class="stat-label">ЗОЛОТО</div>
+            <div class="stat-value" id="sGold">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">КРИСТАЛ</div>
+            <div class="stat-value" id="sPrestige">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">УРОН</div>
+            <div class="stat-value" id="sDmg">10</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">УРОВЕНЬ</div>
+            <div class="stat-value" id="sLvl">1</div>
+        </div>
+    </div>
+
+    <!-- ===== ЭКРАН БОЕВОЙ ===== -->
+    <div class="screen active" id="screenBattle">
+
+        <!-- Комбо -->
+        <div class="combo-wrap">
+            <div class="combo-label">COMBO</div>
+            <div class="combo-value" id="comboVal">x1.00</div>
+        </div>
+
+        <!-- Информация о враге -->
+        <div class="enemy-info">
+            <div class="floor-badge">ЭТАЖ <span id="floorNum">1</span> — КОМНАТА <span id="roomNum">1</span>/25</div>
+            <div class="enemy-name" id="enemyName">Слизень</div>
+        </div>
+
+        <!-- HP -->
+        <div class="hp-wrap">
+            <div class="hp-shell">
+                <div class="hp-fill" id="hpBar"></div>
+            </div>
+            <div class="hp-text"><span id="hpText">100</span> / <span id="hpMax">100</span></div>
+        </div>
+
+        <!-- Зона боя -->
+        <div class="battle-zone" id="battleZone">
+            <div class="enemy-sprite-wrap" id="enemyWrap">
+                <div class="enemy-glow"></div>
+                <div class="enemy-sprite" id="enemySprite">🧪</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ЭКРАН КАРТЫ ===== -->
+    <div class="screen" id="screenMap">
+        <div class="map-header">
+            <div class="map-title">🗺️ КАРТА ПОДЗЕМЕЛЬЯ</div>
+            <div class="map-sub">ЭТАЖ <span id="mapFloor">1</span></div>
+        </div>
+        <div class="map-grid" id="mapGrid"></div>
+        <div class="map-legend">
+            <span>⚔️ Бой</span>
+            <span>🎁 Сокровище</span>
+            <span>⚠️ Ловушка</span>
+            <span>🙏 Алтарь</span>
+            <span>🛒 Торговец</span>
+            <span>👑 Босс</span>
+        </div>
+    </div>
+
+    <!-- ===== ЭКРАН ИНВЕНТАРЯ ===== -->
+    <div class="screen" id="screenInv">
+        <div class="inv-section">
+            <div class="section-title">🏆 АРТЕФАКТЫ БОССОВ</div>
+            <div class="artifact-grid" id="artifactGrid"></div>
+            <div style="text-align:center; margin-top:8px; font-size:9px; color: var(--text-dim);" id="artifactProgress">0 / 10 собрано</div>
+        </div>
+        <div class="inv-section">
+            <div class="section-title">🎒 ЭКИПИРОВКА</div>
+            <div class="equip-list" id="equipList">
+                <div style="text-align:center; color: var(--text-dim); font-size:11px; padding: 20px;">Пусто... Побеждайте врагов!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ЭКРАН МАГАЗИНА ===== -->
+    <div class="screen" id="screenShop">
+        <div class="shop-list" id="shopList"></div>
+    </div>
+
+    <!-- ===== ЭКРАН ПРЕСТИЖА ===== -->
+    <div class="screen" id="screenPrestige">
+        <div class="prestige-screen">
+            <div class="prestige-icon">👑</div>
+            <div class="prestige-title">ПРЕСТИЖ</div>
+            <div class="prestige-desc">
+                Сбросить прогресс, но получить<br>
+                💎 <span id="prestigeReward">0</span> кристаллов престижа<br>
+                <br>
+                Каждый кристалл = +5% к урону навсегда
+            </div>
+            <button class="prestige-btn" id="prestigeBtn" onclick="G.doPrestige()">ПЕРЕРОЖДЕНИЕ</button>
+        </div>
+    </div>
+
+    <!-- ===== ЛОТЕРЕЯ ОВЕРЛЕЙ ===== -->
+    <div class="overlay" id="lotteryOverlay">
+        <div class="lottery-title">🎰 БОСС ПОБЕЖДЁН!</div>
+        <div class="lottery-wheel" id="lotteryWheel">🎁</div>
+        <div class="lottery-result" id="lotteryResult"></div>
+        <button class="overlay-btn" id="lotteryBtn" onclick="G.closeLottery()" disabled>ЗАБРАТЬ</button>
+    </div>
+
+    <!-- ===== LEVEL UP ОВЕРЛЕЙ ===== -->
+    <div class="overlay" id="lvlupOverlay">
+        <div class="lvlup-icon">⬆️</div>
+        <div class="lvlup-title">LEVEL UP!</div>
+        <div class="lvlup-sub" id="lvlupSub">Уровень 2</div>
+        <button class="overlay-btn" onclick="G.closeLvlUp()">ПРОДОЛЖИТЬ</button>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav-bar">
+        <button class="nav-btn active" data-screen="Battle" onclick="G.showScreen('Battle', this)">
+            ⚔️<span>БОЙ</span>
+        </button>
+        <button class="nav-btn" data-screen="Map" onclick="G.showScreen('Map', this)">
+            🗺️<span>КАРТА</span>
+        </button>
+        <button class="nav-btn" data-screen="Inv" onclick="G.showScreen('Inv', this)">
+            🎒<span>ВЕЩИ</span>
+        </button>
+        <button class="nav-btn" data-screen="Shop" onclick="G.showScreen('Shop', this)">
+            ⬆️<span>УЛУЧШ</span>
+        </button>
+        <button class="nav-btn" data-screen="Prestige" onclick="G.showScreen('Prestige', this)">
+            👑<span>ПРЕСТИЖ</span>
+        </button>
+    </div>
+</div>
+
+<script>
+// ========================================================
+//  DUNGEON TAP: REBORN — TELEGRAM MINI APP ENGINE
+// ========================================================
+
+const G = {};
+
+// --- TELEGRAM INTEGRATION ---
+G.tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+G.initTelegram = function() {
+    if (!G.tg) return;
+    G.tg.ready();
+    G.tg.expand();
+    G.tg.disableVerticalSwipes();
+    // Устанавливаем цвет хедера и фона
+    try {
+        G.tg.setHeaderColor('#0a0a1a');
+        G.tg.setBackgroundColor('#0a0a1a');
+    } catch(e) {}
+};
+
+// Тактильная отдача
+G.haptic = function(type) {
+    if (!G.tg || !G.tg.HapticFeedback) return;
+    try {
+        if (type === 'light') G.tg.HapticFeedback.impactOccurred('light');
+        else if (type === 'medium') G.tg.HapticFeedback.impactOccurred('medium');
+        else if (type === 'heavy') G.tg.HapticFeedback.impactOccurred('heavy');
+        else if (type === 'success') G.tg.HapticFeedback.notificationOccurred('success');
+        else if (type === 'error') G.tg.HapticFeedback.notificationOccurred('error');
+    } catch(e) {}
+};
+
+// --- ДАННЫЕ ИГРЫ ---
+G.defaultState = function() {
+    return {
+        gold: 0,
+        prestiges: 0,
+        crystals: 0,
+        lvl: 1,
+        xp: 0,
+        xpNeed: 50,
+        baseDmg: 10,
+        combo: 1.0,
+        comboTimer: 0,
+        floor: 1,
+        room: 0,
+        map: [],
+        artifacts: [false,false,false,false,false,false,false,false,false,false],
+        equipment: [],
+        upgrades: { dmg: 0, crit: 0, gold: 0, combo: 0 },
+        totalKills: 0,
+        totalClicks: 0,
+        rageActive: false
+    };
+};
+
+G.state = G.defaultState();
+
+// --- ВРАГИ ---
+G.enemies = [
+    { name: 'Слизень', icon: '🧪', hpMult: 1 },
+    { name: 'Скелет', icon: '💀', hpMult: 1.2 },
+    { name: 'Гоблин', icon: '👺', hpMult: 1.1 },
+    { name: 'Орк', icon: '👹', hpMult: 1.5 },
+    { name: 'Вампир', icon: '🧛', hpMult: 1.8 },
+    { name: 'Призрак', icon: '👻', hpMult: 1.3 },
+    { name: 'Тёмный маг', icon: '🧙', hpMult: 2.0 },
+    { name: 'Виверна', icon: '🦎', hpMult: 2.2 },
+    { name: 'Минотавр', icon: '🐂', hpMult: 2.5 },
+    { name: 'Демон', icon: '😈', hpMult: 2.8 }
+];
+
+G.bosses = [
+    { name: 'Король слизней', icon: '🐲', hpMult: 6 },
+    { name: 'Лич', icon: '☠️', hpMult: 7 },
+    { name: 'Дракон', icon: '🐉', hpMult: 8 },
+    { name: 'Титан', icon: '🗿', hpMult: 10 },
+    { name: 'Тёмный Лорд', icon: '👿', hpMult: 12 }
+];
+
+G.artifactData = [
+    { icon: '🗡️', name: 'Меч Тьмы' },
+    { icon: '🛡️', name: 'Щит Света' },
+    { icon: '💍', name: 'Кольцо Силы' },
+    { icon: '📜', name: 'Свиток Мудр.' },
+    { icon: '👑', name: 'Корона Кор.' },
+    { icon: '🕯️', name: 'Свеча Душ' },
+    { icon: '🧪', name: 'Эликсир Бог.' },
+    { icon: '💎', name: 'Камень Судьб' },
+    { icon: '🔑', name: 'Ключ Безд.' },
+    { icon: '🔱', name: 'Трезубец' }
+];
+
+G.roomTypes = ['⚔️','⚔️','⚔️','🎁','⚠️','🙏','🛒','⚔️','⚔️','⚔️'];
+
+G.rarities = [
+    { name: 'Обычный', color: 'var(--rarity-common)', chance: 0.50 },
+    { name: 'Необычный', color: 'var(--rarity-uncommon)', chance: 0.25 },
+    { name: 'Редкий', color: 'var(--rarity-rare)', chance: 0.15 },
+    { name: 'Эпический', color: 'var(--rarity-epic)', chance: 0.07 },
+    { name: 'Легендарный', color: 'var(--rarity-legendary)', chance: 0.025 },
+    { name: 'Мифический', color: '#ff0000', chance: 0.005 }
+];
+
+G.lootNames = [
+    ['Палка', 'Ржавый нож', 'Тряпка'],
+    ['Короткий меч', 'Кожаный щит', 'Плащ'],
+    ['Клинок теней', 'Кольчуга', 'Амулет'],
+    ['Пылающий меч', 'Доспех дракона', 'Кольцо мага'],
+    ['Экскалибур', 'Эгида', 'Корона вечности'],
+    ['⚡Звёздный клинок', '⚡Броня Богов', '⚡Око Вселенной']
+];
+
+// --- ТЕКУЩИЙ ВРАГ ---
+G.curEnemy = { name: '', icon: '', hp: 100, maxHp: 100, isBoss: false };
+
+// --- ИНИЦИАЛИЗАЦИЯ ---
+G.init = function() {
+    G.initTelegram();
+    G.load();
+    G.initParticles();
+    G.generateMap();
+    G.spawnEnemy();
+    G.renderArtifacts();
+    G.renderShop();
+    G.updateUI();
+    G.bindEvents();
+    G.startComboDecay();
+    G.autoSaveLoop();
+    G.renderEquipment();
+};
+
+// --- СИСТЕМА ЧАСТИЦ ---
+G.initParticles = function() {
+    G.canvas = document.getElementById('particles');
+    G.ctx = G.canvas.getContext('2d');
+    G.parts = [];
+    G.resizeCanvas();
+    window.addEventListener('resize', G.resizeCanvas);
+    G.animateParticles();
+};
+
+G.resizeCanvas = function() {
+    const game = document.getElementById('game');
+    G.canvas.width = game.offsetWidth;
+    G.canvas.height = game.offsetHeight;
+};
+
+G.Particle = function(x, y, color, opts) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.size = (opts && opts.size) || (Math.random() * 3 + 1.5);
+    this.vx = (opts && opts.vx !== undefined) ? opts.vx : (Math.random() - 0.5) * 8;
+    this.vy = (opts && opts.vy !== undefined) ? opts.vy : (Math.random() - 0.5) * 8 - 2;
+    this.gravity = (opts && opts.gravity) || 0.15;
+    this.life = 1.0;
+    this.decay = (opts && opts.decay) || (0.015 + Math.random() * 0.01);
+};
+
+G.spawnParticles = function(x, y, color, count, opts) {
+    count = Math.min(count, 50 - G.parts.length); // Лимит
+    for (let i = 0; i < count; i++) {
+        G.parts.push(new G.Particle(x, y, color, opts));
+    }
+};
+
+G.animateParticles = function() {
+    G.ctx.clearRect(0, 0, G.canvas.width, G.canvas.height);
+    for (let i = G.parts.length - 1; i >= 0; i--) {
+        const p = G.parts[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.life -= p.decay;
+        if (p.life <= 0) { G.parts.splice(i, 1); continue; }
+        G.ctx.globalAlpha = p.life;
+        G.ctx.fillStyle = p.color;
+        G.ctx.beginPath();
+        G.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        G.ctx.fill();
+    }
+    G.ctx.globalAlpha = 1;
+    requestAnimationFrame(G.animateParticles);
+};
+
+// --- ГЕНЕРАЦИЯ КАРТЫ ---
+G.generateMap = function() {
+    const s = G.state;
+    s.map = [];
+    for (let i = 0; i < 24; i++) {
+        s.map.push(G.roomTypes[Math.floor(Math.random() * G.roomTypes.length)]);
+    }
+    s.map.push('👑'); // Комната 25 — всегда босс
+    s.room = 0;
+    G.renderMap();
+};
+
+G.renderMap = function() {
+    const grid = document.getElementById('mapGrid');
+    grid.innerHTML = '';
+    const s = G.state;
+    for (let i = 0; i < 25; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'map-cell';
+        if (i < s.room) cell.classList.add('cleared');
+        else if (i === s.room) cell.classList.add('current');
+        else cell.classList.add('locked');
+        cell.textContent = s.map[i] || '?';
+        grid.appendChild(cell);
+    }
+    document.getElementById('mapFloor').textContent = s.floor;
+    document.getElementById('floorNum').textContent = s.floor;
+    document.getElementById('roomNum').textContent = (s.room + 1);
+};
+
+// --- СПАВН ВРАГА ---
+G.spawnEnemy = function() {
+    const s = G.state;
+    const roomType = s.map[s.room];
+    const isBoss = roomType === '👑';
+    let template;
+
+    if (isBoss) {
+        template = G.bosses[Math.floor(Math.random() * G.bosses.length)];
+    } else {
+        template = G.enemies[Math.floor(Math.random() * G.enemies.length)];
+    }
+
+    const baseHp = (30 + s.floor * 20 + s.room * 5) * template.hpMult;
+    G.curEnemy = {
+        name: template.name,
+        icon: template.icon,
+        maxHp: Math.floor(baseHp),
+        hp: Math.floor(baseHp),
+        isBoss: isBoss
+    };
+
+    const nameEl = document.getElementById('enemyName');
+    nameEl.textContent = G.curEnemy.name;
+    nameEl.className = 'enemy-name' + (isBoss ? ' boss-name' : '');
+
+    const spriteEl = document.getElementById('enemySprite');
+    spriteEl.textContent = G.curEnemy.icon;
+    spriteEl.className = 'enemy-sprite' + (isBoss ? ' boss-sprite' : '');
+
+    G.updateHpBar();
+    G.renderMap();
+
+    // Обработка особых комнат
+    if (roomType === '🎁') G.treasureRoom();
+    else if (roomType === '⚠️') G.trapRoom();
+    else if (roomType === '🙏') G.altarRoom();
+    else if (roomType === '🛒') G.merchantRoom();
+};
+
+// --- ОСОБЫЕ КОМНАТЫ ---
+G.treasureRoom = function() {
+    const bonus = Math.floor(20 + G.state.floor * 10);
+    G.state.gold += bonus;
+    G.floatText(window.innerWidth / 2, window.innerHeight / 2, '+' + bonus + '💰', '#ffd700');
+    G.haptic('success');
+    // Автоматический переход
+    setTimeout(() => G.nextRoom(), 600);
+};
+
+G.trapRoom = function() {
+    // Ловушка — враг бьёт первым (HP врага уменьшен)
+    G.curEnemy.maxHp = Math.floor(G.curEnemy.maxHp * 0.5);
+    G.curEnemy.hp = G.curEnemy.maxHp;
+    G.floatText(window.innerWidth / 2, window.innerHeight / 2, '⚠️ ЛОВУШКА!', '#e74c3c');
+    G.haptic('error');
+};
+
+G.altarRoom = function() {
+    // Алтарь: даёт бафф на урон
+    G.state.baseDmg += 3;
+    G.floatText(window.innerWidth / 2, window.innerHeight / 2, '🙏 +3 УРОН', '#9b59b6');
+    G.haptic('success');
+    setTimeout(() => G.nextRoom(), 600);
+};
+
+G.merchantRoom = function() {
+    // Торговец — пропуск (можно потом расширить)
+    G.floatText(window.innerWidth / 2, window.innerHeight / 2, '🛒 Торговец пуст', '#888');
+    setTimeout(() => G.nextRoom(), 600);
+};
+
+// --- АТАКА ---
+G.attack = function(x, y) {
+    const s = G.state;
+    s.totalClicks++;
+
+    // Расчёт урона
+    const crystalBonus = 1 + s.crystals * 0.05;
+    const upgradeBonus = 1 + s.upgrades.dmg * 0.15;
+    const artifactBonus = 1 + s.artifacts.filter(Boolean).length * 0.03;
+    let dmg = s.baseDmg * s.combo * crystalBonus * upgradeBonus * artifactBonus;
+
+    // Rage Mode
+    if (s.rageActive) dmg *= 2;
+
+    // Крит
+    const critChance = 0.1 + s.upgrades.crit * 0.03;
+    const isCrit = Math.random() < critChance;
+    if (isCrit) {
+        dmg *= 2.5;
+        G.spawnParticles(x, y, '#ff6b35', 15);
+        G.spawnParticles(x, y, '#ffaa00', 8);
+        G.shakeScreen();
+        G.haptic('heavy');
+        G.floatText(x, y, Math.floor(dmg).toString(), 'crit');
+    } else {
+        G.spawnParticles(x, y, '#ffffff', 4, { size: 2 });
+        G.haptic('light');
+        G.floatText(x, y, Math.floor(dmg).toString(), s.rageActive ? 'rage-hit' : 'normal');
+    }
+
+    // Комбо
+    const comboGain = 0.005 + s.upgrades.combo * 0.002;
+    s.combo = Math.min(2.0, s.combo + comboGain);
+    s.comboTimer = Date.now();
+
+    // Урон врагу
+    G.curEnemy.hp -= dmg;
+    if (G.curEnemy.hp <= 0) G.curEnemy.hp = 0;
+    G.updateHpBar();
+
+    // Rage Mode — проверка (когда HP врага < 20%)
+    if (G.curEnemy.hp > 0 && G.curEnemy.hp < G.curEnemy.maxHp * 0.2 && !s.rageActive) {
+        G.activateRage();
+    }
+
+    // Смерть врага
+    if (G.curEnemy.hp <= 0) {
+        G.enemyDeath(x, y);
+    }
+
+    G.updateUI();
+};
+
+// --- RAGE MODE ---
+G.activateRage = function() {
+    G.state.rageActive = true;
+    document.getElementById('rageVignette').classList.add('active');
+    G.haptic('heavy');
+
+    if (G._rageTimer) clearTimeout(G._rageTimer);
+    G._rageTimer = setTimeout(() => {
+        G.state.rageActive = false;
+        document.getElementById('rageVignette').classList.remove('active');
+    }, 8000);
+};
+
+// --- СМЕРТЬ ВРАГА ---
+G.enemyDeath = function(x, y) {
+    const s = G.state;
+    s.totalKills++;
+
+    // Золото
+    const goldMult = 1 + s.upgrades.gold * 0.2;
+    const goldReward = Math.floor((5 + s.floor * 3 + s.room * 2) * s.combo * goldMult * (G.curEnemy.isBoss ? 5 : 1));
+    s.gold += goldReward;
+
+    // Опыт
+    const xpReward = Math.floor((3 + s.floor * 2) * (G.curEnemy.isBoss ? 3 : 1));
+    s.xp += xpReward;
+
+    // Частицы смерти
+    G.spawnParticles(x, y, '#ffd700', 20);
+    G.spawnParticles(x, y, '#fff', 10);
+    G.haptic('medium');
+
+    // Дроп предмета
+    if (Math.random() < 0.25) G.dropItem();
+
+    // Артефакт босса
+    if (G.curEnemy.isBoss && Math.random() < 0.15) {
+        const freeSlots = s.artifacts.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+        if (freeSlots.length > 0) {
+            const slot = freeSlots[Math.floor(Math.random() * freeSlots.length)];
+            s.artifacts[slot] = true;
+            G.renderArtifacts();
+            G.haptic('success');
+            G.floatText(window.innerWidth / 2, window.innerHeight / 3, '🏆 АРТЕФАКТ!', '#ffd700');
+            // Полная коллекция?
+            if (s.artifacts.every(Boolean)) {
+                s.crystals += 10;
+                G.floatText(window.innerWidth / 2, window.innerHeight / 2.5, '💎 +10 КРИСТАЛЛОВ!', '#ffd700');
+            }
+        }
+    }
+
+    // Level up?
+    if (s.xp >= s.xpNeed) {
+        s.xp -= s.xpNeed;
+        s.lvl++;
+        s.xpNeed = Math.floor(s.xpNeed * 1.3);
+        s.baseDmg += 2;
+        G.showLvlUp();
+    }
+
+    // Босс → лотерея
+    if (G.curEnemy.isBoss) {
+        setTimeout(() => G.showLottery(), 400);
+    } else {
+        setTimeout(() => G.nextRoom(), 300);
+    }
+};
+
+// --- ДРОП ПРЕДМЕТА ---
+G.dropItem = function() {
+    const s = G.state;
+    let roll = Math.random();
+    let rarityIdx = 0;
+    let cumulative = 0;
+    for (let i = 0; i < G.rarities.length; i++) {
+        cumulative += G.rarities[i].chance;
+        if (roll <= cumulative) { rarityIdx = i; break; }
+    }
+
+    const rarity = G.rarities[rarityIdx];
+    const names = G.lootNames[rarityIdx];
+    const itemName = names[Math.floor(Math.random() * names.length)];
+    const dmgBonus = Math.floor((rarityIdx + 1) * (1 + s.floor * 0.3) * (1 + Math.random()));
+
+    const item = {
+        name: itemName,
+        rarity: rarityIdx,
+        rarityName: rarity.name,
+        rarityColor: rarity.color,
+        dmg: dmgBonus,
+        icon: ['🗡️', '🛡️', '💍', '📿', '🧤', '👢'][Math.floor(Math.random() * 6)]
+    };
+
+    s.equipment.push(item);
+    // Ограничиваем инвентарь 30 предметами
+    if (s.equipment.length > 30) {
+        s.equipment.sort((a, b) => a.rarity - b.rarity);
+        s.equipment.shift();
+    }
+
+    G.floatText(window.innerWidth / 2, window.innerHeight / 2, item.icon + ' ' + item.name, rarity.color);
+    if (rarityIdx >= 3) G.haptic('success');
+    G.renderEquipment();
+};
+
+// --- СЛЕДУЮЩАЯ КОМНАТА ---
+G.nextRoom = function() {
+    const s = G.state;
+    s.room++;
+    if (s.room >= 25) {
+        s.floor++;
+        G.generateMap();
+    }
+    G.spawnEnemy();
+};
+
+// --- ЛОТЕРЕЯ ---
+G.showLottery = function() {
+    const overlay = document.getElementById('lotteryOverlay');
+    overlay.classList.add('show');
+    const wheel = document.getElementById('lotteryWheel');
+    const btn = document.getElementById('lotteryBtn');
+    const result = document.getElementById('lotteryResult');
+
+    btn.disabled = true;
+    result.textContent = '';
+    wheel.style.transition = 'none';
+    wheel.style.transform = 'rotate(0deg)';
+
+    const symbols = ['💰', '💎', '🗡️', '🛡️', '💍', '⭐', '🎁', '🧪'];
+    let spinCount = 0;
+    const spinInterval = setInterval(() => {
+        wheel.textContent = symbols[spinCount % symbols.length];
+        spinCount++;
+    }, 80);
+
+    requestAnimationFrame(() => {
+        wheel.style.transition = 'transform 3s cubic-bezier(0.15, 0, 0.05, 1)';
+        wheel.style.transform = `rotate(${1800 + Math.random() * 720}deg)`;
+    });
+
+    setTimeout(() => {
+        clearInterval(spinInterval);
+
+        // Определяем приз
+        const prizes = [
+            { text: '💰 ' + (50 + G.state.floor * 30) + ' золота', action: () => { G.state.gold += 50 + G.state.floor * 30; } },
+            { text: '💎 1 кристалл', action: () => { G.state.crystals += 1; } },
+            { text: '💰 ' + (100 + G.state.floor * 50) + ' золота', action: () => { G.state.gold += 100 + G.state.floor * 50; } },
+            { text: '⚔️ +5 к урону', action: () => { G.state.baseDmg += 5; } },
+            { text: '💎 2 кристалла', action: () => { G.state.crystals += 2; } },
+            { text: '🎁 РЕДКИЙ ПРЕДМЕТ', action: () => { G.dropItem(); } }
+        ];
+
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        wheel.textContent = '🏆';
+        result.textContent = prize.text;
+        prize.action();
+        btn.disabled = false;
+        G.haptic('success');
+        G.updateUI();
+    }, 3000);
+};
+
+G.closeLottery = function() {
+    document.getElementById('lotteryOverlay').classList.remove('show');
+    G.nextRoom();
+};
+
+// --- LEVEL UP ---
+G.showLvlUp = function() {
+    document.getElementById('lvlupOverlay').classList.add('show');
+    document.getElementById('lvlupSub').textContent = 'Уровень ' + G.state.lvl + ' | +2 урона';
+    G.haptic('success');
+
+    // Золотые частицы
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            G.spawnParticles(
+                Math.random() * G.canvas.width,
+                Math.random() * G.canvas.height * 0.5,
+                '#ffd700', 1,
+                { vy: -3 - Math.random() * 3, gravity: 0.05, decay: 0.008, size: 3 + Math.random() * 3 }
+            );
+        }, i * 30);
+    }
+};
+
+G.closeLvlUp = function() {
+    document.getElementById('lvlupOverlay').classList.remove('show');
+};
+
+// --- ПРЕСТИЖ ---
+G.doPrestige = function() {
+    const s = G.state;
+    const reward = Math.max(1, Math.floor(s.floor / 2));
+    if (s.floor < 2) {
+        G.haptic('error');
+        return;
+    }
+
+    G.haptic('heavy');
+    s.crystals += reward;
+
+    // Мощный визуальный эффект
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            G.spawnParticles(
+                G.canvas.width / 2 + (Math.random() - 0.5) * 200,
+                G.canvas.height / 2 + (Math.random() - 0.5) * 200,
+                ['#ffd700', '#fff', '#ffaa00'][Math.floor(Math.random() * 3)],
+                1, { decay: 0.006, size: 4 + Math.random() * 4 }
+            );
+        }, i * 20);
+    }
+
+    // Сброс
+    const keepCrystals = s.crystals;
+    const keepArtifacts = [...s.artifacts];
+    const keepPrestiges = s.prestiges + 1;
+    Object.assign(s, G.defaultState());
+    s.crystals = keepCrystals;
+    s.artifacts = keepArtifacts;
+    s.prestiges = keepPrestiges;
+
+    G.generateMap();
+    G.spawnEnemy();
+    G.renderShop();
+    G.renderArtifacts();
+    G.renderEquipment();
+    G.updateUI();
+    G.showScreen('Battle', document.querySelector('[data-screen="Battle"]'));
+};
+
+// --- МАГАЗИН ---
+G.shopItems = [
+    { id: 'dmg', name: '⚔️ Сила удара', desc: '+15% к базовому урону', cost: (lvl) => Math.floor(30 * Math.pow(1.6, lvl)), max: 50 },
+    { id: 'crit', name: '🎯 Меткость', desc: '+3% шанс крита', cost: (lvl) => Math.floor(50 * Math.pow(1.7, lvl)), max: 20 },
+    { id: 'gold', name: '💰 Жадность', desc: '+20% золота с врагов', cost: (lvl) => Math.floor(40 * Math.pow(1.5, lvl)), max: 30 },
+    { id: 'combo', name: '🔥 Скорость комбо', desc: '+0.2% прирост комбо', cost: (lvl) => Math.floor(60 * Math.pow(1.8, lvl)), max: 15 }
+];
+
+G.renderShop = function() {
+    const list = document.getElementById('shopList');
+    list.innerHTML = '';
+    const s = G.state;
+
+    G.shopItems.forEach(item => {
+        const lvl = s.upgrades[item.id];
+        const cost = item.cost(lvl);
+        const maxed = lvl >= item.max;
+
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.innerHTML = `
+            <div class="shop-icon">${item.name.split(' ')[0]}</div>
+            <div class="shop-info">
+                <div class="shop-name">${item.name} <span style="color:var(--text-dim); font-size:9px;">[${lvl}/${item.max}]</span></div>
+                <div class="shop-desc">${item.desc}</div>
+            </div>
+            <button class="shop-btn ${maxed || s.gold < cost ? 'cant' : ''}" data-id="${item.id}">
+                ${maxed ? 'MAX' : cost + '💰'}
+            </button>
+        `;
+        list.appendChild(div);
+    });
+
+    // Обработчики
+    list.querySelectorAll('.shop-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            G.buyUpgrade(id);
+        });
+    });
+};
+
+G.buyUpgrade = function(id) {
+    const s = G.state;
+    const item = G.shopItems.find(i => i.id === id);
+    if (!item) return;
+    const lvl = s.upgrades[id];
+    const cost = item.cost(lvl);
+    if (lvl >= item.max || s.gold < cost) {
+        G.haptic('error');
+        return;
+    }
+    s.gold -= cost;
+    s.upgrades[id]++;
+    G.haptic('medium');
+    G.renderShop();
+    G.updateUI();
+};
+
+// --- АРТЕФАКТЫ ---
+G.renderArtifacts = function() {
+    const grid = document.getElementById('artifactGrid');
+    grid.innerHTML = '';
+    const s = G.state;
+    let owned = 0;
+
+    G.artifactData.forEach((art, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'artifact-slot' + (s.artifacts[i] ? ' owned' : '');
+        slot.innerHTML = `<span>${art.icon}</span><div class="artifact-name">${art.name}</div>`;
+        grid.appendChild(slot);
+        if (s.artifacts[i]) owned++;
+    });
+
+    document.getElementById('artifactProgress').textContent = owned + ' / 10 собрано' + (owned === 10 ? ' ✨ ПОЛНАЯ КОЛЛЕКЦИЯ!' : '');
+};
+
+// --- ЭКИПИРОВКА ---
+G.renderEquipment = function() {
+    const list = document.getElementById('equipList');
+    const s = G.state;
+    if (s.equipment.length === 0) {
+        list.innerHTML = '<div style="text-align:center; color: var(--text-dim); font-size:11px; padding: 20px;">Пусто... Побеждайте врагов!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    // Сортируем по редкости (от лучших)
+    const sorted = [...s.equipment].sort((a, b) => b.rarity - a.rarity);
+    sorted.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'equip-item';
+        div.innerHTML = `
+            <div class="equip-rarity" style="background: ${item.rarityColor};"></div>
+            <div class="equip-icon">${item.icon}</div>
+            <div class="equip-info">
+                <div class="equip-name" style="color: ${item.rarityColor}">${item.name}</div>
+                <div class="equip-stat">+${item.dmg} урон • ${item.rarityName}</div>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+};
+
+// --- ОБНОВЛЕНИЕ UI ---
+G.updateUI = function() {
+    const s = G.state;
+    const crystalBonus = 1 + s.crystals * 0.05;
+    const upgradeBonus = 1 + s.upgrades.dmg * 0.15;
+    const artifactBonus = 1 + s.artifacts.filter(Boolean).length * 0.03;
+    const totalDmg = Math.floor(s.baseDmg * crystalBonus * upgradeBonus * artifactBonus);
+
+    document.getElementById('sGold').textContent = G.formatNum(s.gold);
+    document.getElementById('sPrestige').textContent = s.crystals;
+    document.getElementById('sDmg').textContent = G.formatNum(totalDmg);
+    document.getElementById('sLvl').textContent = s.lvl;
+
+    // Комбо
+    const comboEl = document.getElementById('comboVal');
+    comboEl.textContent = 'x' + s.combo.toFixed(2);
+    if (s.combo >= 2.0) {
+        comboEl.classList.add('maxed');
+        comboEl.textContent = 'x2.00 MAX!';
+    } else {
+        comboEl.classList.remove('maxed');
+    }
+
+    // Престиж
+    const reward = Math.max(1, Math.floor(s.floor / 2));
+    document.getElementById('prestigeReward').textContent = reward;
+    document.getElementById('prestigeBtn').classList.toggle('cant', s.floor < 2);
+
+    G.renderMap();
+};
+
+G.updateHpBar = function() {
+    const e = G.curEnemy;
+    const pct = Math.max(0, e.hp / e.maxHp * 100);
+    const bar = document.getElementById('hpBar');
+    bar.style.width = pct + '%';
+    bar.className = 'hp-fill' + (pct < 20 ? ' low' : pct < 50 ? ' mid' : '');
+    document.getElementById('hpText').textContent = Math.max(0, Math.floor(e.hp));
+    document.getElementById('hpMax').textContent = e.maxHp;
+};
+
+// --- НАВИГАЦИЯ ---
+G.showScreen = function(name, btnEl) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const screen = document.getElementById('screen' + name);
+    if (screen) {
+        screen.classList.add('active');
+        screen.classList.add('smooth-show');
+        setTimeout(() => screen.classList.remove('smooth-show'), 300);
+    }
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    G.haptic('light');
+
+    if (name === 'Shop') G.renderShop();
+};
+
+// --- FLOAT TEXT ---
+G.floatText = function(x, y, text, type) {
+    const el = document.createElement('div');
+    el.className = 'dmg-float ' + (typeof type === 'string' && type.startsWith('#') ? '' : type);
+    if (typeof type === 'string' && type.startsWith('#')) el.style.color = type;
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.getElementById('game').appendChild(el);
+    setTimeout(() => el.remove(), 900);
+};
+
+// --- ТРЯСКА ---
+G.shakeScreen = function() {
+    const el = document.getElementById('game');
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 150);
+};
+
+// --- КОМБО УБЫВАНИЕ ---
+G.startComboDecay = function() {
+    setInterval(() => {
+        const s = G.state;
+        if (Date.now() - s.comboTimer > 1500 && s.combo > 1.0) {
+            s.combo = Math.max(1.0, s.combo - 0.02);
+            G.updateUI();
+        }
+    }, 200);
+};
+
+// --- ВВОД (МУЛЬТИТАЧ) ---
+G.bindEvents = function() {
+    const zone = document.getElementById('battleZone');
+
+    zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        // Проверяем что мы на экране боя
+        if (!document.getElementById('screenBattle').classList.contains('active')) return;
+        if (G.curEnemy.hp <= 0) return;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const t = e.changedTouches[i];
+            const rect = document.getElementById('game').getBoundingClientRect();
+            G.attack(t.clientX - rect.left, t.clientY - rect.top);
+        }
+    }, { passive: - Кнопки: эмодзи-иконки (🎒🧍⬆👑💎)
 
 ====================
 БЛОК 2: ГЕЙМПЛЕЙНЫЕ УЛУЧШЕНИЯ
