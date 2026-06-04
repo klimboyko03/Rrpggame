@@ -3,172 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dungeon Tap RPG - Sticker Edition</title>
+    <title>Dungeon Tap: AWAKENING</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Cinzel:wght@700;900&display=swap');
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:#000;color:#fff;font-family:'Orbitron','Arial',sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-        .game-container{width:100%;max-width:420px;height:100vh;display:flex;flex-direction:column;padding:6px;position:relative;z-index:1}
-        .top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(20,10,40,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;margin-bottom:6px;flex-wrap:wrap;gap:4px;font-size:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
-        .gold-display{font-weight:900;background:linear-gradient(180deg,#ffe87c,#ffd700,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:13px;filter:drop-shadow(0 0 6px rgba(255,215,0,0.5))}
-        .gems-display{font-weight:900;background:linear-gradient(180deg,#e0b0ff,#aa44ff,#6a0dad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:13px;margin-left:3px;filter:drop-shadow(0 0 6px rgba(170,68,255,0.5))}
-        .level-display{color:#b8a9d0;font-size:9px;background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.08)}
-        .dps-display{color:#ff9999;font-size:9px;background:rgba(255,100,100,0.1);padding:3px 8px;border-radius:10px;border:1px solid rgba(255,100,100,0.12)}
-        .xp-bar-outer{width:45px;height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-        .xp-bar-inner{height:100%;background:linear-gradient(90deg,#4da6ff,#80ccff);border-radius:3px;transition:width 0.4s;box-shadow:0 0 8px rgba(77,166,255,0.5)}
-        .player-hp-bar-outer{width:45px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-        .player-hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff4466,#44ff66);border-radius:3px;transition:width 0.4s;box-shadow:0 0 6px rgba(68,255,102,0.3)}
-        .battle-area{flex:1;background:radial-gradient(ellipse at 30% 40%,rgba(80,20,120,0.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(20,80,120,0.1) 0%,transparent 50%),#08081a;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:6px;cursor:pointer;min-height:200px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:inset 0 0 100px rgba(80,0,150,0.08),0 0 50px rgba(80,0,150,0.1)}
-        /* СТИКЕР-КОНТЕЙНЕР */
-        .sticker-container{text-align:center;position:relative;z-index:2;transition:transform 0.1s;display:flex;flex-direction:column;align-items:center;gap:2px}
+        
+        .game-container{width:100%;max-width:420px;height:100vh;display:flex;flex-direction:column;padding:4px;position:relative;z-index:1}
+        
+        /* TOP BAR */
+        .top-bar{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:rgba(20,10,40,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:3px;gap:2px;font-size:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;flex-wrap:wrap}
+        .gold-display{font-weight:900;background:linear-gradient(180deg,#ffe87c,#ffd700,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:10px}
+        .gems-display{font-weight:900;background:linear-gradient(180deg,#e0b0ff,#aa44ff,#6a0dad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:10px}
+        .energy-display{font-weight:900;background:linear-gradient(180deg,#ff8844,#ff4400);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:10px}
+        
+        /* MAIN SWIPE */
+        .swipe-container{flex:1;position:relative;overflow:hidden;border-radius:16px;margin-bottom:3px}
+        .swipe-pages{display:flex;width:300%;height:100%;transition:transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)}
+        .swipe-page{width:33.333%;height:100%;flex-shrink:0;overflow-y:auto;padding:8px}
+        
+        /* BATTLE PAGE */
+        .page-battle{background:radial-gradient(ellipse at 30% 40%,rgba(80,20,120,0.2) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(20,80,120,0.15) 0%,transparent 50%),#08081a;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;border:1px solid rgba(255,255,255,0.06);box-shadow:inset 0 0 80px rgba(80,0,150,0.1)}
+        
+        /* CHARGE BAR */
+        .charge-bar-outer{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);width:120px;height:8px;background:rgba(0,0,0,0.6);border-radius:4px;overflow:hidden;z-index:10;border:1px solid rgba(255,255,255,0.1);display:none}
+        .charge-bar-inner{height:100%;background:linear-gradient(90deg,#ff8800,#ff4400,#ff0000);border-radius:4px;transition:width 0.1s;width:0%}
+        .charge-bar-outer.active{display:block}
+        
+        /* TARGET ZONES */
+        .target-zones{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:15px;z-index:10;font-size:10px}
+        .target-zone{padding:3px 8px;background:rgba(0,0,0,0.5);border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s}
+        .target-zone.active{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,0.5)}
+        
+        /* ENEMY ZONES (visual) */
+        .enemy-hitbox{position:absolute;pointer-events:none;z-index:3;border:1px dashed rgba(255,255,255,0.2);border-radius:4px;transition:all 0.3s}
+        .enemy-hitbox.head{top:0;left:25%;width:50%;height:25%;border-color:rgba(255,215,0,0.4)}
+        .enemy-hitbox.body{top:25%;left:10%;width:80%;height:45%;border-color:rgba(255,255,255,0.3)}
+        .enemy-hitbox.limbs{top:70%;left:5%;width:90%;height:30%;border-color:rgba(100,200,100,0.3)}
+        .enemy-hitbox.active{border-color:#ffd700 !important;border-width:2px;box-shadow:0 0 15px rgba(255,215,0,0.4)}
+        
+        /* SPELL BUTTONS */
+        .spell-bar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+        .spell-btn{width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);font-size:18px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center}
+        .spell-btn.ready{border-color:#ffd700;box-shadow:0 0 20px rgba(255,215,0,0.6);animation:spellPulse 0.8s ease-in-out infinite}
+        @keyframes spellPulse{0%,100%{box-shadow:0 0 15px rgba(255,215,0,0.4)}50%{box-shadow:0 0 30px rgba(255,215,0,0.8)}}
+        
+        /* DUNGEON MAP */
+        .dungeon-map{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:5px;background:rgba(0,0,0,0.4);border-radius:10px;margin-bottom:5px}
+        .map-room{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);transition:all 0.3s}
+        .map-room.current{background:rgba(255,215,0,0.3);border-color:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+        .map-room.completed{background:rgba(68,255,68,0.2);border-color:#4f4}
+        .map-room.boss{background:rgba(255,0,0,0.3);border-color:#f44;animation:bossPulse 1s ease-in-out infinite}
+        @keyframes bossPulse{0%,100%{box-shadow:0 0 8px rgba(255,0,0,0.3)}50%{box-shadow:0 0 16px rgba(255,0,0,0.6)}}
+        .map-room.treasure{background:rgba(255,215,0,0.2);border-color:#ffd700}
+        .map-room.trap{background:rgba(255,100,0,0.2);border-color:#f80}
+        .map-room.altar{background:rgba(100,100,255,0.2);border-color:#88f}
+        
+        /* AFFIX DISPLAY */
+        .affix-display{position:absolute;top:5px;right:5px;font-size:8px;background:rgba(0,0,0,0.6);padding:3px 6px;border-radius:6px;z-index:10;color:#ff8800}
+        
+        /* STICKER */
+        .sticker-container{text-align:center;position:relative;z-index:2;transition:transform 0.1s}
         .sticker-container.hit{transform:scale(0.85)}
-        .sticker-body{font-size:65px;position:relative;z-index:2;filter:drop-shadow(0 0 20px rgba(255,0,0,0.4));transition:all 0.3s}
-        .sticker-weapon{font-size:35px;position:absolute;z-index:3;filter:drop-shadow(0 0 10px rgba(255,200,0,0.6));transition:all 0.3s}
-        /* АНИМАЦИИ ДЛЯ КАЖДОГО ВРАГА */
-        .sticker-container.anim-rat .sticker-body{animation:ratJump 0.6s ease-in-out infinite alternate}
-        .sticker-container.anim-rat .sticker-weapon{animation:weaponWiggle 0.4s ease-in-out infinite alternate}
-        .sticker-container.anim-slime .sticker-body{animation:slimeWiggle 0.8s ease-in-out infinite}
-        .sticker-container.anim-slime .sticker-weapon{animation:weaponFloat 1s ease-in-out infinite}
-        .sticker-container.anim-skeleton .sticker-body{animation:skeletonRattle 0.3s ease-in-out infinite alternate}
-        .sticker-container.anim-skeleton .sticker-weapon{animation:weaponSwing 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-goblin .sticker-body{animation:goblinBounce 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-goblin .sticker-weapon{animation:weaponStab 0.7s ease-in-out infinite}
-        .sticker-container.anim-spider .sticker-body{animation:spiderCrawl 0.4s ease-in-out infinite alternate}
-        .sticker-container.anim-spider .sticker-weapon{animation:weaponPulse 1.2s ease-in-out infinite}
-        .sticker-container.anim-bat .sticker-body{animation:batFlap 0.3s ease-in-out infinite alternate}
-        .sticker-container.anim-bat .sticker-weapon{animation:weaponGlow 0.8s ease-in-out infinite alternate}
-        .sticker-container.anim-zombie .sticker-body{animation:zombieShuffle 0.7s ease-in-out infinite alternate}
-        .sticker-container.anim-zombie .sticker-weapon{animation:weaponWiggle 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-orc .sticker-body{animation:orcStomp 0.6s ease-in-out infinite alternate}
-        .sticker-container.anim-orc .sticker-weapon{animation:weaponSpin 0.8s linear infinite}
-        .sticker-container.anim-mage .sticker-body{animation:mageFloat 1.5s ease-in-out infinite}
-        .sticker-container.anim-mage .sticker-weapon{animation:weaponOrbit 2s linear infinite}
-        .sticker-container.anim-golem .sticker-body{animation:golemShake 0.2s ease-in-out infinite alternate}
-        .sticker-container.anim-golem .sticker-weapon{animation:weaponGlow 1s ease-in-out infinite alternate}
-        .sticker-container.anim-harpy .sticker-body{animation:harpySoar 0.8s ease-in-out infinite alternate}
-        .sticker-container.anim-harpy .sticker-weapon{animation:weaponSpin 0.6s linear infinite}
-        .sticker-container.anim-minotaur .sticker-body{animation:minotaurCharge 0.4s ease-in-out infinite alternate}
-        .sticker-container.anim-minotaur .sticker-weapon{animation:weaponSlam 0.9s ease-in-out infinite}
-        .sticker-container.anim-demon .sticker-body{animation:demonPulse 0.6s ease-in-out infinite alternate}
-        .sticker-container.anim-demon .sticker-weapon{animation:weaponFire 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-wyvern .sticker-body{animation:wyvernGlide 1s ease-in-out infinite alternate}
-        .sticker-container.anim-wyvern .sticker-weapon{animation:weaponWiggle 0.7s ease-in-out infinite alternate}
-        .sticker-container.anim-deathknight .sticker-body{animation:deathknightStand 2s ease-in-out infinite}
-        .sticker-container.anim-deathknight .sticker-weapon{animation:weaponGlow 1.5s ease-in-out infinite alternate}
-        .sticker-container.anim-lich .sticker-body{animation:lichLevitate 2s ease-in-out infinite}
-        .sticker-container.anim-lich .sticker-weapon{animation:weaponOrbit 3s linear infinite}
-        .sticker-container.anim-hydra .sticker-body{animation:hydraHeads 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-hydra .sticker-weapon{animation:weaponPulse 0.8s ease-in-out infinite}
-        .sticker-container.anim-archdemon .sticker-body{animation:archdemonRage 0.4s ease-in-out infinite alternate}
-        .sticker-container.anim-archdemon .sticker-weapon{animation:weaponFire 0.3s ease-in-out infinite alternate}
-        .sticker-container.anim-dragon .sticker-body{animation:dragonRoar 1s ease-in-out infinite alternate}
-        .sticker-container.anim-dragon .sticker-weapon{animation:weaponFire 0.6s ease-in-out infinite alternate}
-        .sticker-container.anim-titan .sticker-body{animation:titanGlow 2s ease-in-out infinite}
-        .sticker-container.anim-titan .sticker-weapon{animation:weaponGlow 1s ease-in-out infinite alternate}
-        .sticker-container.anim-kraken .sticker-body{animation:krakenWave 0.8s ease-in-out infinite alternate}
-        .sticker-container.anim-kraken .sticker-weapon{animation:weaponSpin 1.5s linear infinite}
-        .sticker-container.anim-phoenix .sticker-body{animation:phoenixFlame 0.5s ease-in-out infinite alternate}
-        .sticker-container.anim-phoenix .sticker-weapon{animation:weaponFire 0.4s ease-in-out infinite alternate}
-        .sticker-container.anim-astral .sticker-body{animation:astralFlicker 0.3s ease-in-out infinite alternate}
-        .sticker-container.anim-astral .sticker-weapon{animation:weaponPulse 0.6s ease-in-out infinite}
-        .sticker-container.anim-angel .sticker-body{animation:angelFloat 1.5s ease-in-out infinite}
-        .sticker-container.anim-angel .sticker-weapon{animation:weaponGlow 1s ease-in-out infinite alternate}
-        .sticker-container.anim-cosmic .sticker-body{animation:cosmicSpin 2s linear infinite}
-        .sticker-container.anim-cosmic .sticker-weapon{animation:weaponOrbit 1.5s linear infinite}
-        /* КЛЮЧЕВЫЕ КАДРЫ АНИМАЦИЙ */
-        @keyframes ratJump{0%{transform:translateY(0)}100%{transform:translateY(-10px)}}
-        @keyframes slimeWiggle{0%,100%{transform:scaleX(1) scaleY(1)}25%{transform:scaleX(1.1) scaleY(0.9)}75%{transform:scaleX(0.9) scaleY(1.1)}}
-        @keyframes skeletonRattle{0%{transform:translateX(-3px) rotate(-2deg)}100%{transform:translateX(3px) rotate(2deg)}}
-        @keyframes goblinBounce{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-8px) scale(1.05)}}
-        @keyframes spiderCrawl{0%{transform:translateX(-4px)}100%{transform:translateX(4px)}}
-        @keyframes batFlap{0%{transform:scaleY(1) translateY(0)}100%{transform:scaleY(0.8) translateY(-15px)}}
-        @keyframes zombieShuffle{0%{transform:translateX(-5px) rotate(-3deg)}100%{transform:translateX(5px) rotate(3deg)}}
-        @keyframes orcStomp{0%{transform:scale(1) translateY(0)}100%{transform:scale(1.1) translateY(-5px)}}
-        @keyframes mageFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-        @keyframes golemShake{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
-        @keyframes harpySoar{0%{transform:translateY(0) rotate(-3deg)}100%{transform:translateY(-15px) rotate(3deg)}}
-        @keyframes minotaurCharge{0%{transform:scale(1) translateY(0)}100%{transform:scale(1.08) translateY(-4px)}}
-        @keyframes demonPulse{0%{transform:scale(1)}100%{transform:scale(1.08)}}
-        @keyframes wyvernGlide{0%{transform:translateY(0) rotate(-2deg)}100%{transform:translateY(-10px) rotate(2deg)}}
-        @keyframes deathknightStand{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        @keyframes lichLevitate{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-15px) rotate(2deg)}}
-        @keyframes hydraHeads{0%{transform:rotate(-3deg)}100%{transform:rotate(3deg)}}
-        @keyframes archdemonRage{0%{transform:scale(1) rotate(-2deg)}100%{transform:scale(1.1) rotate(2deg)}}
-        @keyframes dragonRoar{0%{transform:scale(1)}100%{transform:scale(1.12)}}
-        @keyframes titanGlow{0%,100%{filter:drop-shadow(0 0 15px rgba(255,200,0,0.5))}50%{filter:drop-shadow(0 0 35px rgba(255,200,0,0.9))}}
-        @keyframes krakenWave{0%{transform:translateX(-5px) skewX(-3deg)}100%{transform:translateX(5px) skewX(3deg)}}
-        @keyframes phoenixFlame{0%{transform:scale(1)}100%{transform:scale(1.1)}}
-        @keyframes astralFlicker{0%{opacity:0.8;transform:scale(1)}100%{opacity:1;transform:scale(1.05)}}
-        @keyframes angelFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
-        @keyframes cosmicSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-        /* АНИМАЦИИ ОРУЖИЯ */
-        @keyframes weaponWiggle{0%{transform:rotate(-10deg)}100%{transform:rotate(10deg)}}
-        @keyframes weaponSwing{0%{transform:rotate(-20deg) translateX(0)}100%{transform:rotate(20deg) translateX(5px)}}
-        @keyframes weaponStab{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-15px) scale(1.2)}}
-        @keyframes weaponFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-        @keyframes weaponPulse{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.3);opacity:1}}
-        @keyframes weaponGlow{0%{filter:drop-shadow(0 0 5px rgba(255,200,0,0.4))}100%{filter:drop-shadow(0 0 20px rgba(255,200,0,0.9))}}
-        @keyframes weaponSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-        @keyframes weaponSlam{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(10px) scale(0.8)}}
-        @keyframes weaponFire{0%{filter:drop-shadow(0 0 8px rgba(255,100,0,0.6))}100%{filter:drop-shadow(0 0 25px rgba(255,50,0,1))}}
-        @keyframes weaponOrbit{0%{transform:translateX(-20px) rotate(0deg)}50%{transform:translateX(20px) rotate(180deg)}100%{transform:translateX(-20px) rotate(360deg)}}
-        /* БОСС-ЭФФЕКТЫ */
-        .sticker-container.boss .sticker-body{font-size:85px;filter:drop-shadow(0 0 30px rgba(255,0,0,0.8))drop-shadow(0 0 60px rgba(255,100,0,0.5));animation:bossGlow 0.6s ease-in-out infinite alternate}
-        .sticker-container.boss .sticker-weapon{font-size:45px;filter:drop-shadow(0 0 20px rgba(255,200,0,0.8))}
-        @keyframes bossGlow{0%{filter:drop-shadow(0 0 25px rgba(255,0,0,0.6))drop-shadow(0 0 50px rgba(255,100,0,0.3))}100%{filter:drop-shadow(0 0 45px rgba(255,0,0,1))drop-shadow(0 0 80px rgba(255,150,0,0.7))}}
-        .enemy-name{font-size:14px;color:#ddd;margin-top:2px;text-shadow:0 0 10px rgba(255,255,255,0.3);position:relative;z-index:2}
-        .enemy-name.boss-name{color:#ff4444;font-size:17px;font-weight:900;text-shadow:0 0 20px rgba(255,0,0,0.8)}
-        .hp-bar-outer{width:160px;height:12px;background:rgba(0,0,0,0.6);border-radius:6px;margin:4px auto;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative;z-index:2}
-        .hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff3333,#ff5555,#ff3333);background-size:200% 100%;border-radius:6px;transition:width 0.3s;box-shadow:0 0 12px rgba(255,51,51,0.5);animation:hpShine 2s linear infinite}
+        .sticker-body{font-size:60px;position:relative;z-index:2;filter:drop-shadow(0 0 20px rgba(255,0,0,0.4))}
+        .sticker-weapon{font-size:30px;position:absolute;z-index:3;filter:drop-shadow(0 0 10px rgba(255,200,0,0.6))}
+        
+        .enemy-name{font-size:12px;color:#ddd;margin-top:2px;position:relative;z-index:2}
+        .enemy-name.boss-name{color:#ff4444;font-size:15px;font-weight:900;text-shadow:0 0 15px rgba(255,0,0,0.7)}
+        
+        .hp-bar-outer{width:140px;height:10px;background:rgba(0,0,0,0.6);border-radius:5px;margin:3px auto;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative;z-index:2}
+        .hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff3333,#ff5555,#ff3333);background-size:200% 100%;border-radius:5px;transition:width 0.3s;box-shadow:0 0 10px rgba(255,51,51,0.4);animation:hpShine 2s linear infinite}
         @keyframes hpShine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-        .hp-text{font-size:9px;color:#aaa;position:relative;z-index:2}
-        .combo-display{position:absolute;top:14px;right:14px;font-size:16px;font-weight:900;color:#ff8800;display:none;text-shadow:0 0 12px rgba(255,136,0,0.7);z-index:10}
-        .combo-display.active{display:block;animation:comboPulse 0.2s ease-out}
-        .combo-display.max{color:#ff4444;font-size:20px;text-shadow:0 0 20px rgba(255,68,68,0.9)}
-        @keyframes comboPulse{0%{transform:scale(1.5)}100%{transform:scale(1)}}
-        .levelup-popup{position:absolute;top:20%;left:50%;transform:translate(-50%,-50%);font-size:34px;font-weight:900;color:#ffd700;z-index:25;pointer-events:none;animation:levelUpAnim 2s ease-out forwards;display:none;text-shadow:0 0 60px rgba(255,215,0,0.9)}
-        @keyframes levelUpAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.1)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.8)}100%{opacity:0;transform:translate(-50%,-100%) scale(0.8)}}
-        .damage-popup{position:absolute;font-size:22px;font-weight:900;color:#ff3333;pointer-events:none;animation:popUp 0.7s ease-out forwards;text-shadow:0 0 10px rgba(255,0,0,0.6);z-index:15}
-        .crit-popup{position:absolute;font-size:32px;font-weight:900;color:#ff8800;pointer-events:none;animation:popUp 0.9s ease-out forwards;text-shadow:0 0 20px rgba(255,136,0,0.9);z-index:16}
-        @keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-45px)}}
-        .gold-popup{position:absolute;font-size:14px;font-weight:900;color:#ffd700;pointer-events:none;animation:popUp 1s ease-out forwards;z-index:14}
-        .loot-popup{position:absolute;font-size:15px;font-weight:900;pointer-events:none;animation:lootFly 2.5s ease-out forwards;z-index:12}
-        @keyframes lootFly{0%{opacity:1;transform:translate(-50%,-50%) scale(0.1) rotate(0deg)}30%{opacity:1;transform:translate(-50%,-120%) scale(1.6) rotate(180deg)}100%{opacity:0;transform:translate(-50%,-220%) scale(0.2) rotate(360deg)}}
-        .bottom-bar{display:flex;gap:5px;padding:5px 0}
-        .btn{flex:1;padding:13px 4px;border:none;border-radius:14px;font-size:10px;font-weight:700;cursor:pointer;color:#fff;transition:all 0.2s;position:relative;overflow:hidden;text-transform:uppercase;letter-spacing:0.5px}
-        .btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 60%);opacity:0;transition:opacity 0.3s}
-        .btn:active::before{opacity:1}.btn:active{transform:scale(0.93)}
-        .btn-inventory{background:linear-gradient(180deg,#2a2a5a,#1a1a3a);border:1px solid rgba(100,100,200,0.25)}
-        .btn-upgrade{background:linear-gradient(180deg,#4a2a2a,#2a1a1a);border:1px solid rgba(200,100,100,0.25)}
-        .btn-character{background:linear-gradient(180deg,#3a3a5a,#2a2a3a);border:1px solid rgba(150,150,200,0.25)}
-        .btn-quests{background:linear-gradient(180deg,#2a4a2a,#1a2a1a);border:1px solid rgba(100,200,100,0.25)}
-        .btn-prestige{background:linear-gradient(180deg,#5a1a7a,#3a0a5a);border:1px solid rgba(180,100,220,0.35);display:none}
-        .btn-prestige.available{display:block;animation:prestigePulse 1.5s ease-in-out infinite}
-        @keyframes prestigePulse{0%,100%{box-shadow:0 0 15px rgba(170,68,255,0.5)}50%{box-shadow:0 0 30px rgba(170,68,255,0.9)}}
-        .tap-hint{position:absolute;bottom:16px;color:rgba(255,255,255,0.3);font-size:10px;animation:pulse 2s ease-in-out infinite;z-index:5}
-        @keyframes pulse{0%,100%{opacity:0.15}50%{opacity:0.55}}
-        .panel{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(10,8,25,0.95);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);z-index:20;flex-direction:column;padding:16px;overflow-y:auto;border-radius:20px;border:1px solid rgba(255,255,255,0.08)}
-        .panel.active{display:flex}.panel h3{text-align:center;margin-bottom:10px;font-size:16px;font-weight:900}
-        .panel h3.gold-text{background:linear-gradient(180deg,#ffe87c,#ffd700,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .panel .close-btn{position:absolute;top:10px;right:10px;background:rgba(255,60,60,0.7);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;z-index:5}
-        .item-slot{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:12px;font-size:9px;border-left:5px solid #888;gap:4px;flex-wrap:wrap;border:1px solid rgba(255,255,255,0.05)}
-        .item-slot.common{border-left-color:#888}.item-slot.rare{border-left-color:#44aaff;box-shadow:0 0 12px rgba(68,170,255,0.2)}.item-slot.epic{border-left-color:#aa44ff;box-shadow:0 0 14px rgba(170,68,255,0.3);animation:epicGlow 2s ease-in-out infinite}
-        @keyframes epicGlow{0%,100%{box-shadow:0 0 10px rgba(170,68,255,0.25)}50%{box-shadow:0 0 20px rgba(170,68,255,0.5)}}
-        .item-slot.legendary{border-left-color:#ff8800;box-shadow:0 0 16px rgba(255,136,0,0.35);animation:legendaryGlow 1.5s ease-in-out infinite}
-        @keyframes legendaryGlow{0%,100%{box-shadow:0 0 12px rgba(255,136,0,0.3)}50%{box-shadow:0 0 24px rgba(255,136,0,0.6)}}
-        .item-slot.mythic{border-left-color:#ff4444;box-shadow:0 0 20px rgba(255,68,68,0.5);animation:mythicGlow 1s ease-in-out infinite}
-        @keyframes mythicGlow{0%,100%{box-shadow:0 0 14px rgba(255,68,68,0.4)}50%{box-shadow:0 0 32px rgba(255,68,68,0.8)}}
-        .item-slot .equip-btn{background:#3a9a3a;color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer}
-        .item-slot .sell-btn{background:#9a3a3a;color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer;margin-left:3px}
-        .section-title{color:#ffd700;font-size:12px;margin:12px 0 6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:4px;font-weight:700}
-        .boss-indicator{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,0,0,0.7);color:#fff;padding:5px 16px;border-radius:14px;font-size:11px;font-weight:900;animation:pulse 0.8s ease-in-out infinite;z-index:5}
-        .boss-available-indicator{position:absolute;bottom:45px;left:50%;transform:translateX(-50%);background:rgba(255,120,0,0.8);color:#fff;padding:6px 18px;border-radius:14px;font-size:11px;font-weight:900;animation:pulse 0.6s ease-in-out infinite;cursor:pointer;display:none;z-index:5}
-        .overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);z-index:30;flex-direction:column;align-items:center;justify-content:center;border-radius:20px}
-        .overlay.active{display:flex}.overlay h2{font-size:24px;margin-bottom:12px}.overlay p{font-size:14px;color:#ccc;margin:6px 0;text-align:center}
-        .overlay .action-btn{background:linear-gradient(180deg,#ffd700,#ccaa00);color:#000;border:none;padding:13px 35px;border-radius:14px;font-size:16px;font-weight:900;margin-top:14px;cursor:pointer}
-        .overlay .cancel-btn{background:rgba(80,80,80,0.6);color:#fff;border:none;padding:9px 22px;border-radius:10px;font-size:12px;margin-top:7px;cursor:pointer}
+        
+        .damage-popup{position:absolute;font-size:18px;font-weight:900;color:#ff3333;pointer-events:none;animation:popUp 0.6s ease-out forwards;z-index:15}
+        .crit-popup{position:absolute;font-size:28px;font-weight:900;color:#ff8800;pointer-events:none;animation:popUp 0.8s ease-out forwards;z-index:16}
+        .ult-popup{position:absolute;font-size:40px;font-weight:900;color:#ffd700;pointer-events:none;animation:popUp 1.2s ease-out forwards;z-index:17;text-shadow:0 0 30px rgba(255,215,0,1)}
+        @keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px)}}
+        
+        /* ULTIMATE OVERLAY */
+        .ultimate-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle,rgba(255,215,0,0.6) 0%,rgba(255,100,0,0.3) 50%,transparent 70%);z-index:20;pointer-events:none;display:none;animation:ultFlash 1s ease-out forwards}
+        @keyframes ultFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+        
+        .bottom-bar{display:flex;gap:4px;padding:4px 0}
+        .btn{flex:1;padding:10px 2px;border:none;border-radius:10px;font-size:8px;font-weight:700;cursor:pointer;color:#fff;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px;background:rgba(30,20,50,0.8);border:1px solid rgba(255,255,255,0.1)}
+        .btn:active{transform:scale(0.93)}
+        
+        .overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:30;flex-direction:column;align-items:center;justify-content:center;border-radius:16px}
+        .overlay.active{display:flex}.overlay h2{font-size:20px;margin-bottom:8px}.overlay p{font-size:12px;color:#ccc;margin:4px 0;text-align:center}
+        .overlay .action-btn{background:linear-gradient(180deg,#ffd700,#ccaa00);color:#000;border:none;padding:10px 25px;border-radius:12px;font-size:14px;font-weight:900;margin-top:10px;cursor:pointer}
+        .overlay .cancel-btn{background:rgba(80,80,80,0.6);color:#fff;border:none;padding:7px 18px;border-radius:8px;font-size:10px;margin-top:5px;cursor:pointer}
+        
+        .panel{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(10,8,25,0.95);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);z-index:25;flex-direction:column;padding:12px;overflow-y:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.08)}
+        .panel.active{display:flex}.panel h3{text-align:center;margin-bottom:8px;font-size:14px;font-weight:900}
+        .panel .close-btn{position:absolute;top:8px;right:8px;background:rgba(255,60,60,0.7);color:#fff;border:none;width:26px;height:26px;border-radius:50%;font-size:12px;cursor:pointer;z-index:5}
+        
+        /* TALENT TREE */
+        .talent-tree{display:flex;flex-direction:column;gap:4px}
+        .talent-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(25,20,40,0.7);border-radius:8px;font-size:9px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s}
+        .talent-row.owned{background:rgba(255,215,0,0.15);border-color:#ffd700}
+        .talent-row.available{background:rgba(68,255,68,0.1);border-color:#4f4}
+        .talent-row.locked{opacity:0.4}
+        
+        /* RUNE SLOTS */
+        .rune-slot{display:inline-block;width:30px;height:30px;border-radius:6px;background:rgba(0,0,0,0.5);border:2px dashed #444;margin:2px;text-align:center;line-height:26px;font-size:14px;cursor:pointer;transition:all 0.3s}
+        .rune-slot.filled{border-color:#aa44ff;box-shadow:0 0 10px rgba(170,68,255,0.4)}
+        
         .screen-shake{animation:screenShake 0.4s ease-out}
-        @keyframes screenShake{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}30%{transform:translateX(8px)}50%{transform:translateX(-5px)}70%{transform:translateX(5px)}90%{transform:translateX(-3px)}}
+        @keyframes screenShake{0%,100%{transform:translateX(0)}10%{transform:translateX(-6px)}30%{transform:translateX(6px)}50%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
+        .finisher-shake{animation:finisherShake 0.6s ease-out}
+        @keyframes finisherShake{0%,100%{transform:translateX(0)}10%{transform:translateX(-12px)}30%{transform:translateX(12px)}50%{transform:translateX(-8px)}70%{transform:translateX(8px)}}
     </style>
 </head>
 <body>
@@ -176,639 +119,291 @@
     <div class="top-bar">
         <span class="gold-display">💰<span id="gold">0</span></span>
         <span class="gems-display">💎<span id="gems">0</span></span>
-        <span class="level-display">⚔️Ур.<span id="level">1</span></span>
-        <span class="dps-display">⚡<span id="dps">0</span></span>
-        <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar" style="width:0%"></div></div>
-        <span style="font-size:8px;color:#88ccff"><span id="xpText">0</span>/<span id="xpMax">50</span></span>
-        <div class="player-hp-bar-outer"><div class="player-hp-bar-inner" id="playerHpBar" style="width:100%"></div></div>
-        <span style="font-size:8px;color:#4f4">❤️<span id="playerHpText">100</span></span>
+        <span class="energy-display">⚡<span id="energy">0</span>%</span>
+        <span style="color:#b8a9d0;font-size:8px">⚔️<span id="level">1</span></span>
+        <span style="color:#ff9999;font-size:8px">⚡<span id="dps">0</span></span>
+        <span style="color:#ffd700;font-size:8px;cursor:pointer" onclick="cycleDifficulty()">⭐<span id="starCount">1</span></span>
     </div>
-    <div class="battle-area" id="battleArea">
-        <div class="sticker-container" id="stickerContainer">
-            <span class="sticker-body" id="stickerBody">🐀</span>
-            <span class="sticker-weapon" id="stickerWeapon" style="top:60%;left:55%">🦷</span>
-            <div class="enemy-name" id="enemyName">Крыса</div>
-            <div class="hp-bar-outer"><div class="hp-bar-inner" id="hpBar" style="width:100%"></div></div>
-            <div class="hp-text"><span id="hpCurrent">40</span>/<span id="hpMax">40</span> HP</div>
+    
+    <div class="swipe-container" id="swipeContainer">
+        <div class="swipe-pages" id="swipePages">
+            <!-- БОЙ -->
+            <div class="swipe-page page-battle" id="pageBattle">
+                <div class="dungeon-map" id="dungeonMap"></div>
+                <div class="sticker-container" id="stickerContainer">
+                    <span class="sticker-body" id="stickerBody">🐀</span>
+                    <span class="sticker-weapon" id="stickerWeapon">🦷</span>
+                    <div class="enemy-name" id="enemyName">Крыса</div>
+                    <div class="hp-bar-outer"><div class="hp-bar-inner" id="hpBar" style="width:100%"></div></div>
+                    <div style="font-size:8px;color:#aaa"><span id="hpCurrent">40</span>/<span id="hpMax">40</span></div>
+                </div>
+                <div class="target-zones">
+                    <span class="target-zone active" id="zoneHead" onclick="setTarget('head')">🎯Голова</span>
+                    <span class="target-zone" id="zoneBody" onclick="setTarget('body')">Тело</span>
+                    <span class="target-zone" id="zoneLimbs" onclick="setTarget('limbs')">Конеч.</span>
+                </div>
+                <div class="enemy-hitbox head active" id="hitboxHead"></div>
+                <div class="enemy-hitbox body" id="hitboxBody"></div>
+                <div class="enemy-hitbox limbs" id="hitboxLimbs"></div>
+                <div class="charge-bar-outer" id="chargeBarOuter"><div class="charge-bar-inner" id="chargeBarInner"></div></div>
+                <div class="spell-bar">
+                    <button class="spell-btn" id="spellFire" onclick="castSpell('fire')">🔥</button>
+                    <button class="spell-btn" id="spellIce" onclick="castSpell('ice')">❄️</button>
+                    <button class="spell-btn" id="spellDark" onclick="castSpell('dark')">🌑</button>
+                </div>
+                <div class="affix-display" id="affixDisplay"></div>
+                <div class="ultimate-overlay" id="ultimateOverlay"></div>
+                <div style="position:absolute;bottom:10px;color:rgba(255,255,255,0.3);font-size:8px">Держи палец — ЗАРЯД</div>
+            </div>
+            <!-- ТАЛАНТЫ -->
+            <div class="swipe-page" style="background:rgba(10,8,25,0.95)">
+                <h3 style="color:#ffd700;text-align:center">🌳 ТАЛАНТЫ</h3>
+                <div class="talent-tree" id="talentTree"></div>
+                <h3 style="color:#aa44ff;text-align:center;margin-top:8px">💎 РУНЫ</h3>
+                <div id="runeSlots"></div>
+                <h3 style="color:#ffd700;text-align:center;margin-top:8px">🏆 ПЕРЕРОЖДЕНИЕ</h3>
+                <div id="prestigeInfo"></div>
+                <button class="action-btn" onclick="openPrestigePanel()" style="width:100%">💎 ПЕРЕРОДИТЬСЯ</button>
+            </div>
+            <!-- ПЕРСОНАЖ -->
+            <div class="swipe-page" style="background:rgba(10,8,25,0.95)">
+                <h3 style="color:#ffd700;text-align:center">🧍 ПЕРСОНАЖ</h3>
+                <div id="charStats"></div>
+                <h3 style="color:#ffd700;text-align:center;margin-top:8px">🎒 ЭКИПИРОВКА</h3>
+                <div id="equippedSlots"></div>
+                <h3 style="color:#ffd700;text-align:center;margin-top:8px">🎒 ИНВЕНТАРЬ</h3>
+                <div id="inventorySlots"></div>
+                <h3 style="color:#ffd700;text-align:center;margin-top:8px">🏆 АРТЕФАКТЫ</h3>
+                <div id="artifactGrid" style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center"></div>
+            </div>
         </div>
-        <div class="combo-display" id="comboDisplay">🔥 x1.000</div>
-        <div class="tap-hint">👆 ТАПАЙ ДВУМЯ ПАЛЬЦАМИ!</div>
-        <div class="levelup-popup" id="levelUpPopup">⭐ LEVEL UP!</div>
-        <div class="boss-indicator" id="bossIndicator" style="display:none">💀 БОСС</div>
-        <div class="boss-available-indicator" id="bossAvailable" onclick="openBossPanel()">⚔️ БОСС!</div>
-        <div class="overlay" id="paydayOverlay"><h2>💰 ПЭЙДЭЙ!</h2><p>Отсутствовали: <span id="paydayTime">0м</span></p><p>+<b id="paydayGold">0</b> золота</p><button class="action-btn" onclick="claimPayday()">💎 ЗАБРАТЬ</button></div>
-        <div class="overlay" id="deathOverlay"><h2>💀 ПОРАЖЕНИЕ</h2><p>Потеряно: <span id="lostGold">0</span> золота</p><button class="action-btn" onclick="revivePlayer()">🔄 ВОЗРОДИТЬСЯ</button></div>
-        <div class="overlay" id="bossOverlay"><h2>⚔️ БИТВА С БОССОМ</h2><p id="bossTitle"></p><p>HP: <b id="bossHpPreview"></b> | Урон: <b id="bossDmgPreview"></b></p><p>Награда: <b id="bossRewardText"></b></p><button class="action-btn" onclick="startBossFight()">⚔️ В БОЙ!</button><button class="cancel-btn" onclick="closeBossPanel()">Отмена</button></div>
-        <div class="overlay" id="prestigeOverlay"><h2>💎 ПРЕСТИЖ</h2><p>Сбросить прогресс?</p><p>Камней: <b id="prestigeGems">1</b></p><button class="action-btn" onclick="confirmPrestige()">💎 ДА</button><button class="cancel-btn" onclick="closePrestigePanel()">Отмена</button></div>
-        <div class="overlay" id="dailyOverlay"><h2>🎁 НАГРАДА</h2><p>День <span id="dailyDay">1</span></p><p><b id="dailyReward">80</b> золота</p><button class="action-btn" onclick="claimDaily()">🎁 ЗАБРАТЬ</button></div>
     </div>
+    
     <div class="bottom-bar">
-        <button class="btn btn-character" onclick="togglePanel('characterPanel')">🧍</button>
-        <button class="btn btn-inventory" onclick="togglePanel('inventoryPanel')">🎒</button>
-        <button class="btn btn-quests" onclick="togglePanel('questsPanel')">📋</button>
-        <button class="btn btn-upgrade" onclick="togglePanel('upgradePanel')">⬆</button>
-        <button class="btn btn-prestige" id="prestigeBtn" onclick="openPrestigePanel()">💎</button>
+        <button class="btn" onclick="swipeTo(0)">⚔️БОЙ</button>
+        <button class="btn" onclick="swipeTo(1)">🌳ТАЛАНТЫ</button>
+        <button class="btn" onclick="swipeTo(2)">🧍ГЕРОЙ</button>
+        <button class="btn" onclick="showPanel('upgradePanel')">⬆</button>
     </div>
-    <div class="panel" id="characterPanel"><button class="close-btn" onclick="togglePanel('characterPanel')">✕</button><h3 class="gold-text">🧍 ПЕРСОНАЖ</h3><div id="charStats"></div><div class="section-title">🎒 ЭКИПИРОВКА</div><div id="equippedSlots"></div></div>
-    <div class="panel" id="inventoryPanel"><button class="close-btn" onclick="togglePanel('inventoryPanel')">✕</button><h3 class="gold-text">🎒 ИНВЕНТАРЬ</h3><div id="inventorySlots"></div></div>
-    <div class="panel" id="questsPanel"><button class="close-btn" onclick="togglePanel('questsPanel')">✕</button><h3 class="gold-text">📋 ЗАДАНИЯ</h3><div id="dailyQuests"></div></div>
-    <div class="panel" id="upgradePanel"><button class="close-btn" onclick="togglePanel('upgradePanel')">✕</button><h3 class="gold-text">⬆ ПРОКАЧКА</h3><div id="upgradeList"></div><div class="section-title">💎 ПРЕСТИЖ-МАГАЗИН</div><div id="prestigeShop"></div></div>
+    
+    <div class="overlay" id="bossOverlay"><h2>⚔️ БИТВА С БОССОМ</h2><p id="bossTitle"></p><p>HP: <b id="bossHpPreview"></b></p><button class="action-btn" onclick="startBossFight()">⚔️ В БОЙ!</button><button class="cancel-btn" onclick="closeBossPanel()">Отмена</button></div>
+    <div class="overlay" id="prestigeOverlay"><h2>💎 ПЕРЕРОЖДЕНИЕ</h2><p>Сброс до 1 уровня</p><p>Очков Вечности: <b id="prestigePoints">1</b></p><p>Сохраняется: 50% рун, таланты</p><button class="action-btn" onclick="confirmPrestige()">💎 ПЕРЕРОДИТЬСЯ</button><button class="cancel-btn" onclick="closePrestigePanel()">Отмена</button></div>
+    <div class="overlay" id="deathOverlay"><h2>💀 ПОРАЖЕНИЕ</h2><p>Потеряно: <span id="lostGold">0</span> золота</p><button class="action-btn" onclick="revivePlayer()">🔄 ВОЗРОДИТЬСЯ</button></div>
+    <div class="overlay" id="paydayOverlay"><h2>💰 ПЭЙДЭЙ!</h2><p>+<b id="paydayGold">0</b> золота</p><button class="action-btn" onclick="claimPayday()">💎 ЗАБРАТЬ</button></div>
+    
+    <div class="panel" id="upgradePanel"><button class="close-btn" onclick="hidePanel('upgradePanel')">✕</button><h3 style="color:#ffd700">⬆ ПРОКАЧКА</h3><div id="upgradeList"></div></div>
 </div>
 
 <script>
-// ========== TELEGRAM API ==========
-const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
+// ========== CORE STATE ==========
+let gold=0,gems=0,level=1,xp=0,xpToLevel=50,baseClickDamage=5,upgradeBonusDamage=0,autoDps=0,critChanceBonus=0,goldMultiplier=1,playerHp=100,playerMaxHp=100,inventory=[],equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null},isBossFight=false,bossAttackTimer=null,isDead=false,bossUnlockedLevel=10,currentBossIndex=0,totalPrestiges=0,prestigeBonuses={goldBonus:0,damageBonus:0,autoStart:0,luckBonus:0},comboCount=0,comboMultiplier=1,lastTapTime=0,totalKills=0,difficultyStars=1,lostGoldStash=0;
+let targetZone='head',chargeLevel=0,isCharging=false,chargeInterval=null,energy=0,maxEnergy=100,spellsReady={fire:false,ice:false,dark:false};
+let currentPage=0,affix='',dungeonRooms=[],currentRoom=0,talents=[],talentPoints=0,runes=[],eternityPoints=0;
 
-// ========== СТИКЕР-СИСТЕМА (персонаж + оружие + анимация) ==========
-const stickerData={
-    '🐀':{weapon:'🦷',anim:'anim-rat',name:'Крыса'},
-    '🟢':{weapon:'💧',anim:'anim-slime',name:'Слизень'},
-    '💀':{weapon:'⚔️',anim:'anim-skeleton',name:'Скелет'},
-    '👹':{weapon:'🗡️',anim:'anim-goblin',name:'Гоблин'},
-    '🕷️':{weapon:'🕸️',anim:'anim-spider',name:'Паук'},
-    '🦇':{weapon:'🌙',anim:'anim-bat',name:'Летучая мышь'},
-    '🧟':{weapon:'🧠',anim:'anim-zombie',name:'Зомби'},
-    '👺':{weapon:'🪓',anim:'anim-orc',name:'Орк'},
-    '🧙‍♂️':{weapon:'🔮',anim:'anim-mage',name:'Тёмный маг'},
-    '🗿':{weapon:'💎',anim:'anim-golem',name:'Голем'},
-    '🦅':{weapon:'🌪️',anim:'anim-harpy',name:'Гарпия'},
-    '🐂':{weapon:'🔨',anim:'anim-minotaur',name:'Минотавр'},
-    '👿':{weapon:'🔱',anim:'anim-demon',name:'Демон'},
-    '🐲':{weapon:'🦴',anim:'anim-wyvern',name:'Виверна'},
-    '⚔️💀':{weapon:'🛡️',anim:'anim-deathknight',name:'Рыцарь смерти'},
-    '👑💀':{weapon:'📿',anim:'anim-lich',name:'Лич'},
-    '🐍':{weapon:'🧪',anim:'anim-hydra',name:'Гидра'},
-    '👹🔥':{weapon:'💀',anim:'anim-archdemon',name:'Архидемон'},
-    '🐉':{weapon:'🔥',anim:'anim-dragon',name:'Дракон'},
-    '🏛️':{weapon:'⚡',anim:'anim-titan',name:'Титан'},
-    '🐙':{weapon:'🌊',anim:'anim-kraken',name:'Кракен'},
-    '🔥🐦':{weapon:'✨',anim:'anim-phoenix',name:'Феникс'},
-    '🌌':{weapon:'👁️',anim:'anim-astral',name:'Астральный ужас'},
-    '😇⚔️':{weapon:'🗡️',anim:'anim-angel',name:'Падший ангел'},
-    '🐉✨':{weapon:'⭐',anim:'anim-cosmic',name:'Космический дракон'}
-};
-const bossStickerData={
-    '👑👹':{weapon:'👑',anim:'anim-goblin',name:'Король Гоблинов'},
-    '💀⚔️':{weapon:'💀',anim:'anim-skeleton',name:'Владыка Скелетов'},
-    '👿🔥':{weapon:'🔥',anim:'anim-demon',name:'Демонический Князь'},
-    '🐉💎':{weapon:'💎',anim:'anim-dragon',name:'Древний Дракон'},
-    '🌑👁️':{weapon:'🌑',anim:'anim-titan',name:'Титан Бездны'},
-    '🔥🐦':{weapon:'🔥',anim:'anim-phoenix',name:'Феникс Возрождения'},
-    '🌌':{weapon:'🌌',anim:'anim-astral',name:'Владыка Пустоты'},
-    '💥':{weapon:'💥',anim:'anim-golem',name:'Разрушитель Миров'},
-    '⏳':{weapon:'⏳',anim:'anim-lich',name:'Хранитель Времени'},
-    '🌀👑':{weapon:'🌀',anim:'anim-cosmic',name:'Абсолют'}
-};
+// ========== TALENT TREE ==========
+const talentTreeData=[
+    {name:'Ярость',desc:'+5% урона за комбо',cost:1,branch:'berserker',owned:false},
+    {name:'Кровавая баня',desc:'AOE-урон 30%',cost:2,branch:'berserker',owned:false,requires:0},
+    {name:'Последний рубеж',desc:'HP<20% = урон x3',cost:3,branch:'berserker',owned:false,requires:1},
+    {name:'Неостановимый',desc:'Ульт: бессмертие 10с',cost:5,branch:'berserker',owned:false,requires:2},
+    {name:'Маг. щит',desc:'Блок 1 удара/15с',cost:1,branch:'mage',owned:false},
+    {name:'Цепная молния',desc:'Атаки прыгают',cost:2,branch:'mage',owned:false,requires:4},
+    {name:'Порталы',desc:'Телепорт от удара',cost:3,branch:'mage',owned:false,requires:5},
+    {name:'Остановка времени',desc:'Ульт: заморозка 8с',cost:5,branch:'mage',owned:false,requires:6},
+    {name:'Армия призраков',desc:'+5 миньонов',cost:1,branch:'shadow',owned:false},
+    {name:'Кража жизни',desc:'5% урона → HP',cost:2,branch:'shadow',owned:false,requires:8},
+    {name:'Смертельный яд',desc:'Отравление 10с',cost:3,branch:'shadow',owned:false,requires:9},
+    {name:'Легион',desc:'Ульт: 50 призраков',cost:5,branch:'shadow',owned:false,requires:10},
+];
+
+// ========== AFFIXES ==========
+const affixes=['🔥 Ярость стихий: враги +50% урона','🛡️ Отражение: 30% урона возвращается','💧 Мана-шторм: заклинания -50% энергии','👑 Двойной босс: награда x3','🌑 Слепота: HP врагов скрыто','⚡ Скорость: враги x2 быстрее','💰 Алчность: золото x2, дроп -50%','💀 Проклятие: -20% HP игрока'];
+
+// ========== STICKER DATA ==========
+const stickerData={'🐀':{weapon:'🦷',name:'Крыса'},'👹':{weapon:'🗡️',name:'Гоблин'},'💀':{weapon:'⚔️',name:'Скелет'},'👿':{weapon:'🔱',name:'Демон'},'🐉':{weapon:'🔥',name:'Дракон'}};
+const bossStickerData={'👑👹':{weapon:'👑',name:'Король Гоблинов'},'💀⚔️':{weapon:'💀',name:'Владыка Скелетов'},'👿🔥':{weapon:'🔥',name:'Демонический Князь'},'🐉💎':{weapon:'💎',name:'Древний Дракон'},'🌀👑':{weapon:'🌀',name:'Абсолют'}};
 
 function updateSticker(emoji,isBoss=false){
-    const container=document.getElementById('stickerContainer');
-    const body=document.getElementById('stickerBody');
-    const weapon=document.getElementById('stickerWeapon');
-    const data=isBoss?bossStickerData[emoji]:stickerData[emoji];
-    // Убираем все анимации
-    container.className='sticker-container'+(isBoss?' boss':'');
-    if(data){
-        body.textContent=emoji;
-        weapon.textContent=data.weapon;
-        container.classList.add(data.anim);
-        document.getElementById('enemyName').textContent=data.name;
-    }else{
-        body.textContent=emoji;
-        weapon.textContent='';
-        container.classList.add('anim-rat');
-    }
-    if(isBoss){
-        container.classList.add('boss');
-        document.getElementById('enemyName').classList.add('boss-name');
-    }else{
-        document.getElementById('enemyName').classList.remove('boss-name');
-    }
+    const b=document.getElementById('stickerBody'),w=document.getElementById('stickerWeapon'),n=document.getElementById('enemyName');
+    const d=isBoss?bossStickerData[emoji]:stickerData[emoji];
+    if(d){b.textContent=emoji;w.textContent=d.weapon;n.textContent=d.name;}else{b.textContent=emoji;w.textContent='';n.textContent=emoji;}
+    n.classList.toggle('boss-name',isBoss);
 }
 
-// ========== СОСТОЯНИЕ ==========
-let gold=0,gems=0,level=1,xp=0,xpToLevel=50,baseClickDamage=5,upgradeBonusDamage=0,autoDps=0,critChanceBonus=0,goldMultiplier=1,playerHp=100,playerMaxHp=100,inventory=[],equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null},isBossFight=false,bossAttackTimer=null,isDead=false,bossUnlockedLevel=10,currentBossIndex=0,totalPrestiges=0,prestigeBonuses={goldBonus:0,damageBonus:0,autoStart:0,luckBonus:0},comboCount=0,comboMultiplier=1,lastTapTime=0,totalKills=0,totalGoldEarned=0,maxLevel=1,dailyQuests=[],questsCompletedToday=false,achievements={},lostGoldStash=0,lostBossIndex=-1,upgradeCountDamage=0,upgradeCountAuto=0,upgradeCountCrit=0,upgradeCountGold=0,equipCountTotal=0,dailyStreak=0,dailyClaimed=false;
-const itemTypes=['weapon','helmet','armor','gloves','boots','ring'];
-const itemEmojis={weapon:'⚔️',helmet:'🪖',armor:'🛡️',gloves:'🧤',boots:'👢',ring:'💍'};
-const slotNames={weapon:'Оружие',helmet:'Шлем',armor:'Броня',gloves:'Перчатки',boots:'Ботинки',ring:'Кольцо'};
-const rarityColors={common:'#888',rare:'#44aaff',epic:'#aa44ff',legendary:'#ff8800',mythic:'#ff4444'};
-const raritySellPrices={common:5,rare:20,epic:60,legendary:150,mythic:500};
-
-const enemyPool=[{name:'Крыса',emoji:'🐀',baseHp:40,baseGold:4,baseXp:8,minLevel:1},{name:'Слизень',emoji:'🟢',baseHp:55,baseGold:6,baseXp:12,minLevel:3},{name:'Скелет',emoji:'💀',baseHp:75,baseGold:8,baseXp:16,minLevel:6},{name:'Гоблин',emoji:'👹',baseHp:100,baseGold:10,baseXp:22,minLevel:9},{name:'Паук',emoji:'🕷️',baseHp:130,baseGold:13,baseXp:28,minLevel:12},{name:'Летучая мышь',emoji:'🦇',baseHp:160,baseGold:16,baseXp:35,minLevel:15},{name:'Зомби',emoji:'🧟',baseHp:200,baseGold:20,baseXp:42,minLevel:19},{name:'Орк',emoji:'👺',baseHp:250,baseGold:25,baseXp:50,minLevel:23},{name:'Тёмный маг',emoji:'🧙‍♂️',baseHp:310,baseGold:30,baseXp:60,minLevel:27},{name:'Голем',emoji:'🗿',baseHp:380,baseGold:36,baseXp:72,minLevel:32},{name:'Гарпия',emoji:'🦅',baseHp:460,baseGold:43,baseXp:85,minLevel:37},{name:'Минотавр',emoji:'🐂',baseHp:550,baseGold:50,baseXp:100,minLevel:42},{name:'Демон',emoji:'👿',baseHp:650,baseGold:60,baseXp:120,minLevel:48},{name:'Виверна',emoji:'🐲',baseHp:770,baseGold:72,baseXp:140,minLevel:54},{name:'Рыцарь смерти',emoji:'⚔️💀',baseHp:900,baseGold:85,baseXp:165,minLevel:60},{name:'Лич',emoji:'👑💀',baseHp:1050,baseGold:100,baseXp:190,minLevel:68},{name:'Гидра',emoji:'🐍',baseHp:1200,baseGold:120,baseXp:220,minLevel:76},{name:'Архидемон',emoji:'👹🔥',baseHp:1400,baseGold:140,baseXp:260,minLevel:85},{name:'Дракон',emoji:'🐉',baseHp:1650,baseGold:165,baseXp:300,minLevel:95},{name:'Титан',emoji:'🏛️',baseHp:1900,baseGold:190,baseXp:350,minLevel:105},{name:'Кракен',emoji:'🐙',baseHp:2200,baseGold:220,baseXp:400,minLevel:120},{name:'Феникс',emoji:'🔥🐦',baseHp:2600,baseGold:260,baseXp:460,minLevel:135},{name:'Астральный ужас',emoji:'🌌',baseHp:3000,baseGold:300,baseXp:530,minLevel:150},{name:'Падший ангел',emoji:'😇⚔️',baseHp:3500,baseGold:350,baseXp:600,minLevel:170},{name:'Космический дракон',emoji:'🐉✨',baseHp:4000,baseGold:400,baseXp:700,minLevel:190}];
-const bossPool=[{name:'Король Гоблинов',emoji:'👑👹',hp:800,dmg:22,reward:300,xp:200,unlockLevel:10},{name:'Владыка Скелетов',emoji:'💀⚔️',hp:1500,dmg:42,reward:600,xp:400,unlockLevel:20},{name:'Демонический Князь',emoji:'👿🔥',hp:2700,dmg:72,reward:1000,xp:700,unlockLevel:35},{name:'Древний Дракон',emoji:'🐉💎',hp:4800,dmg:115,reward:1800,xp:1200,unlockLevel:50},{name:'Титан Бездны',emoji:'🌑👁️',hp:8500,dmg:180,reward:3000,xp:2000,unlockLevel:70},{name:'Феникс Возрождения',emoji:'🔥🐦',hp:14500,dmg:270,reward:5000,xp:3500,unlockLevel:90},{name:'Владыка Пустоты',emoji:'🌌',hp:24000,dmg:430,reward:8000,xp:5500,unlockLevel:115},{name:'Разрушитель Миров',emoji:'💥',hp:38000,dmg:630,reward:13000,xp:9000,unlockLevel:140},{name:'Хранитель Времени',emoji:'⏳',hp:60000,dmg:900,reward:22000,xp:15000,unlockLevel:170},{name:'Абсолют',emoji:'🌀👑',hp:95000,dmg:1350,reward:35000,xp:25000,unlockLevel:200}];
-let currentEnemy={name:'Крыса',emoji:'🐀',hp:40,maxHp:40,goldReward:4,xpReward:8},currentBoss=null;
-
-function getTotalDamage(){let id=0,ci=0,cm=2;for(let s in equipped){if(equipped[s]){id+=equipped[s].damage;ci+=equipped[s].critChance;if(equipped[s].critMultiplier>1)cm=Math.max(cm,parseFloat(equipped[s].critMultiplier));}}let total=baseClickDamage+upgradeBonusDamage+id+prestigeBonuses.damageBonus;let crit=critChanceBonus+ci;let isCrit=Math.random()*100<crit;if(isCrit)total=Math.floor(total*cm*comboMultiplier);else total=Math.floor(total*comboMultiplier);return{damage:total,isCrit};}
-function updateXpBar(){let pct=(xp/xpToLevel)*100;document.getElementById('xpBar').style.width=pct+'%';document.getElementById('xpText').textContent=xp;document.getElementById('xpMax').textContent=xpToLevel;}
-function gainXp(amount){xp+=amount;while(xp>=xpToLevel){xp-=xpToLevel;levelUp();}updateXpBar();if(level>maxLevel)maxLevel=level;}
-function levelUp(){level++;document.getElementById('level').textContent=level;xpToLevel=Math.floor(50*Math.pow(level,1.4));playerMaxHp+=5;playerHp=playerMaxHp;baseClickDamage+=1;updateHpBar();updateXpBar();document.getElementById('levelUpPopup').style.display='block';setTimeout(()=>document.getElementById('levelUpPopup').style.display='none',2000);if(level>=15)document.getElementById('prestigeBtn').classList.add('available');}
-function updateHpBar(){let pct=(playerHp/playerMaxHp)*100;document.getElementById('playerHpBar').style.width=pct+'%';document.getElementById('playerHpText').textContent=Math.max(0,playerHp);}
-function recalcMaxHp(){let bonus=0;for(let s in equipped){if(equipped[s])bonus+=equipped[s].maxHpBonus}playerMaxHp=100+level*5+bonus;if(playerHp>playerMaxHp)playerHp=playerMaxHp;updateHpBar();}
-function updateCombo(){let now=Date.now();if(now-lastTapTime<1500){comboCount++;comboMultiplier=Math.min(1.1,1.0+comboCount*0.001);document.getElementById('comboDisplay').textContent='🔥 x'+comboMultiplier.toFixed(3);document.getElementById('comboDisplay').classList.add('active');if(comboMultiplier>=1.099)document.getElementById('comboDisplay').classList.add('max');else document.getElementById('comboDisplay').classList.remove('max');}else{comboCount=0;comboMultiplier=1.0;document.getElementById('comboDisplay').classList.remove('active','max');}lastTapTime=now;}
-function getEnemyForLevel(){let a=enemyPool.filter(e=>level>=e.minLevel);return a[a.length-1]||enemyPool[0];}
-function spawnEnemy(){if(isDead)return;let t=getEnemyForLevel();let s=Math.pow(1.10,level-1);currentEnemy={name:t.name,emoji:t.emoji,maxHp:Math.floor(t.baseHp*s),hp:Math.floor(t.baseHp*s),goldReward:Math.floor(t.baseGold*Math.pow(1.03,level-1)),xpReward:Math.floor(t.baseXp*Math.pow(1.03,level-1))};isBossFight=false;clearBossAttack();document.getElementById('bossIndicator').style.display='none';updateSticker(currentEnemy.emoji);document.getElementById('hpMax').textContent=currentEnemy.maxHp;updateEnemyHpBar();updateBossAvailability();}
-function updateEnemyHpBar(){let pct=Math.max(0,(currentEnemy.hp/currentEnemy.maxHp)*100);document.getElementById('hpBar').style.width=pct+'%';document.getElementById('hpCurrent').textContent=Math.max(0,currentEnemy.hp);}
-
-// ========== МУЛЬТИТАЧ ==========
-const battleArea=document.getElementById('battleArea'),activeTouches=new Set();
-battleArea.addEventListener('touchstart',function(e){e.preventDefault();for(let i=0;i<e.changedTouches.length;i++){const t=e.changedTouches[i];if(activeTouches.has(t.identifier))continue;activeTouches.add(t.identifier);processTap(t.clientX,t.clientY);}},{passive:false});
-battleArea.addEventListener('touchend',function(e){for(let i=0;i<e.changedTouches.length;i++)activeTouches.delete(e.changedTouches[i].identifier);});
-battleArea.addEventListener('touchcancel',function(e){for(let i=0;i<e.changedTouches.length;i++)activeTouches.delete(e.changedTouches[i].identifier);});
-battleArea.addEventListener('click',function(e){if(e.target.tagName==='BUTTON'||e.target.closest('.panel')||e.target.closest('.overlay'))return;processTap(e.clientX,e.clientY);});
-
-function processTap(cx,cy){
-    if(isDead)return;updateCombo();
-    let{damage,isCrit}=getTotalDamage();currentEnemy.hp-=damage;
-    document.getElementById('stickerContainer').classList.add('hit');setTimeout(()=>document.getElementById('stickerContainer').classList.remove('hit'),100);
-    let rect=battleArea.getBoundingClientRect();
-    let popup=document.createElement('div');popup.className=isCrit?'crit-popup':'damage-popup';
-    popup.textContent=(isCrit?'💥':'')+'-'+damage;popup.style.left=(cx-rect.left)+'px';popup.style.top=(cy-rect.top)+'px';
-    battleArea.appendChild(popup);setTimeout(()=>popup.remove(),700);
-    updateEnemyHpBar();
-    if(currentEnemy.hp<=0)killEnemy();
+// ========== DUNGEON MAP ==========
+function generateDungeon(){
+    dungeonRooms=[];for(let i=0;i<25;i++){let r=Math.random();dungeonRooms.push(r<0.6?'battle':r<0.7?'treasure':r<0.8?'trap':r<0.88?'altar':r<0.93?'boss':'shop');}
+    currentRoom=0;affix=affixes[Math.floor(Math.random()*affixes.length)];
+    document.getElementById('affixDisplay').textContent=affix;
+    renderMap();
+}
+function renderMap(){
+    let m=document.getElementById('dungeonMap');m.innerHTML='';
+    dungeonRooms.forEach((r,i)=>{
+        let d=document.createElement('div');d.className='map-room';
+        if(i===currentRoom)d.classList.add('current');
+        if(i<currentRoom)d.classList.add('completed');
+        if(r==='boss')d.classList.add('boss');
+        if(r==='treasure')d.classList.add('treasure');
+        if(r==='trap')d.classList.add('trap');
+        if(r==='altar')d.classList.add('altar');
+        d.textContent=r==='battle'?'⚔️':r==='treasure'?'🎁':r==='trap'?'⚠️':r==='altar'?'🙏':r==='boss'?'👑':'🛒';
+        d.onclick=()=>{if(i<=currentRoom+1&&dungeonRooms[i]!=='completed'){currentRoom=i;enterRoom();renderMap();}};
+        m.appendChild(d);
+    });
+}
+function enterRoom(){
+    let type=dungeonRooms[currentRoom];
+    if(type==='battle')spawnEnemy();
+    else if(type==='boss'){currentBoss=bossPool[Math.min(currentBossIndex,bossPool.length-1)];openBossPanel();}
+    else if(type==='treasure'){let item=generateItem();inventory.push(item);gold+=100;document.getElementById('gold').textContent=gold;}
+    else if(type==='trap'){playerHp-=20;updateHpBar();gold+=50;document.getElementById('gold').textContent=gold;}
+    else if(type==='altar'){playerHp=playerMaxHp;updateHpBar();baseClickDamage+=5;}
+    renderMap();
 }
 
+// ========== CHARGE SYSTEM ==========
+let holdStart=0;
+battleArea.addEventListener('pointerdown',function(e){
+    if(isDead||isBossFight&&bossAttackTimer)return;
+    holdStart=Date.now();isCharging=true;chargeLevel=0;
+    document.getElementById('chargeBarOuter').classList.add('active');
+    chargeInterval=setInterval(()=>{
+        chargeLevel=Math.min(100,(Date.now()-holdStart)/20);
+        document.getElementById('chargeBarInner').style.width=chargeLevel+'%';
+        if(chargeLevel>=100){clearInterval(chargeInterval);isCharging=false;releaseUltimate(e.clientX,e.clientY);}
+    },50);
+});
+battleArea.addEventListener('pointerup',function(e){
+    if(!isCharging)return;clearInterval(chargeInterval);isCharging=false;
+    document.getElementById('chargeBarOuter').classList.remove('active');
+    document.getElementById('chargeBarInner').style.width='0%';
+    processTap(e.clientX,e.clientY,chargeLevel);
+    chargeLevel=0;
+});
+battleArea.addEventListener('pointerleave',function(){if(isCharging){clearInterval(chargeInterval);isCharging=false;document.getElementById('chargeBarOuter').classList.remove('active');}});
+
+function releaseUltimate(cx,cy){
+    document.getElementById('ultimateOverlay').style.display='block';
+    setTimeout(()=>document.getElementById('ultimateOverlay').style.display='none',1000);
+    document.getElementById('gameContainer').classList.add('finisher-shake');
+    setTimeout(()=>document.getElementById('gameContainer').classList.remove('finisher-shake'),600);
+    processTap(cx,cy,100);
+}
+
+// ========== TARGET SYSTEM ==========
+function setTarget(zone){
+    targetZone=zone;
+    document.querySelectorAll('.target-zone').forEach(z=>z.classList.remove('active'));
+    document.getElementById('zone'+zone.charAt(0).toUpperCase()+zone.slice(1)).classList.add('active');
+    document.querySelectorAll('.enemy-hitbox').forEach(h=>h.classList.remove('active'));
+    document.getElementById('hitbox'+zone.charAt(0).toUpperCase()+zone.slice(1)).classList.add('active');
+}
+
+// ========== SPELL SYSTEM ==========
+function castSpell(type){
+    if(energy<30)return;energy-=30;document.getElementById('energy').textContent=energy+'%';
+    let dmg=baseClickDamage*5;
+    if(type==='fire'){currentEnemy.hp-=dmg;addPopup('crit-popup','🔥-'+dmg);}
+    if(type==='ice'){currentEnemy.hp-=dmg/2;addPopup('damage-popup','❄️-'+dmg/2);if(bossAttackTimer){clearBossAttack();setTimeout(()=>{if(isBossFight)startBossAttack();},5000);}}
+    if(type==='dark'){playerHp-=playerMaxHp*0.2;currentEnemy.hp-=dmg*1.5;addPopup('crit-popup','🌑-'+Math.floor(dmg*1.5));updateHpBar();}
+    updateEnemyHpBar();if(currentEnemy.hp<=0)killEnemy();
+}
+
+// ========== CORE BATTLE ==========
+const battleArea=document.getElementById('pageBattle');
+let lastTouchTime=0;
+battleArea.addEventListener('click',function(e){if(Date.now()-lastTouchTime<300||isCharging)return;processTap(e.clientX,e.clientY,0);});
+
+function processTap(cx,cy,charge){
+    if(isDead)return;
+    let multiplier=1;
+    if(charge>=75)multiplier=5;else if(charge>=50)multiplier=3;else if(charge>=25)multiplier=2;
+    if(targetZone==='head')multiplier*=3;else if(targetZone==='limbs')multiplier*=0.5;
+    let dmg=Math.floor(getTotalDamage()*multiplier);
+    currentEnemy.hp-=dmg;document.getElementById('stickerContainer').classList.add('hit');
+    setTimeout(()=>document.getElementById('stickerContainer').classList.remove('hit'),100);
+    let cls=charge>=75?'ult-popup':targetZone==='head'?'crit-popup':'damage-popup';
+    addPopup(cls,'-'+(charge>=75?'💥':'')+dmg);
+    energy=Math.min(100,energy+5);document.getElementById('energy').textContent=energy+'%';
+    if(energy>=30){document.querySelectorAll('.spell-btn').forEach(b=>b.classList.add('ready'));}
+    updateEnemyHpBar();if(currentEnemy.hp<=0)killEnemy();
+}
+function addPopup(cls,text){
+    let p=document.createElement('div');p.className=cls;p.textContent=text;
+    p.style.left='50%';p.style.top='40%';p.style.transform='translate(-50%,-50%)';
+    battleArea.appendChild(p);setTimeout(()=>p.remove(),cls.includes('ult')?1200:800);
+}
+
+function getTotalDamage(){return baseClickDamage+upgradeBonusDamage+prestigeBonuses.damageBonus;}
+function updateEnemyHpBar(){let p=Math.max(0,(currentEnemy.hp/currentEnemy.maxHp)*100);document.getElementById('hpBar').style.width=p+'%';document.getElementById('hpCurrent').textContent=Math.max(0,currentEnemy.hp);}
+function updateHpBar(){let p=(playerHp/playerMaxHp)*100;document.getElementById('playerHpBar')?document.getElementById('playerHpBar').style.width=p+'%':null;}
 function killEnemy(){
     totalKills++;let reward=Math.floor(currentEnemy.goldReward*goldMultiplier*(1+prestigeBonuses.goldBonus/100));
-    gold+=reward;totalGoldEarned+=reward;document.getElementById('gold').textContent=gold;gainXp(currentEnemy.xpReward);
-    let gp=document.createElement('div');gp.className='gold-popup';gp.textContent='+'+reward+' 💰';gp.style.left='50%';gp.style.top='50%';gp.style.transform='translate(-50%,-50%)';battleArea.appendChild(gp);setTimeout(()=>gp.remove(),1000);
-    if(Math.random()<(isBossFight?0.40:0.01)){let item=generateItem();inventory.push(item);showLootPopup(item);}
-    if(isBossFight){isBossFight=false;clearBossAttack();document.getElementById('bossIndicator').style.display='none';playerHp=playerMaxHp;updateHpBar();bossUnlockedLevel=level+10;currentBossIndex++;}spawnEnemy();
+    gold+=reward;document.getElementById('gold').textContent=gold;level++;document.getElementById('level').textContent=level;
+    talentPoints++;if(isBossFight){isBossFight=false;clearBossAttack();currentBossIndex++;gold+=500;}
+    spawnEnemy();renderMap();
 }
-function showLootPopup(item){let lp=document.createElement('div');lp.className='loot-popup';lp.textContent=item.emoji+' '+item.name;lp.style.color=rarityColors[item.rarity];lp.style.left='50%';lp.style.top='60%';lp.style.transform='translate(-50%,-50%)';battleArea.appendChild(lp);setTimeout(()=>lp.remove(),2500);}
-function generateItem(){const type=itemTypes[Math.floor(Math.random()*itemTypes.length)];const rarities=['common','common','common','common','common','rare','rare','epic','legendary','mythic'];const rarity=rarities[Math.floor(Math.random()*rarities.length)];const bs={common:3,rare:8,epic:18,legendary:35,mythic:80}[rarity];return{type,rarity,name:rarity+'_'+type,emoji:itemEmojis[type],damage:type==='weapon'?bs:0,critChance:(type==='gloves'||type==='helmet')?Math.floor(bs/2):0,critMultiplier:type==='ring'?parseFloat((1+bs/40).toFixed(1)):1,maxHpBonus:type==='armor'?bs*4:0,goldBonus:type==='boots'?Math.floor(bs/3):0};}
-
-function updateBossAvailability(){if(level>=10&&level>=bossUnlockedLevel&&!isBossFight&&!isDead&&currentBossIndex<bossPool.length){document.getElementById('bossAvailable').style.display='block';currentBoss=bossPool[currentBossIndex];}else{document.getElementById('bossAvailable').style.display='none';}}
-function openBossPanel(){if(!currentBoss)return;document.getElementById('bossTitle').textContent=currentBoss.name+' '+currentBoss.emoji;document.getElementById('bossHpPreview').textContent=currentBoss.hp;document.getElementById('bossDmgPreview').textContent=currentBoss.dmg;document.getElementById('bossRewardText').textContent='+'+currentBoss.reward+' золота + предмет';document.getElementById('bossOverlay').classList.add('active');}
+function spawnEnemy(){
+    let t={name:'Крыса',emoji:'🐀',maxHp:40+level*10,hp:40+level*10,goldReward:5+level*2};
+    currentEnemy=t;updateSticker(t.emoji);document.getElementById('hpMax').textContent=t.maxHp;updateEnemyHpBar();
+}
+const bossPool=[{name:'Король Гоблинов',emoji:'👑👹',hp:800,dmg:22,reward:300},{name:'Владыка Скелетов',emoji:'💀⚔️',hp:1500,dmg:42,reward:600}];
+let currentEnemy={name:'Крыса',emoji:'🐀',hp:40,maxHp:40,goldReward:5},currentBoss=null;
+function openBossPanel(){if(!currentBoss)currentBoss=bossPool[Math.min(currentBossIndex,bossPool.length-1)];document.getElementById('bossTitle').textContent=currentBoss.name;document.getElementById('bossHpPreview').textContent=currentBoss.hp;document.getElementById('bossOverlay').classList.add('active');}
 function closeBossPanel(){document.getElementById('bossOverlay').classList.remove('active');}
-function startBossFight(){document.getElementById('bossOverlay').classList.remove('active');isBossFight=true;currentEnemy={name:currentBoss.name,emoji:currentBoss.emoji,maxHp:currentBoss.hp,hp:currentBoss.hp,goldReward:currentBoss.reward,xpReward:currentBoss.xp};document.getElementById('bossIndicator').style.display='block';document.getElementById('bossAvailable').style.display='none';updateSticker(currentBoss.emoji,true);document.getElementById('hpMax').textContent=currentEnemy.maxHp;updateEnemyHpBar();clearBossAttack();bossAttackTimer=setInterval(()=>{if(isDead||!isBossFight){clearBossAttack();return;}playerHp-=currentBoss.dmg;updateHpBar();document.getElementById('gameContainer').classList.add('screen-shake');setTimeout(()=>document.getElementById('gameContainer').classList.remove('screen-shake'),500);let popup=document.createElement('div');popup.className='damage-popup';popup.textContent='-'+currentBoss.dmg;popup.style.left='50%';popup.style.top='20%';popup.style.transform='translate(-50%,0)';battleArea.appendChild(popup);setTimeout(()=>popup.remove(),700);if(playerHp<=0)playerDeath();},2000);}
+function startBossFight(){document.getElementById('bossOverlay').classList.remove('active');isBossFight=true;currentEnemy={name:currentBoss.name,emoji:currentBoss.emoji,maxHp:currentBoss.hp,hp:currentBoss.hp,goldReward:currentBoss.reward};updateSticker(currentBoss.emoji,true);document.getElementById('hpMax').textContent=currentEnemy.maxHp;updateEnemyHpBar();startBossAttack();}
+function startBossAttack(){bossAttackTimer=setInterval(()=>{if(isDead||!isBossFight){clearBossAttack();return;}playerHp-=currentBoss.dmg;updateHpBar();document.getElementById('gameContainer').classList.add('screen-shake');setTimeout(()=>document.getElementById('gameContainer').classList.remove('screen-shake'),400);if(playerHp<=0)playerDeath();},2000);}
 function clearBossAttack(){if(bossAttackTimer){clearInterval(bossAttackTimer);bossAttackTimer=null;}}
-function playerDeath(){isDead=true;clearBossAttack();isBossFight=false;lostGoldStash=Math.floor(gold*0.2);lostBossIndex=currentBossIndex;gold-=lostGoldStash;document.getElementById('gold').textContent=gold;document.getElementById('lostGold').textContent=lostGoldStash;document.getElementById('deathOverlay').classList.add('active');}
+function playerDeath(){isDead=true;clearBossAttack();lostGoldStash=Math.floor(gold*0.2);gold-=lostGoldStash;document.getElementById('gold').textContent=gold;document.getElementById('lostGold').textContent=lostGoldStash;document.getElementById('deathOverlay').classList.add('active');}
 function revivePlayer(){document.getElementById('deathOverlay').classList.remove('active');isDead=false;playerHp=playerMaxHp;updateHpBar();spawnEnemy();}
 
-function openPrestigePanel(){document.getElementById('prestigeGems').textContent=1+Math.floor(level/20);document.getElementById('prestigeOverlay').classList.add('active');}
-function closePrestigePanel(){document.getElementById('prestigeOverlay').classList.remove('active');}
-function confirmPrestige(){let gt=1+Math.floor(level/20);gems+=gt;totalPrestiges++;gold=0;level=1;xp=0;xpToLevel=50;upgradeBonusDamage=0;autoDps=0;critChanceBonus=0;goldMultiplier=1;playerHp=100;playerMaxHp=100;inventory=[];equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null};isBossFight=false;currentBossIndex=0;bossUnlockedLevel=10;comboCount=0;comboMultiplier=1;autoDps=prestigeBonuses.autoStart;document.getElementById('gold').textContent=gold;document.getElementById('gems').textContent=gems;document.getElementById('level').textContent=level;document.getElementById('dps').textContent=autoDps;updateXpBar();updateHpBar();document.getElementById('prestigeOverlay').classList.remove('active');document.getElementById('prestigeBtn').classList.remove('available');spawnEnemy();}
+// ========== TALENTS ==========
+function renderTalents(){
+    let c=document.getElementById('talentTree');c.innerHTML=talentTreeData.map((t,i)=>`<div class="talent-row ${t.owned?'owned':talentPoints>=t.cost?'available':'locked'}" onclick="buyTalent(${i})">${t.name}: ${t.desc} [${t.cost}🔷] ${t.owned?'✅':''}</div>`).join('');
+}
+function buyTalent(i){let t=talentTreeData[i];if(t.owned||talentPoints<t.cost)return;if(t.requires!==undefined&&!talentTreeData[t.requires].owned)return;t.owned=true;talentPoints-=t.cost;renderTalents();}
 
-// ========== ПЭЙДЭЙ ==========
-const PK='rpg_sticker_v1';
-function checkPayday(){let n=Date.now(),l=localStorage.getItem(PK);if(l){let s=Math.floor((n-parseInt(l))/1000);if(s>60){let e=Math.min(Math.floor(s*0.2),2880),m=Math.floor(s/60),h=Math.floor(m/60);document.getElementById('paydayTime').textContent=h>0?h+'ч '+(m%60)+'м':m+'м';document.getElementById('paydayGold').textContent=e;document.getElementById('paydayOverlay').classList.add('active');window._pa=e;}}localStorage.setItem(PK,n);}
+// ========== PRESTIGE ==========
+function openPrestigePanel(){document.getElementById('prestigePoints').textContent=1+eternityPoints;document.getElementById('prestigeOverlay').classList.add('active');}
+function closePrestigePanel(){document.getElementById('prestigeOverlay').classList.remove('active');}
+function confirmPrestige(){eternityPoints+=1+Math.floor(level/50);totalPrestiges++;gold=0;level=1;xp=0;playerHp=100;playerMaxHp=100;baseClickDamage=5+eternityPoints*10;autoDps=0;inventory=[];equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null};currentBossIndex=0;document.getElementById('gold').textContent=gold;document.getElementById('level').textContent=level;document.getElementById('prestigeOverlay').classList.remove('active');generateDungeon();spawnEnemy();}
+
+// ========== SWIPE ==========
+function swipeTo(page){currentPage=page;document.getElementById('swipePages').style.transform='translateX(-'+(page*33.333)+'%)';if(page===1)renderTalents();if(page===2)renderInventory();}
+document.getElementById('swipeContainer').addEventListener('touchstart',function(e){this._sx=e.touches[0].clientX;});
+document.getElementById('swipeContainer').addEventListener('touchend',function(e){let d=this._sx-e.changedTouches[0].clientX;if(Math.abs(d)>50){if(d>0&&currentPage<2)swipeTo(currentPage+1);else if(d<0&&currentPage>0)swipeTo(currentPage-1);}});
+
+// ========== INVENTORY ==========
+const itemTypes=['weapon','helmet','armor','gloves','boots','ring'],itemEmojis={weapon:'⚔️',helmet:'🪖',armor:'🛡️',gloves:'🧤',boots:'👢',ring:'💍'},rarityColors={common:'#888',rare:'#44aaff',epic:'#aa44ff',legendary:'#ff8800',mythic:'#ff4444'};
+function generateItem(){return{type:itemTypes[Math.floor(Math.random()*6)],rarity:'common',name:'item',emoji:itemEmojis[itemTypes[Math.floor(Math.random()*6)]],damage:5};}
+function renderInventory(){let c=document.getElementById('inventorySlots');c.innerHTML=inventory.length===0?'<span style="color:#555">Пусто</span>':inventory.map((item,i)=>`<div style="display:flex;justify-content:space-between;padding:5px;margin:2px 0;background:rgba(25,20,40,0.7);border-radius:8px;font-size:9px">${item.emoji} ${item.name} <button onclick="equipItem(${i})" style="background:#3a9a3a;color:#fff;border:none;padding:2px 6px;border-radius:4px;font-size:7px">Надеть</button></div>`).join('');}
+function equipItem(i){let item=inventory[i];if(equipped[item.type])inventory.push(equipped[item.type]);equipped[item.type]=item;inventory.splice(i,1);renderInventory();}
+
+// ========== UTILS ==========
+function cycleDifficulty(){difficultyStars=difficultyStars>=3?1:difficultyStars+1;document.getElementById('starCount').textContent=difficultyStars;}
+function showPanel(id){document.getElementById(id).classList.add('active');}
+function hidePanel(id){document.getElementById(id).classList.remove('active');}
+
+// ========== AUDIO (Web Audio API) ==========
+let audioCtx=null;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+function playSound(freq,type,dur,vol=0.08){
+    if(!audioCtx)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+    g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+    o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);
+}
+battleArea.addEventListener('pointerdown',()=>{initAudio();playSound(200,'square',0.1);});
+
+// ========== PAYDAY ==========
+const PK='rpg_awakening';
+function checkPayday(){let n=Date.now(),l=localStorage.getItem(PK);if(l){let s=Math.floor((n-parseInt(l))/1000);if(s>60){let e=Math.min(Math.floor(s*0.2),2880);document.getElementById('paydayGold').textContent=e;document.getElementById('paydayOverlay').classList.add('active');window._pa=e;}}localStorage.setItem(PK,n);}
 function claimPayday(){gold+=window._pa||0;document.getElementById('gold').textContent=gold;document.getElementById('paydayOverlay').classList.remove('active');}
 
-// ========== ПАНЕЛИ ==========
-function togglePanel(id){let p=document.getElementById(id);p.classList.toggle('active');if(id==='inventoryPanel')renderInventory();if(id==='upgradePanel')renderUpgrades();if(id==='characterPanel')renderEquipped();}
-function renderInventory(){let c=document.getElementById('inventorySlots');c.innerHTML='';if(inventory.length===0){c.innerHTML='<p style="color:#555;text-align:center">Пусто</p>';return;}inventory.forEach((item,i)=>{let d=document.createElement('div');d.className='item-slot '+item.rarity;d.innerHTML=`<span>${item.emoji} ${item.name}</span><span style="font-size:7px;color:#999">⚔+${item.damage}</span><button class="equip-btn" onclick="equipItem(${i})">Надеть</button><button class="sell-btn" onclick="sellItem(${i})">💰${raritySellPrices[item.rarity]}</button>`;c.appendChild(d);});}
-function equipItem(i){let item=inventory[i];if(equipped[item.type])inventory.push(equipped[item.type]);equipped[item.type]=item;inventory.splice(i,1);equipCountTotal++;renderInventory();renderEquipped();recalcMaxHp();}
-function sellItem(i){gold+=raritySellPrices[inventory[i].rarity];document.getElementById('gold').textContent=gold;inventory.splice(i,1);renderInventory();}
-function unequipItem(slot){if(!equipped[slot])return;inventory.push(equipped[slot]);equipped[slot]=null;renderEquipped();renderInventory();recalcMaxHp();}
-function renderEquipped(){let c=document.getElementById('equippedSlots');c.innerHTML='';for(let s of itemTypes){let item=equipped[s];let d=document.createElement('div');d.style.cssText='display:flex;justify-content:space-between;padding:5px 8px;margin:2px 0;background:rgba(20,18,38,0.7);border-radius:8px;font-size:9px';if(item){d.innerHTML=`<span>${item.emoji} ${item.name}</span><button onclick="unequipItem('${s}')" style="background:#8a6a3a;color:#fff;border:none;padding:3px 7px;border-radius:4px;font-size:8px">Снять</button>`;d.style.borderLeft='3px solid '+rarityColors[item.rarity];}else{d.innerHTML=`<span style="color:#555">${itemEmojis[s]} ${slotNames[s]}: пусто</span>`;}c.appendChild(d);}}
-
-let upCosts={damage:40,auto:100,crit:200,goldMult:500},upLevels={damage:0,auto:0,crit:0,goldMult:0};
-function renderUpgrades(){let c=document.getElementById('upgradeList');c.innerHTML=`<div style="display:flex;justify-content:space-between;padding:8px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:10px;font-size:10px"><span>⚔️ Урон +${Math.floor(2*Math.pow(1.3,upLevels.damage))}</span><span>💰${upCosts.damage}</span><button onclick="buyUp('damage')" style="background:#4a9a3a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:9px">Купить</button></div><div style="display:flex;justify-content:space-between;padding:8px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:10px;font-size:10px"><span>⚡ Авто-атака +${Math.max(1,Math.floor(Math.pow(1.25,upLevels.auto)))}</span><span>💰${upCosts.auto}</span><button onclick="buyUp('auto')" style="background:#4a9a3a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:9px">Купить</button></div><div style="display:flex;justify-content:space-between;padding:8px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:10px;font-size:10px"><span>🔥 Крит +${(0.2*Math.pow(1.3,upLevels.crit)).toFixed(1)}%</span><span>💰${upCosts.crit}</span><button onclick="buyUp('crit')" style="background:#4a9a3a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:9px">Купить</button></div><div style="display:flex;justify-content:space-between;padding:8px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:10px;font-size:10px"><span>💎 Золото x1.2</span><span>💰${upCosts.goldMult}</span><button onclick="buyUp('goldMult')" style="background:#4a9a3a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:9px">Купить</button></div>`;}
-function buyUp(t){if(gold<upCosts[t])return;gold-=upCosts[t];document.getElementById('gold').textContent=gold;if(t==='damage'){upgradeBonusDamage+=Math.floor(2*Math.pow(1.3,upLevels.damage));upLevels.damage++;upCosts.damage=Math.floor(upCosts.damage*2.0);}if(t==='auto'){autoDps+=Math.max(1,Math.floor(Math.pow(1.25,upLevels.auto)));upLevels.auto++;document.getElementById('dps').textContent=autoDps;upCosts.auto=Math.floor(upCosts.auto*2.1);}if(t==='crit'){critChanceBonus+=parseFloat((0.2*Math.pow(1.3,upLevels.crit)).toFixed(1));upLevels.crit++;upCosts.crit=Math.floor(upCosts.crit*2.2);}if(t==='goldMult'){goldMultiplier*=1.2;upLevels.goldMult++;upCosts.goldMult=Math.floor(upCosts.goldMult*3.0);}renderUpgrades();}
-
+// ========== INIT ==========
+generateDungeon();spawnEnemy();renderTalents();checkPayday();
 setInterval(()=>{if(!isDead&&autoDps>0&&currentEnemy.hp>0){currentEnemy.hp-=autoDps;updateEnemyHpBar();if(currentEnemy.hp<=0)killEnemy();}},1000);
-setInterval(()=>{if(!isDead&&!isBossFight&&playerHp<playerMaxHp){playerHp=Math.min(playerMaxHp,playerHp+1);updateHpBar();}},3000);
-
-function saveGame(){let d={gold,gems,level,xp,xpToLevel,upgradeBonusDamage,autoDps,critChanceBonus,goldMultiplier,playerHp,playerMaxHp,equipped,bossUnlockedLevel,currentBossIndex,totalPrestiges,prestigeBonuses,totalKills,totalGoldEarned,maxLevel,upCosts,upLevels};localStorage.setItem('rpg_sticker_save',JSON.stringify(d));}
-function loadGame(){let s=localStorage.getItem('rpg_sticker_save');if(!s)return;let d=JSON.parse(s);Object.keys(d).forEach(k=>{eval(k+'=d[k]')});document.getElementById('gold').textContent=gold;document.getElementById('gems').textContent=gems;document.getElementById('level').textContent=level;document.getElementById('dps').textContent=autoDps;updateXpBar();updateHpBar();if(level>=15)document.getElementById('prestigeBtn').classList.add('available');}
-setInterval(saveGame,5000);
-
-// ========== ИНИТ ==========
-loadGame();if(!xpToLevel)xpToLevel=50;if(!upCosts||!upCosts.damage){upCosts={damage:40,auto:100,crit:200,goldMult:500};upLevels={damage:0,auto:0,crit:0,goldMult:0};}
-updateSticker('🐀');document.getElementById('hpMax').textContent=currentEnemy.maxHp;updateEnemyHpBar();updateXpBar();updateHpBar();if(level>=15)document.getElementById('prestigeBtn').classList.add('available');checkPayday();
 </script>
 </body>
 </html>
-        .xp-bar-inner{height:100%;background:linear-gradient(90deg,#4da6ff,#80ccff);border-radius:3px;transition:width 0.4s;box-shadow:0 0 10px rgba(77,166,255,0.6)}
-        .player-hp-bar-outer{width:50px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-        .player-hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff4466,#44ff66);border-radius:3px;transition:width 0.4s;box-shadow:0 0 8px rgba(68,255,102,0.4)}
-
-        /* БОЕВАЯ АРЕНА */
-        .battle-area{
-            flex:1;border-radius:20px;
-            display:flex;flex-direction:column;align-items:center;
-            justify-content:center;position:relative;margin-bottom:6px;
-            cursor:pointer;min-height:200px;overflow:hidden;
-            border:1px solid rgba(255,255,255,0.08);
-            box-shadow:inset 0 0 120px rgba(80,0,150,0.1),0 0 60px rgba(80,0,150,0.12);
-            background-size:cover;background-position:center;
-            background-repeat:no-repeat;
-        }
-        /* Canvas для частиц */
-        #particleCanvas{
-            position:absolute;top:0;left:0;width:100%;height:100%;
-            pointer-events:none;z-index:3;
-        }
-        .enemy-container{
-            text-align:center;position:relative;z-index:2;
-            transition:transform 0.1s;
-        }
-        /* SPRITE SHEET ANIMATION */
-        .enemy-sprite{
-            width:100px;height:100px;object-fit:none;
-            image-rendering:pixelated;
-            transition:filter 0.2s;
-        }
-        .enemy-sprite.state-idle{/* покадровая анимация через JS */}
-        .enemy-sprite.state-hurt{filter:brightness(2) saturate(0) hue-rotate(0deg) !important;animation:hurtFlash 0.3s ease-out}
-        .enemy-sprite.state-death{animation:deathFall 0.6s ease-in forwards}
-        .enemy-sprite.boss{width:130px;height:130px}
-        @keyframes hurtFlash{0%{filter:brightness(3) saturate(0)}100%{filter:brightness(1) saturate(1)}}
-        @keyframes deathFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(80px) rotate(30deg);opacity:0}}
-        .enemy-sprite-fallback{font-size:70px;display:none;filter:drop-shadow(0 0 25px rgba(255,0,0,0.5))}
-        .enemy-sprite-fallback.state-hurt{animation:hurtFlash 0.3s ease-out}
-        .enemy-sprite-fallback.state-death{animation:deathFall 0.6s ease-in forwards}
-        .enemy-sprite-fallback.boss{font-size:90px}
-        .enemy-name{font-size:14px;color:#ddd;margin-top:4px;text-shadow:0 0 10px rgba(255,255,255,0.3);position:relative;z-index:2}
-        .enemy-name.boss-name{color:#ff4444;font-size:17px;font-weight:900;text-shadow:0 0 20px rgba(255,0,0,0.8)}
-        .hp-bar-outer{width:160px;height:12px;background:rgba(0,0,0,0.6);border-radius:6px;margin:5px auto;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative;z-index:2}
-        .hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff3333,#ff5555,#ff3333);background-size:200% 100%;border-radius:6px;transition:width 0.3s;box-shadow:0 0 12px rgba(255,51,51,0.5);animation:hpShine 2s linear infinite}
-        @keyframes hpShine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-        .hp-text{font-size:9px;color:#aaa;position:relative;z-index:2}
-        .combo-display{position:absolute;top:14px;right:14px;font-size:16px;font-weight:900;color:#ff8800;display:none;text-shadow:0 0 12px rgba(255,136,0,0.7);z-index:10}
-        .combo-display.active{display:block;animation:comboPulse 0.2s ease-out}
-        .combo-display.max{color:#ff4444;font-size:20px;text-shadow:0 0 20px rgba(255,68,68,0.9)}
-        @keyframes comboPulse{0%{transform:scale(1.5)}100%{transform:scale(1)}}
-        /* LEVEL UP СТОЛБ СВЕТА */
-        .levelup-column{
-            position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-            width:60px;height:0%;background:linear-gradient(to top,transparent,rgba(255,215,0,0.4),rgba(255,200,0,0.7),rgba(255,255,255,0.9),rgba(255,215,0,0.4),transparent);
-            z-index:25;pointer-events:none;display:none;
-            animation:columnRise 1.5s ease-out forwards;
-        }
-        @keyframes columnRise{0%{height:0%;opacity:1}100%{height:120%;opacity:0}}
-        .levelup-popup{position:absolute;top:20%;left:50%;transform:translate(-50%,-50%);font-size:34px;font-weight:900;color:#ffd700;z-index:26;pointer-events:none;animation:levelUpAnim 2s ease-out forwards;display:none;text-shadow:0 0 60px rgba(255,215,0,0.9),0 0 120px rgba(255,200,0,0.5)}
-        @keyframes levelUpAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.1)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.8)}100%{opacity:0;transform:translate(-50%,-100%) scale(0.8)}}
-        .achievement-popup{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(30,20,60,0.9);color:#ffd700;padding:8px 18px;border-radius:14px;font-size:11px;z-index:26;pointer-events:none;animation:achieveAnim 3s ease-out forwards;display:none;border:1px solid rgba(255,215,0,0.25);backdrop-filter:blur(15px)}
-        @keyframes achieveAnim{0%{opacity:0;transform:translateX(-50%) translateY(25px)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
-        .damage-popup{position:absolute;font-size:22px;font-weight:900;color:#ff3333;pointer-events:none;animation:popUp 0.7s ease-out forwards;text-shadow:0 0 10px rgba(255,0,0,0.6);z-index:15}
-        .crit-popup{position:absolute;font-size:32px;font-weight:900;color:#ff8800;pointer-events:none;animation:popUp 0.9s ease-out forwards;text-shadow:0 0 20px rgba(255,136,0,0.9);z-index:16}
-        .player-damage-popup{position:absolute;font-size:17px;font-weight:900;color:#ff6644;pointer-events:none;animation:popUp 0.7s ease-out forwards;z-index:15}
-        .gold-popup{position:absolute;font-size:14px;font-weight:900;color:#ffd700;pointer-events:none;animation:popUp 1s ease-out forwards;z-index:14}
-        .loot-popup{position:absolute;font-size:15px;font-weight:900;pointer-events:none;animation:lootFly 2.5s ease-out forwards;z-index:12}
-        .xp-popup{position:absolute;font-size:10px;font-weight:700;color:#66bbff;pointer-events:none;animation:popUp 0.8s ease-out forwards;z-index:13}
-        @keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-45px)}}
-        @keyframes lootFly{0%{opacity:1;transform:translate(-50%,-50%) scale(0.1) rotate(0deg)}30%{opacity:1;transform:translate(-50%,-120%) scale(1.6) rotate(180deg)}100%{opacity:0;transform:translate(-50%,-220%) scale(0.2) rotate(360deg)}}
-        .bottom-bar{display:flex;gap:5px;padding:5px 0}
-        .btn{flex:1;padding:13px 4px;border:none;border-radius:14px;font-size:10px;font-weight:700;cursor:pointer;color:#fff;transition:all 0.2s;position:relative;overflow:hidden;text-transform:uppercase;letter-spacing:0.5px}
-        .btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 60%);opacity:0;transition:opacity 0.3s}
-        .btn:active::before{opacity:1}
-        .btn:active{transform:scale(0.93)}
-        .btn-inventory{background:linear-gradient(180deg,#2a2a5a,#1a1a3a);border:1px solid rgba(100,100,200,0.25);box-shadow:0 0 15px rgba(80,80,180,0.2)}
-        .btn-upgrade{background:linear-gradient(180deg,#4a2a2a,#2a1a1a);border:1px solid rgba(200,100,100,0.25);box-shadow:0 0 15px rgba(180,80,80,0.2)}
-        .btn-character{background:linear-gradient(180deg,#3a3a5a,#2a2a3a);border:1px solid rgba(150,150,200,0.25);box-shadow:0 0 15px rgba(120,120,180,0.2)}
-        .btn-quests{background:linear-gradient(180deg,#2a4a2a,#1a2a1a);border:1px solid rgba(100,200,100,0.25);box-shadow:0 0 15px rgba(80,180,80,0.2)}
-        .btn-prestige{background:linear-gradient(180deg,#5a1a7a,#3a0a5a);border:1px solid rgba(180,100,220,0.35);box-shadow:0 0 20px rgba(140,60,200,0.3);display:none}
-        .btn-prestige.available{display:block;animation:prestigePulse 1.5s ease-in-out infinite}
-        @keyframes prestigePulse{0%,100%{box-shadow:0 0 15px rgba(170,68,255,0.5)}50%{box-shadow:0 0 30px rgba(170,68,255,0.9)}}
-        .tap-hint{position:absolute;bottom:16px;color:rgba(255,255,255,0.3);font-size:10px;animation:pulse 2s ease-in-out infinite;z-index:5}
-        @keyframes pulse{0%,100%{opacity:0.15}50%{opacity:0.55}}
-        .panel{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(10,8,25,0.95);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);z-index:20;flex-direction:column;padding:16px;overflow-y:auto;border-radius:20px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 25px 70px rgba(0,0,0,0.7)}
-        .panel.active{display:flex}
-        .panel h3{text-align:center;margin-bottom:10px;font-size:16px;font-weight:900;letter-spacing:1px}
-        .panel h3.gold-text{background:linear-gradient(180deg,#ffe87c,#ffd700,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .panel .close-btn{position:absolute;top:10px;right:10px;background:rgba(255,60,60,0.7);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;z-index:5;backdrop-filter:blur(15px);border:1px solid rgba(255,100,100,0.3)}
-        .item-slot{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:12px;font-size:9px;border-left:5px solid #888;gap:4px;flex-wrap:wrap;transition:all 0.2s;border:1px solid rgba(255,255,255,0.05)}
-        .item-slot.common{border-left-color:#888}
-        .item-slot.rare{border-left-color:#44aaff;box-shadow:0 0 12px rgba(68,170,255,0.2);background:rgba(20,25,55,0.8)}
-        .item-slot.epic{border-left-color:#aa44ff;box-shadow:0 0 14px rgba(170,68,255,0.3);background:rgba(30,20,55,0.8);animation:epicGlow 2s ease-in-out infinite}
-        @keyframes epicGlow{0%,100%{box-shadow:0 0 10px rgba(170,68,255,0.25)}50%{box-shadow:0 0 20px rgba(170,68,255,0.5)}}
-        .item-slot.legendary{border-left-color:#ff8800;box-shadow:0 0 16px rgba(255,136,0,0.35);background:rgba(40,25,15,0.8);animation:legendaryGlow 1.5s ease-in-out infinite}
-        @keyframes legendaryGlow{0%,100%{box-shadow:0 0 12px rgba(255,136,0,0.3)}50%{box-shadow:0 0 24px rgba(255,136,0,0.6)}}
-        .item-slot.mythic{border-left-color:#ff4444;box-shadow:0 0 20px rgba(255,68,68,0.5);background:rgba(40,15,15,0.8);animation:mythicGlow 1s ease-in-out infinite}
-        @keyframes mythicGlow{0%,100%{box-shadow:0 0 14px rgba(255,68,68,0.4)}50%{box-shadow:0 0 32px rgba(255,68,68,0.8),0 0 50px rgba(255,200,0,0.35)}}
-        .item-slot .equip-btn{background:linear-gradient(180deg,#3a9a3a,#2a7a2a);color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer;font-weight:700}
-        .item-slot .sell-btn{background:linear-gradient(180deg,#9a3a3a,#7a2a2a);color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer;font-weight:700;margin-left:3px}
-        .equipped-slot{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin:3px 0;background:rgba(20,18,38,0.7);border-radius:12px;font-size:9px;border:1px solid rgba(255,255,255,0.08)}
-        .equipped-slot .unequip-btn{background:rgba(255,140,60,0.5);color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer}
-        .stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:9px;color:#b8a9d0}
-        .upgrade-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;margin:3px 0;background:rgba(25,20,40,0.7);border-radius:12px;font-size:10px;border:1px solid rgba(255,255,255,0.05)}
-        .upgrade-row .buy-btn{background:linear-gradient(180deg,#4a9a3a,#3a7a2a);color:#fff;border:none;padding:5px 11px;border-radius:7px;font-size:9px;cursor:pointer;font-weight:700}
-        .quest-row{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;margin:3px 0;background:rgba(20,35,20,0.7);border-radius:10px;font-size:9px;border:1px solid rgba(100,200,100,0.12)}
-        .quest-row .claim-btn{background:linear-gradient(180deg,#ffd700,#ccaa00);color:#000;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer;font-weight:700}
-        .quest-row .done{color:#66ff66;font-size:8px}
-        .prestige-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;margin:3px 0;background:rgba(35,20,50,0.7);border-radius:12px;font-size:10px;border:1px solid rgba(170,68,255,0.18)}
-        .prestige-row .buy-btn{background:linear-gradient(180deg,#aa44ff,#8833cc);color:#fff;border:none;padding:5px 11px;border-radius:7px;font-size:9px;cursor:pointer;font-weight:700}
-        .section-title{color:#ffd700;font-size:12px;margin:12px 0 6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:4px;font-weight:700;letter-spacing:1px}
-        .boss-indicator{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,0,0,0.7);color:#fff;padding:5px 16px;border-radius:14px;font-size:11px;font-weight:900;animation:pulse 0.8s ease-in-out infinite;z-index:5;backdrop-filter:blur(15px);border:1px solid rgba(255,50,50,0.35)}
-        .boss-available-indicator{position:absolute;bottom:45px;left:50%;transform:translateX(-50%);background:rgba(255,120,0,0.8);color:#fff;padding:6px 18px;border-radius:14px;font-size:11px;font-weight:900;animation:pulse 0.6s ease-in-out infinite;cursor:pointer;display:none;z-index:5;box-shadow:0 0 30px rgba(255,120,0,0.5);backdrop-filter:blur(15px);border:1px solid rgba(255,150,50,0.35)}
-        .overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);z-index:30;flex-direction:column;align-items:center;justify-content:center;border-radius:20px}
-        .overlay.active{display:flex}
-        .overlay h2{font-size:24px;margin-bottom:12px}
-        .overlay.payday h2{color:#ffd700;text-shadow:0 0 35px rgba(255,215,0,0.7)}
-        .overlay.death h2{color:#ff4444;text-shadow:0 0 35px rgba(255,0,0,0.7)}
-        .overlay.boss h2{color:#ff8800;text-shadow:0 0 35px rgba(255,136,0,0.7)}
-        .overlay.prestige h2{color:#aa44ff;text-shadow:0 0 35px rgba(170,68,255,0.7)}
-        .overlay.daily h2{color:#44ff44;text-shadow:0 0 35px rgba(68,255,68,0.7)}
-        .overlay p{font-size:14px;color:#ccc;margin:6px 0;text-align:center}
-        .overlay .action-btn{background:linear-gradient(180deg,#ffd700,#ccaa00);color:#000;border:none;padding:13px 35px;border-radius:14px;font-size:16px;font-weight:900;margin-top:14px;cursor:pointer;box-shadow:0 8px 25px rgba(255,215,0,0.35)}
-        .overlay.death .action-btn{background:linear-gradient(180deg,#ff4444,#cc3333);color:#fff;box-shadow:0 8px 25px rgba(255,68,68,0.35)}
-        .overlay.prestige .action-btn{background:linear-gradient(180deg,#aa44ff,#8833cc);color:#fff;box-shadow:0 8px 25px rgba(170,68,255,0.35)}
-        .overlay.daily .action-btn{background:linear-gradient(180deg,#44ff44,#33cc33);color:#000;box-shadow:0 8px 25px rgba(68,255,68,0.35)}
-        .overlay.boss .action-btn{background:linear-gradient(180deg,#ff8800,#ee6600);color:#fff;font-size:18px;padding:15px 40px;box-shadow:0 8px 30px rgba(255,136,0,0.45)}
-        .overlay .cancel-btn{background:rgba(80,80,80,0.6);color:#fff;border:none;padding:9px 22px;border-radius:10px;font-size:12px;margin-top:7px;cursor:pointer}
-        .mythic-flash{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle,rgba(255,215,0,0.7) 0%,rgba(255,80,0,0.3) 50%,transparent 70%);z-index:25;pointer-events:none;animation:mythicFlash 0.8s ease-out forwards;display:none;border-radius:20px}
-        @keyframes mythicFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
-        .screen-shake{animation:screenShake 0.4s ease-out}
-        @keyframes screenShake{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}30%{transform:translateX(8px)}50%{transform:translateX(-5px)}70%{transform:translateX(5px)}90%{transform:translateX(-3px)}}
-        .drop-rate-info{font-size:7px;color:#555;text-align:center;margin-top:5px}
-        .achievement-row{display:flex;justify-content:space-between;align-items:center;padding:5px 7px;margin:2px 0;background:rgba(20,18,38,0.5);border-radius:6px;font-size:8px}
-        .achievement-row .done{color:#ffd700}.achievement-row .locked{color:#555}
-        .referral-row{display:flex;justify-content:space-between;align-items:center;padding:5px 7px;margin:2px 0;background:rgba(20,25,45,0.6);border-radius:8px;font-size:10px}
-        .referral-row .share-btn{background:#44aaff;color:#fff;border:none;padding:4px 9px;border-radius:6px;font-size:9px;cursor:pointer}
-        .daily-row{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;margin:3px 0;background:rgba(20,35,20,0.7);border-radius:10px;font-size:10px}
-        .daily-row .claim-btn{background:linear-gradient(180deg,#ffd700,#ccaa00);color:#000;border:none;padding:4px 9px;border-radius:6px;font-size:8px;cursor:pointer;font-weight:700}
-        .daily-row .claimed{background:#555;color:#888;border:none;padding:4px 9px;border-radius:6px;font-size:8px}
-        /* ЭКРАН ЗАГРУЗКИ */
-        #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a1a;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s}
-        #loadingScreen.hidden{opacity:0;pointer-events:none}
-        .loading-logo{font-size:40px;font-weight:900;color:#ffd700;text-shadow:0 0 40px rgba(255,215,0,0.8);animation:logoGlow 1.5s ease-in-out infinite}
-        @keyframes logoGlow{0%,100%{text-shadow:0 0 30px rgba(255,215,0,0.6)}50%{text-shadow:0 0 60px rgba(255,215,0,1),0 0 100px rgba(255,200,0,0.5)}}
-        .loading-bar-outer{width:200px;height:6px;background:rgba(255,255,255,0.1);border-radius:4px;margin-top:20px;overflow:hidden}
-        .loading-bar-inner{height:100%;background:linear-gradient(90deg,#ffd700,#ffaa00);border-radius:4px;transition:width 0.3s;box-shadow:0 0 10px rgba(255,215,0,0.5)}
-        .loading-tip{color:#888;font-size:10px;margin-top:15px;text-align:center;max-width:250px}
-    </style>
-</head>
-<body>
-<!-- ЭКРАН ЗАГРУЗКИ -->
-<div id="loadingScreen">
-    <div class="loading-logo">⚔️ DUNGEON TAP</div>
-    <div class="loading-bar-outer"><div class="loading-bar-inner" id="loadingBar" style="width:0%"></div></div>
-    <div class="loading-tip" id="loadingTip">Загрузка...</div>
-</div>
-
-<div class="game-container" id="gameContainer" style="opacity:0">
-    <div class="top-bar">
-        <span class="gold-display">💰<span id="gold">0</span></span>
-        <span class="gems-display">💎<span id="gems">0</span></span>
-        <span class="level-display">⚔️Ур.<span id="level">1</span></span>
-        <span class="dps-display">⚡<span id="dps">0</span></span>
-        <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar" style="width:0%"></div></div>
-        <span style="font-size:8px;color:#88ccff"><span id="xpText">0</span>/<span id="xpMax">50</span></span>
-        <div class="player-hp-bar-outer"><div class="player-hp-bar-inner" id="playerHpBar" style="width:100%"></div></div>
-        <span style="font-size:8px;color:#4f4">❤️<span id="playerHpText">100</span></span>
-    </div>
-    <div class="battle-area" id="battleArea">
-        <canvas id="particleCanvas"></canvas>
-        <div class="enemy-container" id="enemyContainer">
-            <img class="enemy-sprite state-idle" id="enemySprite" src="" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-            <span class="enemy-sprite-fallback" id="enemyFallback">🐀</span>
-            <div class="enemy-name" id="enemyName">Крыса</div>
-            <div class="hp-bar-outer"><div class="hp-bar-inner" id="hpBar" style="width:100%"></div></div>
-            <div class="hp-text"><span id="hpCurrent">40</span>/<span id="hpMax">40</span> HP</div>
-        </div>
-        <div class="combo-display" id="comboDisplay">🔥 x1.000</div>
-        <div class="tap-hint">👆 ТАПАЙ ДВУМЯ ПАЛЬЦАМИ!</div>
-        <div class="mythic-flash" id="mythicFlash"></div>
-        <div class="levelup-column" id="levelUpColumn"></div>
-        <div class="levelup-popup" id="levelUpPopup">⭐ LEVEL UP!</div>
-        <div class="achievement-popup" id="achievementPopup"></div>
-        <div class="boss-indicator" id="bossIndicator" style="display:none">💀 БОСС</div>
-        <div class="boss-available-indicator" id="bossAvailable" onclick="openBossPanel()">⚔️ БОСС ДОСТУПЕН!</div>
-        <div class="overlay payday" id="paydayOverlay"><h2>💰 ПЭЙДЭЙ!</h2><p>Отсутствовали: <span id="paydayTime">0м</span></p><p>Доход: <b>+<span id="paydayGold">0</span> золота</b></p><button class="action-btn" onclick="claimPayday()">💎 ЗАБРАТЬ</button></div>
-        <div class="overlay death" id="deathOverlay"><h2>💀 ПОРАЖЕНИЕ</h2><p>Босс оказался слишком сильным</p><p>Потеряно: <span id="lostGold">0</span> золота</p><button class="action-btn" onclick="revivePlayer()">🔄 ВОЗРОДИТЬСЯ</button></div>
-        <div class="overlay boss" id="bossOverlay"><h2>⚔️ БИТВА С БОССОМ</h2><p id="bossTitle">Король Гоблинов</p><p>HP: <b id="bossHpPreview">800</b> | Урон: <b id="bossDmgPreview">22</b></p><p>Награда: <b>+<span id="bossReward">300</span> золота + 🎁 предмет</b></p><button class="action-btn" onclick="startBossFight()">⚔️ В БОЙ!</button><button class="cancel-btn" onclick="closeBossPanel()">Отмена</button></div>
-        <div class="overlay prestige" id="prestigeOverlay"><h2>💎 ПРЕСТИЖ</h2><p>Сбросить прогресс до 1 уровня?</p><p>Вы получите: <b>+<span id="prestigeGems">1</span> камень престижа</b></p><button class="action-btn" onclick="confirmPrestige()">💎 ПОДТВЕРДИТЬ</button><button class="cancel-btn" onclick="closePrestigePanel()">Отмена</button></div>
-        <div class="overlay daily" id="dailyOverlay"><h2>🎁 ЕЖЕДНЕВНАЯ НАГРАДА</h2><p>День <span id="dailyDay">1</span></p><p>Награда: <b><span id="dailyReward">80</span> золота</b></p><button class="action-btn" onclick="claimDaily()">🎁 ЗАБРАТЬ</button></div>
-    </div>
-    <div class="bottom-bar">
-        <button class="btn btn-character" onclick="togglePanel('characterPanel')">🧍</button>
-        <button class="btn btn-inventory" onclick="togglePanel('inventoryPanel')">🎒</button>
-        <button class="btn btn-quests" onclick="togglePanel('questsPanel')">📋</button>
-        <button class="btn btn-upgrade" onclick="togglePanel('upgradePanel')">⬆</button>
-        <button class="btn btn-prestige" id="prestigeBtn" onclick="openPrestigePanel()">💎</button>
-    </div>
-    <div class="panel" id="characterPanel"><button class="close-btn" onclick="togglePanel('characterPanel')">✕</button><h3 class="gold-text">🧍 ПЕРСОНАЖ</h3><div class="stat-row"><span>❤️ HP:</span><span id="statHp">100</span></div><div class="stat-row"><span>⚔️ Урон:</span><span id="statDamage">5</span></div><div class="stat-row"><span>🔥 Крит:</span><span id="statCrit">0%</span></div><div class="stat-row"><span>💥 Множ.крита:</span><span id="statCritMul">x2.0</span></div><div class="stat-row"><span>⚡ Авто-атака:</span><span id="statAuto">0 DPS</span></div><div class="stat-row"><span>⭐ Опыт:</span><span id="statXp">0/50</span></div><div class="stat-row"><span>💎 Камней:</span><span id="statGems">0</span></div><div class="section-title">📊 СТАТИСТИКА</div><div class="stat-row"><span>☠️ Убито:</span><span id="statKills">0</span></div><div class="stat-row"><span>💰 Золота всего:</span><span id="statTotalGold">0</span></div><div class="stat-row"><span>📈 Макс. ур:</span><span id="statMaxLevel">1</span></div><div class="section-title">🎒 ЭКИПИРОВКА</div><div id="equippedSlots"></div><div class="section-title">🏆 ДОСТИЖЕНИЯ</div><div id="achievementsList"></div><div class="section-title">👥 ДРУЗЬЯ</div><div class="referral-row"><span>Пригласи друга!</span><button class="share-btn" onclick="shareReferral()">📤 +💎</button></div></div>
-    <div class="panel" id="inventoryPanel"><button class="close-btn" onclick="togglePanel('inventoryPanel')">✕</button><h3 class="gold-text">🎒 ИНВЕНТАРЬ</h3><div id="inventorySlots"></div><p class="drop-rate-info">Шанс дропа: 1% | Босс: 40%</p></div>
-    <div class="panel" id="questsPanel"><button class="close-btn" onclick="togglePanel('questsPanel')">✕</button><h3 class="gold-text">📋 ЗАДАНИЯ</h3><div id="dailyQuests"></div><div class="section-title">🎁 ЕЖЕДНЕВНАЯ НАГРАДА</div><div id="dailySection"></div></div>
-    <div class="panel" id="upgradePanel"><button class="close-btn" onclick="togglePanel('upgradePanel')">✕</button><h3 class="gold-text">⬆ ПРОКАЧКА</h3><div id="upgradeList"></div><div class="section-title">💎 ПРЕСТИЖ-МАГАЗИН</div><div id="prestigeShop"></div></div>
-</div>
-
-<script>
-// ========== ЗВУКОВАЯ СИСТЕМА ==========
-const AudioCtx=window.AudioContext||window.webkitAudioContext;
-let audioCtx=null;
-function initAudio(){if(!audioCtx)audioCtx=new AudioCtx();}
-function playSound(freq,type,duration,vol=0.1){
-    if(!audioCtx)return;
-    try{
-        const osc=audioCtx.createOscillator();
-        const gain=audioCtx.createGain();
-        osc.type=type;osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol,audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);
-        osc.connect(gain);gain.connect(audioCtx.destination);
-        osc.start();osc.stop(audioCtx.currentTime+duration);
-    }catch(e){}
-}
-function sfxHit(){playSound(200,'square',0.1,0.15)}
-function sfxCrit(){playSound(80,'sawtooth',0.3,0.2);setTimeout(()=>playSound(400,'square',0.15,0.1),150)}
-function sfxDrop(){playSound(600,'sine',0.2,0.08);setTimeout(()=>playSound(800,'sine',0.2,0.08),100)}
-function sfxLevelUp(){playSound(400,'sine',0.5,0.1);setTimeout(()=>playSound(600,'sine',0.5,0.1),150);setTimeout(()=>playSound(800,'sine',0.5,0.15),300)}
-function sfxBossDeath(){playSound(50,'sawtooth',0.8,0.3);setTimeout(()=>playSound(30,'square',1,0.4),300)}
-
-// ========== ЧАСТИЦЫ (Canvas) ==========
-const particleCanvas=document.getElementById('particleCanvas');
-const pctx=particleCanvas.getContext('2d');
-let particles=[];
-function resizeCanvas(){particleCanvas.width=battleArea.clientWidth;particleCanvas.height=battleArea.clientHeight;}
-function spawnParticles(x,y,count,color,spread=40,life=500){
-    for(let i=0;i<count;i++){
-        particles.push({x,y,vx:(Math.random()-0.5)*spread,vy:(Math.random()-0.5)*spread-Math.random()*60,life,color,size:2+Math.random()*4});
-    }
-}
-function updateParticles(dt){
-    pctx.clearRect(0,0,particleCanvas.width,particleCanvas.height);
-    particles=particles.filter(p=>p.life>0);
-    particles.forEach(p=>{
-        p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt*1000;p.size*=0.98;
-        pctx.globalAlpha=p.life/500;pctx.fillStyle=p.color;
-        pctx.beginPath();pctx.arc(p.x,p.y,p.size,0,Math.PI*2);pctx.fill();
-    });
-    pctx.globalAlpha=1;
-}
-let lastFrameTime=0;
-function particleLoop(time){
-    const dt=Math.min((time-lastFrameTime)/1000,0.1);lastFrameTime=time;
-    updateParticles(dt);requestAnimationFrame(particleLoop);
-}
-
-// ========== TELEGRAM API ==========
-const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
-
-// ========== СОСТОЯНИЕ ==========
-let gold=0,gems=0,level=1,xp=0,xpToLevel=50,baseClickDamage=5,upgradeBonusDamage=0,autoDps=0,critChanceBonus=0,goldMultiplier=1,playerHp=100,playerMaxHp=100,inventory=[],equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null},isBossFight=false,bossAttackTimer=null,isDead=false,bossUnlockedLevel=10,currentBossIndex=0,totalPrestiges=0,dailyStreak=0,dailyClaimed=false,prestigeBonuses={goldBonus:0,damageBonus:0,autoStart:0,luckBonus:0},comboCount=0,comboMultiplier=1,lastTapTime=0,totalKills=0,totalGoldEarned=0,maxLevel=1,dailyQuests=[],questsCompletedToday=false,achievements={firstBlood:false,goblinHunter:false,collector:false,bossSlayer:false,prestiger:false,millionaire:false},lostGoldStash=0,lostBossIndex=-1,upgradeCountDamage=0,upgradeCountAuto=0,upgradeCountCrit=0,upgradeCountGold=0,equipCountTotal=0;
-const weaponNames={common:['Ржавый меч','Сломанный клинок','Медный меч','Тупой кинжал'],rare:['Стальной меч','Закалённый клинок','Эльфийский меч','Острый ятаган'],epic:['Меч бурь','Клинок ночи','Огненный меч','Ледяной клинок'],legendary:['Драконий коготь','Экскалибур','Клинок судьбы'],mythic:['Богоубийца','Разрушитель миров','Клинок вечности','Пожиратель душ','Небесный каратель']};
-const helmetNames={common:['Кожаный шлем','Железный шлем','Рогатый шлем'],rare:['Шлем рыцаря','Стальной венец','Обсидиановый шлем'],epic:['Корона мудрости','Шлем берсерка','Диадема тьмы'],legendary:['Корона королей','Шлем драконоборца','Венец бессмертных'],mythic:['Корона богов','Венец пустоты','Шлем апокалипсиса']};
-const armorNames={common:['Кожаная броня','Железный нагрудник','Кольчуга'],rare:['Стальная броня','Мифриловая кольчуга','Броня стража'],epic:['Броня титана','Призрачный доспех','Панцирь дракона'],legendary:['Броня бессмертных','Доспех света','Непробиваемая броня'],mythic:['Броня создателя','Доспех абсолюта']};
-const glovesNames={common:['Кожаные перчатки','Железные рукавицы'],rare:['Стальные перчатки','Рукавицы ловкости'],epic:['Перчатки мага','Рукавицы титана'],legendary:['Перчатки судьбы','Рукавицы дракона'],mythic:['Перчатки богов','Длани создателя']};
-const bootsNames={common:['Кожаные сапоги','Железные ботинки'],rare:['Стальные сапоги','Сапоги странника'],epic:['Сапоги ветра','Ботинки тени'],legendary:['Сапоги света','Ботинки телепортации'],mythic:['Сапоги вселенной','Шаги бога']};
-const ringNames={common:['Медное кольцо','Железное кольцо'],rare:['Серебряное кольцо','Кольцо ученика'],epic:['Кольцо мага','Кольцо берсерка'],legendary:['Кольцо дракона','Кольцо судьбы'],mythic:['Кольцо богов','Кольцо вечности','Кольцо создателя']};
-const itemNamesMap={weapon:weaponNames,helmet:helmetNames,armor:armorNames,gloves:glovesNames,boots:bootsNames,ring:ringNames};
-const itemTypes=['weapon','helmet','armor','gloves','boots','ring'];
-const itemEmojis={weapon:'⚔️',helmet:'🪖',armor:'🛡️',gloves:'🧤',boots:'👢',ring:'💍'};
-const slotNames={weapon:'Оружие',helmet:'Шлем',armor:'Броня',gloves:'Перчатки',boots:'Ботинки',ring:'Кольцо'};
-const rarityColors={common:'#888',rare:'#44aaff',epic:'#aa44ff',legendary:'#ff8800',mythic:'#ff4444'};
-const rarityNames={common:'Обычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный',mythic:'⭐Мифический'};
-const raritySellPrices={common:5,rare:20,epic:60,legendary:150,mythic:500};
-
-// ========== КАРТИНКИ ==========
-const enemyImages={'🐀':'rat.png','🟢':'slime.png','💀':'skeleton.png','👹':'goblin.png','🕷️':'spider.png','🦇':'bat.png','🧟':'zombie.png','👺':'orc.png','🧙‍♂️':'dark_mage.png','🗿':'golem.png','🦅':'harpy.png','🐂':'minotaur.png','👿':'demon.png','🐲':'wyvern.png','⚔️💀':'death_knight.png','👑💀':'lich.png','🐍':'hydra.png','👹🔥':'archdemon.png','🐉':'dragon.png','🏛️':'titan.png','🐙':'kraken.png','🔥🐦':'phoenix.png','🌌':'astral_horror.png','😇⚔️':'fallen_angel.png','🐉✨':'cosmic_dragon.png'};
-const bossImages={'👑👹':'boss_goblin_king.png','💀⚔️':'boss_skeleton_lord.png','👿🔥':'boss_demon_prince.png','🐉💎':'boss_ancient_dragon.png','🌑👁️':'boss_void_titan.png','🔥🐦':'boss_phoenix.png','🌌':'boss_void_lord.png','💥':'boss_world_breaker.png','⏳':'boss_timekeeper.png','🌀👑':'boss_absolute.png'};
-const bgImages=['bg_dungeon.png','bg_forest.png','bg_desert.png','bg_hell.png','bg_space.png'];
-function getBgForLevel(){if(level<=20)return bgImages[0];if(level<=60)return bgImages[1];if(level<=120)return bgImages[2];if(level<=180)return bgImages[3];return bgImages[4];}
-function updateBackground(){const bg=getBgForLevel();if(bg)document.getElementById('battleArea').style.backgroundImage=`url(${bg})`;}
-function setSpriteState(state){
-    const img=document.getElementById('enemySprite');const fb=document.getElementById('enemyFallback');
-    img.className='enemy-sprite state-'+state+(isBossFight?' boss':'');
-    fb.className='enemy-sprite-fallback state-'+state+(isBossFight?' boss':'');
-}
-function updateEnemySprite(emoji){
-    const img=document.getElementById('enemySprite');const fb=document.getElementById('enemyFallback');
-    const fn=enemyImages[emoji]||(isBossFight?bossImages[emoji]:null);
-    if(fn){img.src=fn;img.style.display='block';fb.style.display='none';img.onerror=function(){img.style.display='none';fb.style.display='block';fb.textContent=emoji;};}
-    else{img.style.display='none';fb.style.display='block';fb.textContent=emoji;}
-    setSpriteState('idle');
-}
-
-const enemyPool=[{name:'Крыса',emoji:'🐀',baseHp:40,baseGold:4,baseXp:8,minLevel:1},{name:'Слизень',emoji:'🟢',baseHp:55,baseGold:6,baseXp:12,minLevel:3},{name:'Скелет',emoji:'💀',baseHp:75,baseGold:8,baseXp:16,minLevel:6},{name:'Гоблин',emoji:'👹',baseHp:100,baseGold:10,baseXp:22,minLevel:9},{name:'Паук',emoji:'🕷️',baseHp:130,baseGold:13,baseXp:28,minLevel:12},{name:'Летучая мышь',emoji:'🦇',baseHp:160,baseGold:16,baseXp:35,minLevel:15},{name:'Зомби',emoji:'🧟',baseHp:200,baseGold:20,baseXp:42,minLevel:19},{name:'Орк',emoji:'👺',baseHp:250,baseGold:25,baseXp:50,minLevel:23},{name:'Тёмный маг',emoji:'🧙‍♂️',baseHp:310,baseGold:30,baseXp:60,minLevel:27},{name:'Голем',emoji:'🗿',baseHp:380,baseGold:36,baseXp:72,minLevel:32},{name:'Гарпия',emoji:'🦅',baseHp:460,baseGold:43,baseXp:85,minLevel:37},{name:'Минотавр',emoji:'🐂',baseHp:550,baseGold:50,baseXp:100,minLevel:42},{name:'Демон',emoji:'👿',baseHp:650,baseGold:60,baseXp:120,minLevel:48},{name:'Виверна',emoji:'🐲',baseHp:770,baseGold:72,baseXp:140,minLevel:54},{name:'Рыцарь смерти',emoji:'⚔️💀',baseHp:900,baseGold:85,baseXp:165,minLevel:60},{name:'Лич',emoji:'👑💀',baseHp:1050,baseGold:100,baseXp:190,minLevel:68},{name:'Гидра',emoji:'🐍',baseHp:1200,baseGold:120,baseXp:220,minLevel:76},{name:'Архидемон',emoji:'👹🔥',baseHp:1400,baseGold:140,baseXp:260,minLevel:85},{name:'Дракон',emoji:'🐉',baseHp:1650,baseGold:165,baseXp:300,minLevel:95},{name:'Титан',emoji:'🏛️',baseHp:1900,baseGold:190,baseXp:350,minLevel:105},{name:'Кракен',emoji:'🐙',baseHp:2200,baseGold:220,baseXp:400,minLevel:120},{name:'Феникс',emoji:'🔥🐦',baseHp:2600,baseGold:260,baseXp:460,minLevel:135},{name:'Астральный ужас',emoji:'🌌',baseHp:3000,baseGold:300,baseXp:530,minLevel:150},{name:'Падший ангел',emoji:'😇⚔️',baseHp:3500,baseGold:350,baseXp:600,minLevel:170},{name:'Космический дракон',emoji:'🐉✨',baseHp:4000,baseGold:400,baseXp:700,minLevel:190}];
-const bossPool=[{name:'Король Гоблинов',emoji:'👑👹',hp:800,dmg:22,reward:300,xp:200,unlockLevel:10},{name:'Владыка Скелетов',emoji:'💀⚔️',hp:1500,dmg:42,reward:600,xp:400,unlockLevel:20},{name:'Демонический Князь',emoji:'👿🔥',hp:2700,dmg:72,reward:1000,xp:700,unlockLevel:35},{name:'Древний Дракон',emoji:'🐉💎',hp:4800,dmg:115,reward:1800,xp:1200,unlockLevel:50},{name:'Титан Бездны',emoji:'🌑👁️',hp:8500,dmg:180,reward:3000,xp:2000,unlockLevel:70},{name:'Феникс Возрождения',emoji:'🔥🐦',hp:14500,dmg:270,reward:5000,xp:3500,unlockLevel:90},{name:'Владыка Пустоты',emoji:'🌌',hp:24000,dmg:430,reward:8000,xp:5500,unlockLevel:115},{name:'Разрушитель Миров',emoji:'💥',hp:38000,dmg:630,reward:13000,xp:9000,unlockLevel:140},{name:'Хранитель Времени',emoji:'⏳',hp:60000,dmg:900,reward:22000,xp:15000,unlockLevel:170},{name:'Абсолют',emoji:'🌀👑',hp:95000,dmg:1350,reward:35000,xp:25000,unlockLevel:200}];
-let currentEnemy={name:'Крыса',emoji:'🐀',hp:40,maxHp:40,goldReward:4,xpReward:8},currentBoss=null;
-
-const battleArea=document.getElementById('battleArea'),enemySprite=document.getElementById('enemySprite'),enemyName=document.getElementById('enemyName'),hpBar=document.getElementById('hpBar'),hpCurrent=document.getElementById('hpCurrent'),hpMax=document.getElementById('hpMax'),goldDisplay=document.getElementById('gold'),gemsDisplay=document.getElementById('gems'),levelDisplay=document.getElementById('level'),dpsDisplay=document.getElementById('dps'),xpBar=document.getElementById('xpBar'),xpText=document.getElementById('xpText'),xpMaxDisplay=document.getElementById('xpMax'),playerHpBar=document.getElementById('playerHpBar'),playerHpText=document.getElementById('playerHpText'),comboDisplay=document.getElementById('comboDisplay'),levelUpPopup=document.getElementById('levelUpPopup'),levelUpColumn=document.getElementById('levelUpColumn'),achievementPopup=document.getElementById('achievementPopup'),bossIndicator=document.getElementById('bossIndicator'),bossAvailable=document.getElementById('bossAvailable'),prestigeBtn=document.getElementById('prestigeBtn'),mythicFlash=document.getElementById('mythicFlash'),gameContainer=document.getElementById('gameContainer'),loadingScreen=document.getElementById('loadingScreen');
-
-function rollDrop(isBoss=false){const lb=prestigeBonuses.luckBonus*0.2;return Math.random()<(isBoss?0.40:0.01)*(1+lb/100);}
-function getRarity(){const r=Math.random();if(r<0.0001)return'mythic';if(r<0.0015)return'legendary';if(r<0.008)return'epic';if(r<0.02)return'rare';if(r<0.05)return'common';return'common';}
-function getRandomName(type,rarity){const n=itemNamesMap[type][rarity];return n[Math.floor(Math.random()*n.length)];}
-function generateItem(fr=null){const type=itemTypes[Math.floor(Math.random()*itemTypes.length)];const rarity=fr||getRarity();const bs={common:3,rare:8,epic:18,legendary:35,mythic:80}[rarity];return{type,rarity,name:getRandomName(type,rarity),emoji:itemEmojis[type],damage:type==='weapon'?bs+Math.floor(Math.random()*bs):0,critChance:(type==='gloves'||type==='helmet')?Math.floor(bs/2):0,critMultiplier:type==='ring'?parseFloat((1+bs/40).toFixed(1)):1,maxHpBonus:type==='armor'?bs*4:0,goldBonus:type==='boots'?Math.floor(bs/3):0};}
-function getTotalDamage(){let id=0,ci=0,cm=2;for(let s in equipped){if(equipped[s]){id+=equipped[s].damage;ci+=equipped[s].critChance;if(equipped[s].critMultiplier>1)cm=Math.max(cm,parseFloat(equipped[s].critMultiplier));}}let total=baseClickDamage+upgradeBonusDamage+id+prestigeBonuses.damageBonus;let crit=critChanceBonus+ci;let isCrit=Math.random()*100<crit;if(isCrit)total=Math.floor(total*cm*comboMultiplier);else total=Math.floor(total*comboMultiplier);return{damage:total,crit,critMul:cm,itemDmg:id,isCrit};}
-function updateXpBar(){let pct=(xp/xpToLevel)*100;xpBar.style.width=pct+'%';xpText.textContent=xp;xpMaxDisplay.textContent=xpToLevel;}
-function gainXp(amount){xp+=amount;while(xp>=xpToLevel){xp-=xpToLevel;levelUp();}updateXpBar();if(level>maxLevel)maxLevel=level;}
-function levelUp(){
-    level++;levelDisplay.textContent=level;
-    xpToLevel=Math.floor(50*Math.pow(level,1.4));
-    playerMaxHp+=5;playerHp=playerMaxHp;baseClickDamage+=1;
-    updatePlayerHpBar();updateXpBar();updateBackground();
-    // АНИМАЦИЯ LEVEL UP: столб света + кольца
-    levelUpColumn.style.display='block';levelUpColumn.style.animation='none';
-    void levelUpColumn.offsetWidth;levelUpColumn.style.animation='columnRise 1.5s ease-out forwards';
-    levelUpPopup.style.display='block';levelUpPopup.style.animation='none';
-    void levelUpPopup.offsetWidth;levelUpPopup.style.animation='levelUpAnim 2s ease-out forwards';
-    setTimeout(()=>{levelUpColumn.style.display='none';levelUpPopup.style.display='none';},1500);
-    sfxLevelUp();
-    spawnParticles(battleArea.clientWidth/2,battleArea.clientHeight/2,40,'#ffd700',100,800);
-    if(tg)tg.HapticFeedback.notification('success');
-    if(level>=15)prestigeBtn.classList.add('available');
-}
-function updatePlayerHpBar(){let pct=(playerHp/playerMaxHp)*100;playerHpBar.style.width=pct+'%';playerHpText.textContent=Math.max(0,playerHp);if(pct<30)playerHpBar.style.background='#ff4466';else if(pct<60)playerHpBar.style.background='#ff8844';else playerHpBar.style.background='#44ff66';}
-function recalcMaxHp(){let bonus=0;for(let s in equipped){if(equipped[s])bonus+=equipped[s].maxHpBonus}playerMaxHp=100+level*5+bonus;if(playerHp>playerMaxHp)playerHp=playerMaxHp;updatePlayerHpBar();}
-function updateCombo(){let now=Date.now();if(now-lastTapTime<1500){comboCount++;comboMultiplier=Math.min(1.1,1.0+comboCount*0.001);comboDisplay.textContent='🔥 x'+comboMultiplier.toFixed(3);comboDisplay.classList.add('active');if(comboMultiplier>=1.099)comboDisplay.classList.add('max');else comboDisplay.classList.remove('max');}else{comboCount=0;comboMultiplier=1.0;comboDisplay.classList.remove('active','max');}lastTapTime=now;}
-function getEnemyForLevel(){let a=enemyPool.filter(e=>level>=e.minLevel);return a[a.length-1]||enemyPool[0];}
-function spawnEnemy(){if(isDead)return;let t=getEnemyForLevel();let s=Math.pow(1.10,level-1);currentEnemy={name:t.name,emoji:t.emoji,maxHp:Math.floor(t.baseHp*s),hp:Math.floor(t.baseHp*s),goldReward:Math.floor(t.baseGold*Math.pow(1.03,level-1)),xpReward:Math.floor(t.baseXp*Math.pow(1.03,level-1))};isBossFight=false;clearBossAttack();bossIndicator.style.display='none';setSpriteState('idle');updateEnemyDisplay();updateBossAvailability();}
-function updateEnemyDisplay(){updateEnemySprite(currentEnemy.emoji);enemyName.textContent=currentEnemy.name;if(isBossFight)enemyName.classList.add('boss-name');else enemyName.classList.remove('boss-name');hpMax.textContent=currentEnemy.maxHp;updateHpBar();}
-function updateHpBar(){let pct=Math.max(0,(currentEnemy.hp/currentEnemy.maxHp)*100);hpBar.style.width=pct+'%';hpCurrent.textContent=Math.max(0,currentEnemy.hp);}
-
-// ========== МУЛЬТИТАЧ (5 пальцев) ==========
-const activeTouches=new Set();
-battleArea.addEventListener('touchstart',function(e){e.preventDefault();initAudio();for(let i=0;i<e.changedTouches.length;i++){const touch=e.changedTouches[i];if(activeTouches.has(touch.identifier))continue;activeTouches.add(touch.identifier);processTap(touch.clientX,touch.clientY);}},{passive:false});
-battleArea.addEventListener('touchend',function(e){for(let i=0;i<e.changedTouches.length;i++)activeTouches.delete(e.changedTouches[i].identifier);});
-battleArea.addEventListener('touchcancel',function(e){for(let i=0;i<e.changedTouches.length;i++)activeTouches.delete(e.changedTouches[i].identifier);});
-battleArea.addEventListener('click',function(e){initAudio();if(e.target.tagName==='BUTTON'||e.target.closest('.panel')||e.target.closest('.overlay'))return;processTap(e.clientX,e.clientY);});
-
-function processTap(cx,cy){
-    if(isDead)return;updateCombo();
-    let{damage,isCrit}=getTotalDamage();currentEnemy.hp-=damage;
-    // АНИМАЦИЯ HURT
-    setSpriteState('hurt');setTimeout(()=>{if(currentEnemy.hp>0)setSpriteState('idle');},300);
-    let rect=battleArea.getBoundingClientRect();
-    let popup=document.createElement('div');popup.className=isCrit?'crit-popup':'damage-popup';
-    popup.textContent=(isCrit?'💥':'')+'-'+damage;popup.style.left=(cx-rect.left)+'px';popup.style.top=(cy-rect.top)+'px';
-    battleArea.appendChild(popup);setTimeout(()=>popup.remove(),700);
-    if(isCrit){sfxCrit();spawnParticles(cx-rect.left,cy-rect.top,15,'#ff8800',50,400);gameContainer.classList.add('screen-shake');setTimeout(()=>gameContainer.classList.remove('screen-shake'),400);}
-    else sfxHit();
-    updateHpBar();
-    if(currentEnemy.hp<=0)killEnemy();
-}
-
-function killEnemy(){
-    totalKills++;let reward=Math.floor(currentEnemy.goldReward*goldMultiplier*(1+prestigeBonuses.goldBonus/100));
-    gold+=reward;totalGoldEarned+=reward;goldDisplay.textContent=gold;gainXp(currentEnemy.xpReward);
-    // АНИМАЦИЯ СМЕРТИ
-    setSpriteState('death');if(isBossFight)sfxBossDeath();
-    spawnParticles(battleArea.clientWidth/2,battleArea.clientHeight/2,30,'#ff4444',60,600);
-    if(!achievements.firstBlood)unlockAchievement('firstBlood');if(totalKills>=50&&!achievements.goblinHunter)unlockAchievement('goblinHunter');if(gold>=10000&&!achievements.millionaire)unlockAchievement('millionaire');
-    let gp=document.createElement('div');gp.className='gold-popup';gp.textContent='+'+reward+' 💰';gp.style.left='50%';gp.style.top='50%';gp.style.transform='translate(-50%,-50%)';battleArea.appendChild(gp);setTimeout(()=>gp.remove(),1000);
-    let xpp=document.createElement('div');xpp.className='xp-popup';xpp.textContent='+'+currentEnemy.xpReward+' XP';xpp.style.left='50%';xpp.style.top='60%';xpp.style.transform='translate(-50%,-50%)';battleArea.appendChild(xpp);setTimeout(()=>xpp.remove(),800);
-    if(rollDrop(isBossFight)){let item=generateItem();inventory.push(item);showLootPopup(item);sfxDrop();if(item.rarity==='mythic'){mythicFlash.style.display='block';setTimeout(()=>mythicFlash.style.display='none',800);spawnParticles(battleArea.clientWidth/2,battleArea.clientHeight/2,50,'#ffd700',120,1000);if(tg)tg.HapticFeedback.notification('success');}let ec=inventory.filter(i=>i.rarity==='epic'||i.rarity==='legendary'||i.rarity==='mythic').length;if(ec>=10&&!achievements.collector)unlockAchievement('collector');}
-    if(isBossFight){if(rollDrop(true)){let bonusItem=generateItem();inventory.push(bonusItem);showLootPopup(bonusItem);sfxDrop();}isBossFight=false;clearBossAttack();bossIndicator.style.display='none';playerHp=playerMaxHp;updatePlayerHpBar();if(lostBossIndex===currentBossIndex){gold+=lostGoldStash;lostGoldStash=0;lostBossIndex=-1;goldDisplay.textContent=gold;}bossUnlockedLevel=level+10;currentBossIndex++;if(currentBossIndex>=5&&!achievements.bossSlayer)unlockAchievement('bossSlayer');}
-    updateDailyQuests();setTimeout(()=>spawnEnemy(),600);
-}
-function showLootPopup(item){let lp=document.createElement('div');lp.className='loot-popup';lp.textContent=item.emoji+' '+item.name;lp.style.color=rarityColors[item.rarity];lp.style.left='50%';lp.style.top='60%';lp.style.transform='translate(-50%,-50%)';battleArea.appendChild(lp);setTimeout(()=>lp.remove(),2500);}
-
-function updateBossAvailability(){if(level>=10&&level>=bossUnlockedLevel&&!isBossFight&&!isDead&&currentBossIndex<bossPool.length){bossAvailable.style.display='block';currentBoss=bossPool[currentBossIndex];}else{bossAvailable.style.display='none';}}
-function openBossPanel(){if(!currentBoss)return;document.getElementById('bossTitle').textContent=currentBoss.name+' '+currentBoss.emoji;document.getElementById('bossHpPreview').textContent=currentBoss.hp;document.getElementById('bossDmgPreview').textContent=currentBoss.dmg;document.getElementById('bossReward').textContent=currentBoss.reward;document.getElementById('bossOverlay').classList.add('active');}
-function closeBossPanel(){document.getElementById('bossOverlay').classList.remove('active');}
-function startBossFight(){document.getElementById('bossOverlay').classList.remove('active');isBossFight=true;currentEnemy={name:currentBoss.name,emoji:currentBoss.emoji,maxHp:currentBoss.hp,hp:currentBoss.hp,goldReward:currentBoss.reward,xpReward:currentBoss.xp};bossIndicator.style.display='block';bossAvailable.style.display='none';setSpriteState('idle');updateEnemyDisplay();clearBossAttack();bossAttackTimer=setInterval(()=>{if(isDead||!isBossFight){clearBossAttack();return;}playerHp-=currentBoss.dmg;updatePlayerHpBar();document.getElementById('enemyContainer').classList.add('boss-attack');setTimeout(()=>document.getElementById('enemyContainer').classList.remove('boss-attack'),500);gameContainer.classList.add('screen-shake');setTimeout(()=>gameContainer.classList.remove('screen-shake'),500);let popup=document.createElement('div');popup.className='player-damage-popup';popup.textContent='-'+currentBoss.dmg;popup.style.left='50%';popup.style.top='20%';popup.style.transform='translate(-50%,0)';battleArea.appendChild(popup);setTimeout(()=>popup.remove(),700);spawnParticles(battleArea.clientWidth/2,100,10,'#ff8844',30,300);if(playerHp<=0)playerDeath();},2000);}
-function clearBossAttack(){if(bossAttackTimer){clearInterval(bossAttackTimer);bossAttackTimer=null;}}
-function playerDeath(){isDead=true;clearBossAttack();isBossFight=false;lostGoldStash=Math.floor(gold*0.2);lostBossIndex=currentBossIndex;gold-=lostGoldStash;goldDisplay.textContent=gold;document.getElementById('lostGold').textContent=lostGoldStash;document.getElementById('deathOverlay').classList.add('active');bossIndicator.style.display='none';setSpriteState('idle');}
-function revivePlayer(){document.getElementById('deathOverlay').classList.remove('active');isDead=false;playerHp=playerMaxHp;updatePlayerHpBar();let t=getEnemyForLevel();let s=Math.pow(1.10,level-1);currentEnemy={name:t.name,emoji:t.emoji,maxHp:Math.floor(t.baseHp*s),hp:Math.floor(t.baseHp*s),goldReward:Math.floor(t.baseGold*Math.pow(1.03,level-1)),xpReward:Math.floor(t.baseXp*Math.pow(1.03,level-1))};updateEnemyDisplay();updateBossAvailability();}
-
-function unlockAchievement(id){if(achievements[id])return;achievements[id]=true;achievementPopup.textContent='🏆 '+{firstBlood:'Первая кровь!',goblinHunter:'Охотник на гоблинов!',collector:'Коллекционер!',bossSlayer:'Боссобой!',prestiger:'Престижник!',millionaire:'Миллионер!'}[id];achievementPopup.style.display='block';setTimeout(()=>achievementPopup.style.display='none',2500);gems++;gemsDisplay.textContent=gems;}
-
-function generateDailyQuests(){if(questsCompletedToday)return;dailyQuests=[{desc:'Убей 30 врагов',target:30,progress:0,reward:50,type:'kills'},{desc:'Надень 3 предмета',target:3,progress:0,reward:30,type:'equip'},{desc:'Прокачай урон 2 раза',target:2,progress:0,reward:40,type:'upgradeDamage'}];}
-function updateDailyQuests(){if(questsCompletedToday)return;dailyQuests.forEach(q=>{if(q.type==='kills')q.progress=Math.min(totalKills,q.target);if(q.type==='equip')q.progress=Math.min(equipCountTotal,q.target);if(q.type==='upgradeDamage')q.progress=Math.min(upgradeCountDamage,q.target);});renderDailyQuests();}
-function renderDailyQuests(){let c=document.getElementById('dailyQuests');if(questsCompletedToday){c.innerHTML='<p style="color:#4f4;text-align:center">✅ Все задания выполнены!</p>';return;}c.innerHTML=dailyQuests.map((q,i)=>`<div class="quest-row"><span>${q.desc} (${Math.min(q.progress,q.target)}/${q.target})</span>${q.progress>=q.target?`<button class="claim-btn" onclick="claimQuest(${i})">💰${q.reward}</button>`:`<span class="done">${Math.floor(Math.min(q.progress,q.target)/q.target*100)}%</span>`}</div>`).join('');}
-function claimQuest(i){if(dailyQuests[i].progress<dailyQuests[i].target)return;gold+=dailyQuests[i].reward;goldDisplay.textContent=gold;dailyQuests[i].progress=-999;if(dailyQuests.every(q=>q.progress<0)){questsCompletedToday=true;renderDailyQuests();}else renderDailyQuests();}
-
-function openPrestigePanel(){let gt=1+Math.floor(level/20);document.getElementById('prestigeGems').textContent=gt;document.getElementById('prestigeOverlay').classList.add('active');}
-function closePrestigePanel(){document.getElementById('prestigeOverlay').classList.remove('active');}
-function confirmPrestige(){let gt=1+Math.floor(level/20);gems+=gt;gemsDisplay.textContent=gems;totalPrestiges++;gold=0;level=1;xp=0;xpToLevel=50;upgradeBonusDamage=0;autoDps=0;critChanceBonus=0;goldMultiplier=1;playerHp=100;playerMaxHp=100;inventory=[];equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null};isBossFight=false;currentBossIndex=0;bossUnlockedLevel=10;comboCount=0;comboMultiplier=1;upgradeCountDamage=0;upgradeCountAuto=0;upgradeCountCrit=0;upgradeCountGold=0;equipCountTotal=0;autoDps=prestigeBonuses.autoStart;dpsDisplay.textContent=autoDps;goldDisplay.textContent=gold;levelDisplay.textContent=level;gemsDisplay.textContent=gems;updateXpBar();updatePlayerHpBar();updateBackground();document.getElementById('prestigeOverlay').classList.remove('active');prestigeBtn.classList.remove('available');let t=enemyPool[0];currentEnemy={name:t.name,emoji:t.emoji,maxHp:t.baseHp,hp:t.baseHp,goldReward:t.baseGold,xpReward:t.baseXp};updateEnemyDisplay();renderUpgrades();renderPrestigeShop();}
-
-const pShop=[{name:'+25% золота',cost:1,eff:()=>{prestigeBonuses.goldBonus+=25},d:'goldBonus'},{name:'+5 урона',cost:2,eff:()=>{prestigeBonuses.damageBonus+=5},d:'damageBonus'},{name:'Авто-атака +2',cost:3,eff:()=>{prestigeBonuses.autoStart+=2;autoDps+=2;dpsDisplay.textContent=autoDps},d:'autoStart'},{name:'+10% удачи',cost:5,eff:()=>{prestigeBonuses.luckBonus+=10},d:'luckBonus'}];
-function renderPrestigeShop(){let c=document.getElementById('prestigeShop');c.innerHTML=pShop.map((it,i)=>`<div class="prestige-row"><span>${it.name} (${it.d}: ${prestigeBonuses[it.d]})</span><span>💎${it.cost}</span><button class="buy-btn" onclick="buyPrestige(${i})">Купить</button></div>`).join('');}
-function buyPrestige(i){let it=pShop[i];if(gems<it.cost)return;gems-=it.cost;gemsDisplay.textContent=gems;it.eff();renderPrestigeShop();}
-
-function renderInventory(){let c=document.getElementById('inventorySlots');c.innerHTML='';if(inventory.length===0){c.innerHTML='<p style="color:#555;text-align:center">Пусто (дроп 1%)</p>';return;}inventory.forEach((item,i)=>{let d=document.createElement('div');d.className='item-slot '+item.rarity;d.innerHTML=`<span>${item.emoji} ${item.name}</span><span style="font-size:7px;color:#999">⚔+${item.damage} 🔥${item.critChance}%</span><button class="equip-btn" onclick="equipItem(${i})">Надеть</button><button class="sell-btn" onclick="sellItem(${i})">💰${raritySellPrices[item.rarity]}</button>`;c.appendChild(d);});}
-function equipItem(i){let item=inventory[i];if(equipped[item.type])inventory.push(equipped[item.type]);equipped[item.type]=item;inventory.splice(i,1);equipCountTotal++;renderInventory();renderEquipped();renderCharStats();recalcMaxHp();updateDailyQuests();}
-function sellItem(i){gold+=raritySellPrices[inventory[i].rarity];goldDisplay.textContent=gold;inventory.splice(i,1);renderInventory();}
-function unequipItem(slot){if(!equipped[slot])return;inventory.push(equipped[slot]);equipped[slot]=null;renderEquipped();renderInventory();renderCharStats();recalcMaxHp();}
-function renderEquipped(){let c=document.getElementById('equippedSlots');c.innerHTML='';for(let s of itemTypes){let item=equipped[s];let d=document.createElement('div');d.className='equipped-slot';if(item){d.innerHTML=`<span>${item.emoji} ${item.name}</span><button class="unequip-btn" onclick="unequipItem('${s}')">Снять</button>`;d.style.borderLeft='3px solid '+rarityColors[item.rarity];}else{d.innerHTML=`<span style="color:#555">${itemEmojis[s]} ${slotNames[s]}: пусто</span>`;}c.appendChild(d);}}
-function renderCharStats(){let{damage,crit,critMul,itemDmg}=getTotalDamage();document.getElementById('statHp').textContent=playerMaxHp;document.getElementById('statDamage').textContent=baseClickDamage+upgradeBonusDamage+itemDmg+prestigeBonuses.damageBonus;document.getElementById('statCrit').textContent=(critChanceBonus+crit).toFixed(1)+'%';document.getElementById('statCritMul').textContent='x'+critMul;document.getElementById('statAuto').textContent=autoDps+' DPS';document.getElementById('statXp').textContent=xp+'/'+xpToLevel;document.getElementById('statGems').textContent=gems;document.getElementById('statKills').textContent=totalKills;document.getElementById('statTotalGold').textContent=totalGoldEarned;document.getElementById('statMaxLevel').textContent=maxLevel;renderAchievements();}
-
-let upCosts={damage:40,auto:100,crit:200,goldMult:500},upLevels={damage:0,auto:0,crit:0,goldMult:0};
-function getUpgradeAmount(type){if(type==='damage')return Math.floor(2*Math.pow(1.3,upLevels[type]));if(type==='auto')return Math.max(1,Math.floor(Math.pow(1.25,upLevels[type])));if(type==='crit')return parseFloat((0.2*Math.pow(1.3,upLevels[type])).toFixed(1));return 1;}
-function renderUpgrades(){let c=document.getElementById('upgradeList');let dmgAmt=getUpgradeAmount('damage'),autoAmt=getUpgradeAmount('auto'),critAmt=getUpgradeAmount('crit');c.innerHTML=`<div class="upgrade-row"><span>⚔️ Урон +${dmgAmt}</span><span>💰${upCosts.damage}</span><button class="buy-btn" onclick="buyUp('damage')">Купить</button></div><div class="upgrade-row"><span>⚡ Авто-атака +${autoAmt}</span><span>💰${upCosts.auto}</span><button class="buy-btn" onclick="buyUp('auto')">Купить</button></div><div class="upgrade-row"><span>🔥 Крит +${critAmt}%</span><span>💰${upCosts.crit}</span><button class="buy-btn" onclick="buyUp('crit')">Купить</button></div><div class="upgrade-row"><span>💎 Золото x1.2</span><span>💰${upCosts.goldMult}</span><button class="buy-btn" onclick="buyUp('goldMult')">Купить</button></div>`;}
-function buyUp(t){if(gold<upCosts[t])return;gold-=upCosts[t];goldDisplay.textContent=gold;if(t==='damage'){let amt=getUpgradeAmount('damage');upgradeBonusDamage+=amt;upgradeCountDamage++;upLevels.damage++;upCosts.damage=Math.floor(upCosts.damage*2.0);updateDailyQuests();}if(t==='auto'){let amt=getUpgradeAmount('auto');autoDps+=amt;upgradeCountAuto++;upLevels.auto++;dpsDisplay.textContent=autoDps;upCosts.auto=Math.floor(upCosts.auto*2.1);}if(t==='crit'){let amt=getUpgradeAmount('crit');critChanceBonus+=amt;upgradeCountCrit++;upLevels.crit++;upCosts.crit=Math.floor(upCosts.crit*2.2);}if(t==='goldMult'){goldMultiplier*=1.2;upgradeCountGold++;upLevels.goldMult++;upCosts.goldMult=Math.floor(upCosts.goldMult*3.0);}renderUpgrades();renderCharStats();}
-
-setInterval(()=>{if(!isDead&&autoDps>0&&currentEnemy.hp>0){currentEnemy.hp-=autoDps;updateHpBar();if(currentEnemy.hp<=0)killEnemy();}},1000);
-setInterval(()=>{if(!isDead&&!isBossFight&&playerHp<playerMaxHp){playerHp=Math.min(playerMaxHp,playerHp+1);updatePlayerHpBar();}},3000);
-
-const PK='rpg_mega_v1',PR=0.2,MP=4*3600*PR;
-function checkPayday(){let n=Date.now(),l=localStorage.getItem(PK);if(l){let s=Math.floor((n-parseInt(l))/1000);if(s>60){let e=Math.min(Math.floor(s*PR),MP),m=Math.floor(s/60),h=Math.floor(m/60);document.getElementById('paydayTime').textContent=h>0?h+'ч '+(m%60)+'м':m+'м';document.getElementById('paydayGold').textContent=e;document.getElementById('paydayOverlay').classList.add('active');window._pa=e;}}localStorage.setItem(PK,n);}
-function claimPayday(){gold+=window._pa||0;goldDisplay.textContent=gold;document.getElementById('paydayOverlay').classList.remove('active');window._pa=0;}
-
-const DK='rpg_daily_mega';
-function checkDaily(){let n=Date.now(),d=localStorage.getItem(DK);if(!d){showDaily(1);return;}let data=JSON.parse(d),last=new Date(data.last),now=new Date(n);if(last.toDateString()!==now.toDateString()){dailyStreak=data.streak+1;if(dailyStreak>7)dailyStreak=1;showDaily(dailyStreak);questsCompletedToday=false;generateDailyQuests();upgradeCountDamage=0;equipCountTotal=0;}else{dailyClaimed=data.claimed||false;questsCompletedToday=data.questsCompleted||false;if(!questsCompletedToday)generateDailyQuests();}}
-function showDaily(day){dailyStreak=day;dailyClaimed=false;dailyRewardAmount=Math.floor(80*Math.pow(1.8,day-1));document.getElementById('dailyDay').textContent=day;document.getElementById('dailyReward').textContent=dailyRewardAmount+' золота';document.getElementById('dailyOverlay').classList.add('active');}
-function claimDaily(){if(dailyClaimed)return;gold+=dailyRewardAmount;goldDisplay.textContent=gold;dailyClaimed=true;localStorage.setItem(DK,JSON.stringify({streak:dailyStreak,claimed:true,questsCompleted:questsCompletedToday,last:Date.now()}));document.getElementById('dailyOverlay').classList.remove('active');renderDailySection();}
-function renderDailySection(){let c=document.getElementById('dailySection'),d=localStorage.getItem(DK);if(d){let data=JSON.parse(d);if(data.claimed){c.innerHTML='<div class="daily-row"><span>День '+data.streak+': получено</span><span class="claimed">✅</span></div>';return;}}c.innerHTML='<div class="daily-row"><span>Награда доступна!</span><button class="claim-btn" onclick="checkDaily()">🎁 Забрать</button></div>';}
-
-function shareReferral(){let rc=tg?.initDataUnsafe?.user?.id||'unknown';let msg='🎮 Играй в Dungeon Tap RPG! ⚔️ Анимированные враги, мультитач, хардкор! 🔥 Мой код: '+rc;if(tg){tg.openTelegramLink('https://t.me/share/url?url=&text='+encodeURIComponent(msg));}else{alert('Поделись кодом: '+rc);}}
-function renderAchievements(){let c=document.getElementById('achievementsList');c.innerHTML=`<div class="achievement-row"><span>🩸 Первая кровь</span><span class="${achievements.firstBlood?'done':'locked'}">${achievements.firstBlood?'✅':'🔒'}</span></div><div class="achievement-row"><span>👹 Охотник на гоблинов (50)</span><span class="${achievements.goblinHunter?'done':'locked'}">${achievements.goblinHunter?'✅':'🔒'}</span></div><div class="achievement-row"><span>💎 Коллекционер (10 эпиков+)</span><span class="${achievements.collector?'done':'locked'}">${achievements.collector?'✅':'🔒'}</span></div><div class="achievement-row"><span>💀 Боссобой (5 боссов)</span><span class="${achievements.bossSlayer?'done':'locked'}">${achievements.bossSlayer?'✅':'🔒'}</span></div><div class="achievement-row"><span>🔄 Престижник</span><span class="${achievements.prestiger?'done':'locked'}">${achievements.prestiger?'✅':'🔒'}</span></div><div class="achievement-row"><span>💰 Миллионер (10к золота)</span><span class="${achievements.millionaire?'done':'locked'}">${achievements.millionaire?'✅':'🔒'}</span></div>`;}
-
-function togglePanel(id){let p=document.getElementById(id);p.classList.toggle('active');if(id==='inventoryPanel')renderInventory();if(id==='upgradePanel'){renderUpgrades();renderPrestigeShop();}if(id==='characterPanel'){renderEquipped();renderCharStats();renderAchievements();}if(id==='questsPanel'){renderDailyQuests();renderDailySection();}}
-
-function saveGame(){let d={gold,gems,level,xp,xpToLevel,baseClickDamage,upgradeBonusDamage,autoDps,critChanceBonus,goldMultiplier,playerHp,playerMaxHp,inventory,equipped,bossUnlockedLevel,currentBossIndex,totalPrestiges,dailyStreak,dailyClaimed,prestigeBonuses,totalKills,totalGoldEarned,maxLevel,questsCompletedToday,achievements,upCosts,upLevels,upgradeCountDamage,upgradeCountAuto,upgradeCountCrit,upgradeCountGold,equipCountTotal};localStorage.setItem('rpg_mega_save',JSON.stringify(d));}
-function loadGame(){let s=localStorage.getItem('rpg_mega_save');if(!s)return;let d=JSON.parse(s);Object.keys(d).forEach(k=>{eval(k+'=d[k]')});goldDisplay.textContent=gold;gemsDisplay.textContent=gems;levelDisplay.textContent=level;dpsDisplay.textContent=autoDps;updateXpBar();updatePlayerHpBar();updateEnemyDisplay();updateBackground();updateBossAvailability();if(level>=15)prestigeBtn.classList.add('available');}
-setInterval(saveGame,5000);window.addEventListener('beforeunload',saveGame);
-
-// ========== ЭКРАН ЗАГРУЗКИ ==========
-const tips=['Боссы дают 40% шанс дропа!','Тапай двумя пальцами для скорости!','Комбо растёт до x1.1!','Престиж даёт перманентные баффы!','Мифический шанс: 0.01%!','Меняй фон с уровнем!','Ежедневные задания обновляются!'];
-let loadProgress=0;
-function updateLoading(){loadProgress+=Math.random()*15;if(loadProgress>100)loadProgress=100;document.getElementById('loadingBar').style.width=loadProgress+'%';document.getElementById('loadingTip').textContent=tips[Math.floor(Math.random()*tips.length)];if(loadProgress<100)setTimeout(updateLoading,200+Math.random()*300);else{setTimeout(()=>{loadingScreen.classList.add('hidden');gameContainer.style.opacity='1';gameContainer.style.transition='opacity 0.5s';initGame();},500);}}
-function initGame(){resizeCanvas();requestAnimationFrame(particleLoop);loadGame();if(!xpToLevel)xpToLevel=50;if(!upCosts||!upCosts.damage){upCosts={damage:40,auto:100,crit:200,goldMult:500};upLevels={damage:0,auto:0,crit:0,goldMult:0};}updateEnemyDisplay();renderUpgrades();renderPrestigeShop();renderEquipped();recalcMaxHp();updateBackground();updateBossAvailability();if(level>=15)prestigeBtn.classList.add('available');checkPayday();checkDaily();generateDailyQuests();renderDailyQuests();renderDailySection();updateXpBar();}
-window.addEventListener('resize',resizeCanvas);
-updateLoading();
-</script>
-</body>
-            </html>
