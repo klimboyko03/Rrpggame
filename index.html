@@ -2,39 +2,165 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dungeon Tap RPG - FULL EDITION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Tap - AAA Версия</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#0a0a0f;color:#fff;font-family:'Orbitron','Arial',sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-        .game-container{width:100%;max-width:420px;height:100vh;display:flex;flex-direction:column;padding:3px;position:relative;z-index:1}
-        .top-bar{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:rgba(20,10,40,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;margin-bottom:3px;gap:2px;font-size:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;flex-wrap:wrap}
-        .gold-display{font-weight:900;background:linear-gradient(180deg,#ffe87c,#ffd700,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:10px}
-        .battle-area{flex:1;background:radial-gradient(ellipse at 30% 40%,rgba(80,20,120,0.15) 0%,transparent 50%),#0a0a1a;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:3px;cursor:pointer;min-height:180px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
-        .sticker-container{text-align:center;position:relative;z-index:2;transition:transform 0.1s;display:flex;flex-direction:column;align-items:center;gap:2px}
-        .sticker-container.hit{transform:scale(0.85)}
-        .sticker-body{font-size:55px;filter:drop-shadow(0 0 20px rgba(255,0,0,0.4));transition:all 0.3s}
-        .sticker-weapon{font-size:25px;position:absolute;z-index:3;top:60%;left:55%;filter:drop-shadow(0 0 10px rgba(255,200,0,0.6))}
-        .enemy-name{font-size:11px;color:#ddd;margin-top:2px}.enemy-name.boss-name{color:#ff4444;font-size:14px;font-weight:900;text-shadow:0 0 15px rgba(255,0,0,0.7)}
-        .hp-bar-outer{width:130px;height:8px;background:rgba(0,0,0,0.6);border-radius:4px;margin:3px auto;overflow:hidden;border:1px solid rgba(255,255,255,0.1)}
-        .hp-bar-inner{height:100%;background:linear-gradient(90deg,#ff3333,#ff5555);border-radius:4px;transition:width 0.3s;box-shadow:0 0 6px rgba(255,51,51,0.4)}
-        .hp-text{font-size:8px;color:#aaa}
-        .damage-popup{position:absolute;font-size:18px;font-weight:900;color:#ff3333;pointer-events:none;animation:popUp 0.6s ease-out forwards;z-index:15}
-        .crit-popup{position:absolute;font-size:24px;font-weight:900;color:#ff8800;pointer-events:none;animation:popUp 0.8s ease-out forwards;z-index:16}
-        .supercrit-popup{position:absolute;font-size:32px;font-weight:900;color:#ff0000;pointer-events:none;animation:popUp 1s ease-out forwards;z-index:17;text-shadow:0 0 20px rgba(255,0,0,0.8)}
-        .megacrit-popup{position:absolute;font-size:40px;font-weight:900;color:#ffff00;pointer-events:none;animation:popUp 1.2s ease-out forwards;z-index:18;text-shadow:0 0 30px rgba(255,255,0,1)}
-        @keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-35px)}}
-        .gold-popup{position:absolute;font-size:12px;font-weight:900;color:#ffd700;pointer-events:none;animation:popUp 1s ease-out forwards;z-index:14}
-        .combo-display{position:absolute;top:10px;right:10px;font-size:12px;font-weight:900;color:#ff8800;display:none;text-shadow:0 0 8px rgba(255,136,0,0.6);z-index:10}
-        .combo-display.active{display:block;animation:comboPulse 0.2s ease-out}@keyframes comboPulse{0%{transform:scale(1.4)}100%{transform:scale(1)}}
-        .crit-series-display{position:absolute;top:30px;right:10px;font-size:12px;font-weight:900;color:#ff4444;display:none;text-shadow:0 0 10px rgba(255,0,0,0.7);z-index:10}
-        .crit-series-display.active{display:block}
-        .rage-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,0,0,0.2);z-index:8;pointer-events:none;display:none;animation:ragePulse 0.5s ease-in-out infinite}
-        .rage-overlay.active{display:block}@keyframes ragePulse{0%,100%{background:rgba(255,0,0,0.15)}50%{background:rgba(255,0,0,0.35)}}
-        .bottom-bar{display:flex;gap:3px;padding:3px 0}
-        .btn{flex:1;padding:10px 2px;border:none;border-radius:10px;font-size:7px;font-weight:700;cursor:pointer;color:#fff;transition:all 0.2s;text-transform:uppercase;background:rgba(30,20,50,0.8);border:1px solid rgba(255,255,255,0.1)}
-        .btn:active{transform:scale(0.93)}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(#0a0a1a, #1a0a2e, #0d0d2b);
+            color: #b8a9d0;
+            overflow: hidden;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+        }
+
+        .button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 12px;
+            color: #ffd700;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 25px #ffd700;
+        }
+
+        .hp-bar {
+            width: 100%;
+            background: linear-gradient(to right, red, green);
+            border-radius: 10px;
+            height: 20px;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(255, 0, 0, 1); }
+            100% { box-shadow: 0 0 15px rgba(255, 0, 0, 1); }
+        }
+
+        .combo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <h1>Dungeon Tap</h1>
+        <button class="button" onclick="startGame()">Начать игру</button>
+    </div>
+
+    <div class="panel">
+        <div class="hp-bar" id="hpBar"></div>
+        <div class="combo" id="comboDisplay">Комбо: x1.0</div>
+        <button class="button" id="prestigeButton" onclick="prestige()">Престиж</button>
+        <button class="button" id="rageButton" onclick="activateRage()">Rage Mode</button>
+    </div>
+
+    <canvas id="particleCanvas"></canvas>
+    
+    <script>
+        // Основные переменные
+        let hp = 100;
+        let combo = 1.0;
+        const maxCombo = 1.1;
+
+        // Начинаем игру
+        function startGame() {
+            // Логика запуска игры здесь
+            console.log("Игра начата");
+        }
+
+        // Престиж
+        function prestige() {
+            // Логика для престижа
+            console.log("Престиж активирован");
+        }
+
+        // Активируем Rage Mode
+        function activateRage() {
+            if (hp < 20) {
+                // Логика для Rage Mode
+                console.log("Rage Mode активирован");
+            }
+        }
+
+        // Инициализация канваса для частиц
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Настройка размеров канваса
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Визуализация частиц (простейший пример)
+        function createParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                ctx.fillStyle = 'orange';
+                ctx.beginPath();
+                ctx.arc(x, y, Math.random() * 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // События клика для генерации частиц
+        canvas.addEventListener('click', (event) => {
+            createParticles(event.clientX, event.clientY);
+        });
+
+        // Динамическое обновление HP бара
+        function updateHP() {
+            const hpBar = document.getElementById('hpBar');
+            hpBar.style.width = hp + '%';
+        }
+
+        // Первоначальное обновление
+        updateHP();
+    </script>
+</body>
+</html>        .btn:active{transform:scale(0.93)}
         .btn-boss{background:rgba(255,0,0,0.3);border-color:rgba(255,0,0,0.5);display:none}
         .btn-boss.available{display:block;animation:pulse 0.8s ease-in-out infinite}
         .btn-prestige{background:rgba(170,68,255,0.3);border-color:rgba(170,68,255,0.5);display:none}
